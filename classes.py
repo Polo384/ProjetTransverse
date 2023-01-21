@@ -4,17 +4,16 @@ from comet_event import *
 import animation
 
 #Créer classe du joueur
-class Player(pygame.sprite.Sprite):
+class Player(animation.AnimateSprite):
 
     def __init__(self, game):
-        super().__init__()
+        super().__init__('player')
         self.game = game
         self.health = 100
         self.max_health = 100
         self.attack = 20
         self.velocity = 2
         self.all_projectiles = pygame.sprite.Group()
-        self.image = pygame.image.load('PygameAssets-main/player.png')
         self.rect = self.image.get_rect()
         self.rect.x = 400
         self.rect.y = 500
@@ -25,6 +24,9 @@ class Player(pygame.sprite.Sprite):
         else:
             #Si le joueur a 0 pv
             self.game.game_over()
+
+    def update_animation(self):
+        self.animate()
     
     def update_health_bar(self, surface):
         #dessiner barre de vie
@@ -34,6 +36,8 @@ class Player(pygame.sprite.Sprite):
     def launch_projectile(self):
         #Créer instance de classe projectile
         self.all_projectiles.add(Projectile(self))
+        #démarrer anim
+        self.start_animation()
 
     def move_right(self):
         #si le joueur ne rentre pas en collision avec un monstre
@@ -89,6 +93,9 @@ class Game:
         #Actualiser barre de vie joueur
         self.player.update_health_bar(screen)
 
+        #Actualiser l'animation du joueur
+        self.player.update_animation()
+
         #Actualiser barre d'event
         self.comet_event.update_bar(screen)
 
@@ -100,6 +107,7 @@ class Game:
         for monster in self.all_monsters:
             monster.forward()
             monster.update_health_bar(screen)
+            monster.update_animation()
         
         #Récupérer les comètes du jeu
         for comet in self.comet_event.all_comets:
@@ -174,6 +182,7 @@ class Monster(animation.AnimateSprite):
         self.rect = self.image.get_rect()
         self.rect.x = 1000 + random.randint(0, 300)
         self.rect.y = 540
+        self.start_animation()
 
     def dammage(self, amount):
         #infliger dégats
@@ -193,6 +202,9 @@ class Monster(animation.AnimateSprite):
                 
                 #Essayer de déclencher pluie
                 self.game.comet_event.attempt_fall()
+
+    def update_animation(self):
+        self.animate(loop = True)
 
     def update_health_bar(self, surface):
         #dessiner barre de vie
