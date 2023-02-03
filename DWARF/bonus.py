@@ -1,6 +1,7 @@
 import pygame, math, random, sys
 from functions import *
 from settings import coeff
+
 class Bonus(pygame.sprite.Sprite):
     def __init__(self, choice):
         super().__init__()
@@ -10,7 +11,7 @@ class Bonus(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.variable = 0
         self.apparition()
-
+        
     def apparition(self):
         coordonnees = random.random() #nombre random entre 0 et 1
         #En fonction du nombre qu'on a eu, on fait spawn à trois endroits différents
@@ -37,10 +38,11 @@ class Bonus(pygame.sprite.Sprite):
     def effect(self, player):
         if self.choice == 'speed':
             player.speed *= 2
+            player.effect_duration = 20
         if self.choice == 'attack':
-            pass
+            player.effect_duration = 10
         if self.choice == 'health':
-            pass
-           
+            player.effect_duration = 25
+
     def update(self):
         self.levitate()

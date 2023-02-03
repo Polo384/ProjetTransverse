@@ -30,6 +30,7 @@ halo_data = [[11,8],[10,21]]
 
 gladiator_dico_v1 = {
     'Gladiator/Gladiator_Spritesheet.png' : [[5],[5,8,7,3,7]]}
+
 gladiator_data = [[11,7],[10,24]]
 
 demon_dico_v1 = {

@@ -24,20 +24,29 @@ class Player():
         self.direction= pygame.math.Vector2(0,0)
         self.speed = 4
         self.gravity = 1
-        self.jump_speed = -21
+        self.jump_speed = -19
+        self.effect_timer = 0
+        self.effect_duration = -1
+        self.effect_ongoing = False
+        self.one_more_jump = True
 
     def get_input(self):
         keys = pygame.key.get_pressed()
 
-        if keys[self.move_keys['right']]:
+        if keys[self.move_keys['right']] and keys[self.move_keys['left']]:
+            self.direction.x = 0
+        elif keys[self.move_keys['right']]:
             self.direction.x = 1
         elif keys[self.move_keys['left']]:
             self.direction.x = -1
         else:
             self.direction.x = 0
         
-        if keys[self.move_keys['jump']] and self.jump_check and not self.jump_pressed:
-            self.jump()
+        if keys[self.move_keys['jump']] and not self.jump_pressed:
+            if self.jump_check :
+                self.jump()
+            elif self.wall_collision:
+                self.wall_jump()
         if not keys[self.move_keys['jump']]:
             self.jump_pressed = False
             
@@ -49,6 +58,19 @@ class Player():
         self.direction.y = self.jump_speed
         self.jump_check, self.jump_pressed = False, True
 
+    def wall_jump(self):
+        self.direction.y = self.jump_speed
+        self.wall_collision = False
+        #print(f'self.jump_check: {self.jump_check}, self.jump_pressed: {self.wall_jump}, self.wall_collision: {self.wall_collision}')
+
+    def clear_effects(self):
+        if self.effect_ongoing:
+            self.effect_timer += 0.1
+            if int(self.effect_timer) == self.effect_duration:
+                self.speed = 4
+                self.effect_timer = 0
+                self.effect_ongoing = False
+    
     def update(self,screen):
         self.get_input()
         screen.blit(self.image, (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))

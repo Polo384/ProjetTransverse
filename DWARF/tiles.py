@@ -1,6 +1,6 @@
 import pygame
 from settings import coeff, tile_size
-from functions import scale, get_mask
+from functions import scale
 
 
 class Tile(pygame.sprite.Sprite):
@@ -11,10 +11,6 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x*tile_size*coeff - tile_size*coeff
         self.rect.y = y*tile_size*coeff - tile_size*coeff
-
-    
-    def update(self, x_shift):
-        self.rect.x += x_shift
 
 
 class Tile_special(pygame.sprite.Sprite):

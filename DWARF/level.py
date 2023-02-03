@@ -3,12 +3,10 @@ from tiles import Tile, Tile_special
 from settings import player1_pos, player2_pos
 from functions import *
 from player import Player
-from Heroes_Dico import heroes_dico
 from bonus import Bonus
 
 class Level:
     def __init__(self, level_data, surface, player1_hero, player2_hero):
-
         # level setup
         self.display_surface = surface
         self.setup_level(level_data)
@@ -147,7 +145,7 @@ class Level:
                         self.collide_tiles.add(tile)
 
                     elif if_matrix(level_data, i, j,3,0,0,1):
-                        tile = Tile(x,y,'Purple_Rock_Round_Top_Top/R2.png')
+                        tile = Tile(x,y,'Purple_Rock_Round_Top_Top/R.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
@@ -167,11 +165,13 @@ class Level:
 
                     elif (level_data[i][j+1] == 2 or level_data[i][j+1] == 1) and level_data[i][j-1] == 0 and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0:
                         tile = Tile(x,y,'Bridge/L.png')
+                        tile.rect.height -= 1*coeff
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
                     elif level_data[i][j+1] == 0 and (level_data[i][j-1] == 2 or level_data[i][j-1] == 1) and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0:
                         tile = Tile(x,y,'Bridge/R.png')
+                        tile.rect.height -= 1*coeff
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
@@ -212,20 +212,25 @@ class Level:
             for sprite in self.collide_tiles.sprites():
                 if sprite.rect.colliderect(player.rect):
                     if player.direction.x < 0:
+                        if player.wall_jump_left:
+                            player.wall_collision = True
+                            player.wall_jump_left, player.wall_jump_right = False, True
                         player.rect.left = sprite.rect.right
                     elif player.direction.x > 0:
+                        if player.wall_jump_right:
+                            player.wall_collision = True
+                            player.wall_jump_left, player.wall_jump_right = True, False
                         player.rect.right = sprite.rect.left
 
     def vertical_movement_collision(self):
         for player in self.players_list:
             player.apply_gravity()
-
             for sprite in self.collide_tiles.sprites():
                 if sprite.rect.colliderect(player.rect):
                     if player.direction.y > 0:
+                        player.jump_check, player.wall_collision, player.wall_jump_left, player.wall_jump_right = True, False, True, True
                         player.rect.bottom = sprite.rect.top
                         player.direction.y = 0
-                        player.jump_check = True
                     elif player.direction.y < 0:
                         player.direction.y = 0
                         player.rect.top = sprite.rect.bottom
@@ -240,15 +245,18 @@ class Level:
             self.current_bonus.effect(player)
             self.bonus_group.remove(self.current_bonus)
             self.timer = 0
+            player.effect_ongoing = True
+        
     
     def run(self):
         # level tiles
         self.tiles.draw(self.display_surface)
-
+        
         # player
         self.horizontal_movement_collision()
         self.vertical_movement_collision()
         for player in self.players_list:
+            print(player.direction.y)
             player.update(self.display_surface)
         
         # bonus
@@ -265,4 +273,7 @@ class Level:
             self.current_bonus.update()
             for player in self.players_list:
                 self.bonus_collision(player)
-
+                
+        for player in self.players_list:
+            player.clear_effects()
+                
