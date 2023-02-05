@@ -14,18 +14,13 @@ pygame.display.set_icon(icon)
 
 all_animations = store_animations([santa_dico_v1, minotaur_dico_v1,dwarf_dico_v1, indiana_jones_dico_v1, adventurer_dico_v1, bat_dico_v1, halo_dico_v1,gladiator_dico_v1, demon_dico_v1, cyclop_dico_v1],[hobbit_dico_v2],[skeleton_dico_v3])
 
-player1_hero_image = all_animations[heroes_dico['santa'][0]]
-player1_hero_data = heroes_dico['santa'][1]
-player1_hero = [player1_hero_image, player1_hero_data]
+player1_hero_choice = 'santa'
+player2_hero_choice = 'indiana_jones'
 
-player2_hero_image = all_animations[heroes_dico['indiana_jones'][0]]
-player2_hero_data = heroes_dico['indiana_jones'][1]
-player2_hero = [player2_hero_image,player2_hero_data]
-
+player1_hero = [  all_animations[heroes_dico[player1_hero_choice][0]]  ,  heroes_dico[player1_hero_choice][1]  ,  heroes_dico[player1_hero_choice][2]  ]
+player2_hero = [  all_animations[heroes_dico[player2_hero_choice][0]]  ,  heroes_dico[player2_hero_choice][1]  ,  heroes_dico[player2_hero_choice][2]  ]
 
 level = Level(level_map, screen, player1_hero, player2_hero)
-
-
 # Game loop
 while True:
     for event in pygame.event.get():

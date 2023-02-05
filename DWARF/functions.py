@@ -40,6 +40,24 @@ def area_collision(mask1, mask2, pos1, pos2):
 
 # ================== ANIMATIONS ==================
 
+def store_spritesheets_v1_one(dico : dict):
+    global coeff
+    spritesheet_animation = []
+    for key, value in dico.items():
+        animation = []
+        spritesheet = pygame.image.load('DWARF/Heroes/'+key).convert_alpha()
+        spritesheet = scale(spritesheet,'mult',coeff)
+
+        # Découper le spritesheet en frames
+        frame_height = spritesheet.get_height() // value[0][0]
+        frame_width = spritesheet.get_width() // max(value[1])
+        for x in range(value[0][0]):
+            animation = []
+            for i in range(value[1][x]):
+                animation.append(spritesheet.subsurface((i*frame_width, x*frame_height, frame_width, frame_height)))
+            spritesheet_animation.append(animation)
+    return spritesheet_animation
+
 def store_spritesheets_v1(dico_list : list):
     global coeff
     all_animations = []

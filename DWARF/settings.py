@@ -20,7 +20,7 @@ tile_size = 17
 screen_width = 1920
 screen_height = 1080
 FPS = 60
-coeff = 4
+coeff = 5
 
 player1_pos = (tile_size*coeff* 3 -tile_size*coeff , tile_size*coeff*3-tile_size*coeff)
 player2_pos = (tile_size*coeff*18-tile_size*coeff , tile_size*coeff*11-tile_size*coeff)
