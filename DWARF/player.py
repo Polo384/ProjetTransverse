@@ -22,7 +22,7 @@ class Player():
         # Player display
         self.rect = pygame.Rect(pos[0], pos[1], self.player_hitbox[0]*coeff , self.player_hitbox[1]*coeff) 
         self.pos = pos
-        self.jump_check, self.jump_pressed = True, False # to jump only on ground and only once per pression
+        self.player_on_ground, self.jump_pressed = True, False # to jump only on ground and only once per pression
         if choice == 1:
             self.move_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'sprint': pygame.K_LSHIFT}
             self.flip = False
@@ -42,7 +42,8 @@ class Player():
         self.one_more_jump = True
         self.down_movement, self.down_pressed, self.down_movement_allowed = False, False, False
         self.down_movement_timer = 0
-        self.down_movement_timer_max = self.player_hitbox[1]*0.1
+        self.down_movement_timer_max = self.player_hitbox[1]*0.07
+        self.slide_allowed = False
 
     def animate(self):
         if self.frame_index == 0 or self.animation_state != self.animation_state_save:
@@ -67,17 +68,20 @@ class Player():
             self.direction.x = 0
         
         if keys[self.move_keys['jump']] and not self.jump_pressed:
-            if self.jump_check :
+            if self.player_on_ground :
                 self.jump()
             elif self.wall_collision:
                 self.wall_jump()
         if not keys[self.move_keys['jump']]:
             self.jump_pressed = False
         
-        if keys[self.move_keys['down']] and not self.down_pressed and self.down_movement_allowed:
-            self.down_movement_timer = self.down_movement_timer_max
-            self.down_pressed = True
+        if keys[self.move_keys['down']]:
+            self.gravity = 1.5
+            if not self.down_pressed and self.down_movement_allowed:
+                self.down_movement_timer = self.down_movement_timer_max
+                self.down_pressed = True
         if not keys[self.move_keys['down']]:
+            self.gravity = 1
             self.down_pressed = False
     
     def get_animation_state(self):            
@@ -100,11 +104,15 @@ class Player():
 
     def jump(self):
         self.direction.y = self.jump_speed
-        self.jump_check, self.jump_pressed = False, True
+        self.player_on_ground, self.jump_pressed = False, True
 
     def wall_jump(self):
         self.direction.y = self.jump_speed
         self.wall_collision = False
+
+    def wall_slide(self):
+        if self.direction.y > 0 and not(self.player_on_ground) and self.direction.x != 0 and self.slide_allowed:
+            self.direction.y = 1
 
     def check_down_movement(self):
         self.down_movement_timer -= 0.1
@@ -127,6 +135,7 @@ class Player():
     
     def update(self,screen):
         self.get_input()
+        self.wall_slide()
         self.check_down_movement()
         self.get_animation_state()
         self.animate()

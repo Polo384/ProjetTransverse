@@ -218,7 +218,7 @@ class Level:
 
     def horizontal_movement_collision(self):
         for player in self.players_list:
-            check_semi_collide = True
+            check_semi_collide, player.slide_allowed = True, False
             player.rect.x += player.direction.x * player.speed
 
             for sprite in self.collide_tiles.sprites():
@@ -229,11 +229,13 @@ class Level:
                             player.wall_collision = True
                             player.wall_jump_left, player.wall_jump_right = False, True
                         player.rect.left = sprite.rect.right
+                        player.slide_allowed = True
                     elif player.direction.x > 0:
                         if player.wall_jump_right:
                             player.wall_collision = True
                             player.wall_jump_left, player.wall_jump_right = True, False
                         player.rect.right = sprite.rect.left
+                        player.slide_allowed = True
             
             if check_semi_collide:
                 for sprite in self.semi_collide_tiles.sprites():
@@ -258,7 +260,7 @@ class Level:
                 if sprite.rect.colliderect(player.rect):
                     check_semi_collide = False
                     if player.direction.y > 0:
-                        player.jump_check, player.wall_collision, player.wall_jump_left, player.wall_jump_right = True, False, True, True
+                        player.player_on_ground, player.wall_collision, player.wall_jump_left, player.wall_jump_right = True, False, True, True
                         player.rect.bottom = sprite.rect.top
                         player.direction.y = 0
                     elif player.direction.y < 0:
@@ -271,7 +273,7 @@ class Level:
                         if player.direction.y > 0:
                             player.down_movement_allowed = True
                         if player.direction.y > 0 and not player.down_movement:
-                            player.jump_check, player.wall_collision, player.wall_jump_left, player.wall_jump_right = True, False, True, True
+                            player.player_on_ground, player.wall_collision, player.wall_jump_left, player.wall_jump_right = True, False, True, True
                             player.rect.bottom = sprite.rect.top
                             player.direction.y = 0
                         elif player.direction.y < 0 :
