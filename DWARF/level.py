@@ -4,7 +4,7 @@ from settings import player1_pos, player2_pos
 from functions import *
 from player import Player
 from bonus import Bonus
-
+from backgrounds import BG
 class Level:
     def __init__(self, level_data, surface, player1_hero, player2_hero):
         # level setup
@@ -13,6 +13,9 @@ class Level:
         self.players_list = [Player(1,player1_pos,player1_hero), Player(2,player2_pos,player2_hero)]
         self.bonus_group = pygame.sprite.GroupSingle()
         self.timer, self.timer_check = 0, True
+        background_choice = random.randint(1,2)
+        self.backgrounds_group = pygame.sprite.Group()
+        self.backgrounds_group.add(BG(background_choice,1),BG(background_choice,2),BG(background_choice,3))
 
     def setup_level(self, level_data):
         self.collide_tiles = pygame.sprite.Group()
@@ -280,6 +283,7 @@ class Level:
                             player.direction.y = 0
                             player.rect.top = sprite.rect.bottom
             
+            
     def spawn_bonus(self):
         bonus_choice = random.choice(['speed','attack','health'])
         self.current_bonus = Bonus(bonus_choice)
@@ -292,8 +296,11 @@ class Level:
             self.timer = 0 
             player.effect_ongoing = True
         
-    
     def run(self):
+        # background
+        self.backgrounds_group.update()
+        self.backgrounds_group.draw(self.display_surface)
+
         # level tiles
         self.tiles.draw(self.display_surface)
         # player
@@ -301,7 +308,7 @@ class Level:
         self.vertical_movement_collision()
         for player in self.players_list:
             player.update(self.display_surface)
-        
+
         # bonus
         if not self.bonus_group:
             self.timer += 0.1

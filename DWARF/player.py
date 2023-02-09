@@ -33,16 +33,16 @@ class Player():
         # player movement
         self.direction= pygame.math.Vector2(0,0)
         self.direction_save = pygame.math.Vector2(0,0)
-        self.speed = 4
-        self.gravity = 1
-        self.jump_speed = -19
+        self.speed = coeff
+        self.gravity = coeff/4
+        self.jump_speed = -4.75*coeff
         self.effect_timer = 0
         self.effect_duration = -1
         self.effect_ongoing = False
         self.one_more_jump = True
         self.down_movement, self.down_pressed, self.down_movement_allowed = False, False, False
         self.down_movement_timer = 0
-        self.down_movement_timer_max = self.player_hitbox[1]*0.07
+        self.down_movement_timer_max = self.player_hitbox[1]*0.09
         self.slide_allowed = False
 
     def animate(self):
@@ -76,12 +76,13 @@ class Player():
             self.jump_pressed = False
         
         if keys[self.move_keys['down']]:
-            self.gravity = 1.5
+            if not self.down_movement_allowed:
+                self.gravity = coeff/2
             if not self.down_pressed and self.down_movement_allowed:
                 self.down_movement_timer = self.down_movement_timer_max
                 self.down_pressed = True
         if not keys[self.move_keys['down']]:
-            self.gravity = 1
+            self.gravity = coeff/4
             self.down_pressed = False
     
     def get_animation_state(self):            
@@ -129,7 +130,7 @@ class Player():
         if self.effect_ongoing:
             self.effect_timer += 0.1
             if int(self.effect_timer) == self.effect_duration:
-                self.speed = 4
+                self.speed = coeff
                 self.effect_timer = 0
                 self.effect_ongoing = False
     
@@ -140,6 +141,7 @@ class Player():
         self.get_animation_state()
         self.animate()
         self.check_animation_change()
+        #screen.blit(pygame.Surface((self.rect.width,self.rect.height)),self.rect)
 
         if self.flip:
             screen.blit(self.image, (self.rect.x-(self.player_offset[0]*coeff) - self.flip_offset, self.rect.y-(self.player_offset[1]*coeff)))

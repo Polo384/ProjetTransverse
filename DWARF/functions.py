@@ -11,7 +11,7 @@ def scale(img, choice, multiplier):
     else:
         print(f'{choice} is an invalid choice, choose "up" or "down".')
     return img
-
+    
 
 # To get a custom mask from an image
 def get_mask(img):
@@ -28,15 +28,6 @@ def detect_collision(mask1, mask2, pos1, pos2):
     else:
         return False
 
-def area_collision(mask1, mask2, pos1, pos2):
-    offset_x = pos2[0] - pos1[0]
-    offset_y = pos2[1] - pos1[1]
-    overlap = mask1.overlap(mask2, (offset_x, offset_y))
-    if overlap:
-        rect = pygame.Rect(overlap[0], overlap[1], overlap[2]-overlap[0], overlap[3]-overlap[1])
-        return rect.height
-    else:
-        return 0
 
 # ================== ANIMATIONS ==================
 
@@ -117,11 +108,9 @@ def store_spritesheets_v3(dico_list : list):
 
     
 # Final function for animations
-def store_animations(spritesheets_list_v1,spritesheets_list_v2, spritesheets_list_v3):
-    v1, v2, v3 = store_spritesheets_v1(spritesheets_list_v1), store_spritesheets_v2(spritesheets_list_v2), store_spritesheets_v3(spritesheets_list_v3)
+def store_animations(spritesheets_list_v1,spritesheets_list_v2):
+    v1, v2 = store_spritesheets_v1(spritesheets_list_v1), store_spritesheets_v2(spritesheets_list_v2)
     for i in v2:
-        v1.append(i)
-    for i in v3:
         v1.append(i)
     all_animations = v1
     return all_animations

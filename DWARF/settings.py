@@ -17,10 +17,10 @@ level_map =  [[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
 #  3  = frame  /  1 = rock  /  2 = bridge  /  4 = grass  /  5 = rock
 
 tile_size = 17
-screen_width = 1920
-screen_height = 1080
+coeff = 2
+screen_width = 480*coeff
+screen_height = 270*coeff
 FPS = 60
-coeff = 4
 
 player1_pos = (tile_size*coeff* 3 -tile_size*coeff , tile_size*coeff*3-tile_size*coeff)
 player2_pos = (tile_size*coeff*18-tile_size*coeff , tile_size*coeff*11-tile_size*coeff)

@@ -123,7 +123,7 @@ hobbit_indexs = {
     'Hit' : [3],
     'Death' : [2],}
 
-
+'''''
 # skeleton buggué
 skeleton_dico_v3 = {
     'Skeleton/Skeleton_Hit.png':8,
@@ -132,14 +132,13 @@ skeleton_dico_v3 = {
     'Skeleton/Skeleton_Dead.png':15,
     'Skeleton/Skeleton_Attack.png':18,
     'Skeleton/Skeleton_React.png':4}
-skeleton_data = ([10,13],[12,25],6)
+skeleton_data = ([10,13],[12,25],0)
 skeleton_indexs = {
     'Idle' : [1,1,1,5],
     'Walk' : [2],
     'Attack' : [4],
     'Hit' : [0],
-    'Death' : [3],}
-
+    'Death' : [3],}'''
 
 
 heroes_dico = {
@@ -153,5 +152,4 @@ heroes_dico = {
     'gladiator' : [7,gladiator_data,gladiator_indexs],
     'demon' : [8,demon_data, demon_indexs],
     'cyclop' : [9,cyclop_data, cyclop_indexs],
-    'hobbit' : [10,hobbit_data,hobbit_indexs],
-    'skeleton' : [11,skeleton_data,skeleton_indexs]}
+    'hobbit' : [10,hobbit_data,hobbit_indexs],}
