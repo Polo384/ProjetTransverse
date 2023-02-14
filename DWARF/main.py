@@ -8,6 +8,7 @@ ctypes.windll.user32.SetProcessDPIAware()
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED)
+pygame.event.set_grab(True)
 clock = pygame.time.Clock()
 icon = pygame.image.load('DWARF/icon/icon.png')
 pygame.display.set_icon(icon)
@@ -20,7 +21,7 @@ def display_fps():
 
 all_animations = store_animations([santa_dico_v1, minotaur_dico_v1, dwarf_dico_v1, indiana_jones_dico_v1, adventurer_dico_v1, bat_dico_v1, halo_dico_v1, gladiator_dico_v1, demon_dico_v1, cyclop_dico_v1], [hobbit_dico_v2])
 
-player1_hero_choice = 'adventurer'    
+player1_hero_choice = 'minotaur'    
 player2_hero_choice = 'dwarf'
 
 player1_hero = [all_animations[heroes_dico[player1_hero_choice][0]], heroes_dico[player1_hero_choice][1], heroes_dico[player1_hero_choice][2]]

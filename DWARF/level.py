@@ -222,7 +222,7 @@ class Level:
     def horizontal_movement_collision(self):
         for player in self.players_list:
             check_semi_collide, player.slide_allowed = True, False
-            player.rect.x += player.direction.x * player.speed
+            player.rect.x += player.direction.x * player.speed * player.speed_boost
 
             for sprite in self.collide_tiles.sprites():
                 if sprite.rect.colliderect(player.rect):
@@ -313,7 +313,7 @@ class Level:
         if not self.bonus_group:
             self.timer += 0.1
             if self.timer_check:
-                self.timer_stop = random.randint(70,180)
+                self.timer_stop = random.randint(10,20)
                 self.timer_check = False
             if int(self.timer) == self.timer_stop:
                 self.spawn_bonus()
@@ -324,6 +324,7 @@ class Level:
             for player in self.players_list:
                 self.bonus_collision(player)
                 
+
         for player in self.players_list:
             player.clear_effects()
                 
