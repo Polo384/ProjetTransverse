@@ -6,7 +6,10 @@ class BG(pygame.sprite.Sprite):
     def __init__(self, choice, number):
         super().__init__()
         self.number = number
-        bg_image = pygame.image.load(f'DWARF/Backgrounds/Sky{choice}/{number}.png').convert_alpha()
+        if choice == 1 or choice == 2:
+            bg_image = pygame.image.load(f'DWARF/Backgrounds/Sky{choice}/{number}.png').convert_alpha()
+        else:
+            bg_image = pygame.image.load(f'DWARF/Backgrounds/Menu_BG/{number}.png').convert_alpha()
         bg_image = scale(bg_image, 'mult', coeff)
 
         self.image = pygame.Surface((bg_image.get_width()*2, bg_image.get_height()), flags=pygame.SRCALPHA)
