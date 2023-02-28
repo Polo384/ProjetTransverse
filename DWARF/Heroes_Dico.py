@@ -1,21 +1,21 @@
-#data = [(offset_x,offset_y),(hitbox_w,hitbox_h), flip_offset]
+#data = [(offset_x,offset_y),(hitbox_w,hitbox_h), flip_offset, attack_width]
 
 santa_dico_v1 = {
-    'Santa/Santa_SpriteSheet.png' : [[22], [5,8,5,5,6,9,8,6,5,4,7,1,1,1,1,1,1,1,1,1,1,1]]}
-santa_data = ([3,35],[19,29], 71)
+    'Santa/Santa_SpriteSheet.png' : [[22], [5,8,4,4,6,8,6,6,5,4,7,1,1,1,1,1,1,1,1,1,1,9]]}
+santa_data = ([3,35],[19,29], 71, 17)
 santa_indexs = {
     'Idle' : [0],
     'Walk' : [1],
-    'Attack' : [2,2],
+    'Attack' : [2,2,3,3,5,6],
     'Hit' : [9],
     'Death' : [10]}
 
 
 minotaur_dico_v1 = {
-    'Minotaur/Minotaur_Spritesheet.png' : [[10],[5,8,5,9,5,6,9,3,3,6]]}
-minotaur_data = ([32,24],[30,34],1)
+    'Minotaur/Minotaur_Spritesheet.png' : [[10],[5,8,5,9,5,6,6,3,3,6]]}
+minotaur_data = ([32,24],[30,34],1, 27)
 minotaur_indexs = {
-    'Idle' : [0,0,0,2,2,5],
+    'Idle' : [0,0,0,2],
     'Walk' : [1],
     'Attack' : [3,4,6],
     'Hit' : [8],
@@ -24,7 +24,7 @@ minotaur_indexs = {
 
 dwarf_dico_v1 = {
     'Dwarf/Dwarf_SpriteSheet.png' : [[8],[5,8,7,6,2,5,4,7]]}
-dwarf_data = ([26,10],[11,19],1)
+dwarf_data = ([26,10],[11,19],1,14)
 dwarf_indexs = {
     'Idle' : [0],
     'Walk' : [1],
@@ -36,18 +36,18 @@ dwarf_indexs = {
 
 indiana_jones_dico_v1 = {
     'Indiana_Jones/Indiana_Jones_SpriteSheet.png' : [[7],[8,8,7,6,8,4,5]]}
-indiana_jones_data = ([26,10],[11,22],1)
+indiana_jones_data = ([26,10],[11,22],1, 28)
 indiana_jones_indexs = {
     'Idle' : [0],
     'Walk' : [1],
-    'Attack' : [3,3,4,4,5],
-    'Hit' : [5],
+    'Attack' : [4,4,5],
+    'Hit' : [2],
     'Death' : [6]}
 
 
 adventurer_dico_v1 = {
     'Adventurer/Adventurer_Spritesheet.png' : [[7],[6,8,9,4,7,9,6]]}
-adventurer_data = ([7,11],[12,20], 6)
+adventurer_data = ([7,11],[12,20], 6, 13)
 adventurer_indexs = {
     'Idle' : [0],
     'Walk' : [1],
@@ -58,7 +58,7 @@ adventurer_indexs = {
 
 bat_dico_v1 = {
     'Bat/Bat_SpriteSheet.png' : [[3],[5,5,5]]}
-bat_data = ([5,5],[6,6], 0)
+bat_data = ([5,5],[6,6], 0, 0)
 bat_indexs = {
     'Idle' : [0],
     'Walk' : [0],
@@ -69,7 +69,7 @@ bat_indexs = {
 
 halo_dico_v1 = {
     'Halo/Halo_Sprite_Sheet.png' : [[5],[4,8,5,3,8]]}
-halo_data = ([11,8],[10,21],0)
+halo_data = ([11,8],[10,21],0, 35)
 halo_indexs = {
     'Idle' : [0],
     'Walk' : [1],
@@ -80,7 +80,7 @@ halo_indexs = {
 
 gladiator_dico_v1 = {
     'Gladiator/Gladiator_Spritesheet.png' : [[5],[5,8,7,3,7]]}
-gladiator_data = ([11,7],[10,24],0)
+gladiator_data = ([11,7],[10,24],0, 13)
 gladiator_indexs = {
     'Idle' : [0],
     'Walk' : [1],
@@ -91,7 +91,7 @@ gladiator_indexs = {
 
 demon_dico_v1 = {
     'Demon/demon_spritesheet.png' : [[4], [6,6,4,8]]}
-demon_data = ([25,20],[27,32],-13)
+demon_data = ([25,20],[27,32],-13, 5)
 demon_indexs = {
     'Idle' : [0],
     'Walk' : [0],
@@ -101,8 +101,8 @@ demon_indexs = {
 
 
 cyclop_dico_v1 = {
-    'Cyclop/Cyclop_Spritesheet.png' : [[10],[15,12,7,13,3,5,9,8,6,8]]}
-cyclop_data = ([22,20],[18,34],2)
+    'Cyclop/Cyclop_Spritesheet.png' : [[10],[15,12,5,8,3,5,9,8,6,8]]}
+cyclop_data = ([22,20],[18,34],2, 20)
 cyclop_indexs = {
     'Idle' : [0,0,0,0,7],
     'Walk' : [1],
@@ -114,8 +114,8 @@ cyclop_indexs = {
 
 
 hobbit_dico_v2 = {
-    'Hobbit/' : [[8], [17,13,12,4,4,10,10,8]]}
-hobbit_data = ([26,22],[12,17],0)
+    'Hobbit/' : [[8], [7,13,12,4,4,10,10,8]]}
+hobbit_data = ([26,22],[12,17],0, 20)
 hobbit_indexs = {
     'Idle' : [4],
     'Walk' : [6],

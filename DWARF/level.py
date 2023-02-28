@@ -60,7 +60,7 @@ class Level:
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
-                    elif level_data[i][j+1] != 1 and level_data[i][j-1] == 1 and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 1:
+                    elif level_data[i][j+1] != 1 and level_data[i][j-1] == 1 and level_data[i-1][j] in (0,5,3,4) and level_data[i+1][j] == 1:
                         if level_data[i][j+1] == 2:
                             tile = Tile(x,y,'Yellow_Rock_Block/UM.png')
                             self.tiles.add(tile)
@@ -73,7 +73,7 @@ class Level:
                             self.tiles.add(tile)
                             self.collide_tiles.add(tile)
 
-                    elif level_data[i][j+1] == 1 and level_data[i][j-1] != 1 and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 1:
+                    elif level_data[i][j+1] == 1 and level_data[i][j-1] != 1 and level_data[i-1][j] in (0,5,3,4) and level_data[i+1][j] == 1:
                         if level_data[i][j-1] == 2:
                             tile = Tile(x,y,'Yellow_Rock_Block/UM.png')
                             self.tiles.add(tile)
@@ -221,34 +221,34 @@ class Level:
 
     def horizontal_movement_collision(self):
         for player in self.players_list:
-            check_semi_collide, player.slide_allowed = True, False
+            check_semi_collide, player.slide_allowed, player.detect_wall_collision = True, False, False
             player.rect.x += player.direction.x * player.speed * player.speed_boost
 
             for sprite in self.collide_tiles.sprites():
                 if sprite.rect.colliderect(player.rect):
                     check_semi_collide = False
-                    if player.direction.x < 0:
+                    if player.direction.x < 0 or (player.push > 0 and player.opponent_flip) :
                         if player.wall_jump_left:
                             player.wall_collision = True
                             player.wall_jump_left, player.wall_jump_right = False, True
                         player.rect.left = sprite.rect.right
-                        player.slide_allowed = True
-                    elif player.direction.x > 0:
+                        player.slide_allowed, player.detect_wall_collision = True, True
+                    elif player.direction.x > 0 or (player.push > 0 and not player.opponent_flip):
                         if player.wall_jump_right:
                             player.wall_collision = True
                             player.wall_jump_left, player.wall_jump_right = True, False
                         player.rect.right = sprite.rect.left
-                        player.slide_allowed = True
+                        player.slide_allowed, player.detect_wall_collision = True, True
             
             if check_semi_collide:
                 for sprite in self.semi_collide_tiles.sprites():
                     if sprite.rect.colliderect(player.rect):
-                        if player.direction.x < 0 and not player.down_movement:
+                        if player.direction.x < 0 and not player.down_movement or (player.push > 0 and player.opponent_flip):
                             if player.wall_jump_left:
                                 player.wall_collision = True
                                 player.wall_jump_left, player.wall_jump_right = False, True
                             player.rect.left = sprite.rect.right
-                        elif player.direction.x > 0 and not player.down_movement:
+                        elif player.direction.x > 0 and not player.down_movement or (player.push > 0 and not player.opponent_flip):
                             if player.wall_jump_right:
                                 player.wall_collision = True
                                 player.wall_jump_left, player.wall_jump_right = True, False
@@ -281,8 +281,7 @@ class Level:
                             player.direction.y = 0
                         elif player.direction.y < 0 :
                             player.direction.y = 0
-                            player.rect.top = sprite.rect.bottom
-            
+                            player.rect.top = sprite.rect.bottom    
             
     def spawn_bonus(self):
         bonus_choice = random.choice(['speed','attack','health'])
@@ -296,20 +295,7 @@ class Level:
             self.timer = 0 
             player.effect_ongoing = True
         
-    def run(self):
-        # background
-        self.backgrounds_group.update()
-        self.backgrounds_group.draw(self.display_surface)
-
-        # level tiles
-        self.tiles.draw(self.display_surface)
-        # player
-        self.horizontal_movement_collision()
-        self.vertical_movement_collision()
-        for player in self.players_list:
-            player.update(self.display_surface)
-
-        # bonus
+    def bonus_update(self):
         if not self.bonus_group:
             self.timer += 0.1
             if self.timer_check:
@@ -323,8 +309,31 @@ class Level:
             self.current_bonus.update()
             for player in self.players_list:
                 self.bonus_collision(player)
-                
 
+    def fight(self):
+        player1 = self.players_list[0]
+        player2 = self.players_list[1]
+
+        if player1.rect.colliderect(player2.attack_rect) and not player1.temp_invincibility:
+            player1.damage(player2.attack, player2.flip)
+        if player2.rect.colliderect(player1.attack_rect) and not player2.temp_invincibility:
+            player2.damage(player1.attack, player1.flip)
+
+    def run(self):
+        # background
+        self.backgrounds_group.update()
+        self.backgrounds_group.draw(self.display_surface)
+
+        # level tiles
+        self.tiles.draw(self.display_surface)
+
+        # player
+        self.horizontal_movement_collision()
+        self.vertical_movement_collision()
+        self.fight()
         for player in self.players_list:
+            player.update(self.display_surface)
             player.clear_effects()
-                
+        
+        # bonus
+        self.bonus_update()

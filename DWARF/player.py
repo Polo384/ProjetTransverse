@@ -6,21 +6,28 @@ from random import choice
 from copy import deepcopy
 from functions import store_dust_animations
 
+# Didn't do a sprite class because rectangle doesn't correspond to the image (there are alpha pixels)
 class Player():
     def __init__(self, choice, pos, hero):
+        self.choice = choice
+    # Store heroe data
         self.animations_inventory = hero[0]
         self.data = hero[1]
         self.animations_dico = hero[2]
-        self.animation_state = 'Idle'
-        self.animation_state_save = 'Walk'
-
-        self.frame_index = 0
-        self.animation_speed = 0.15
+        self.hero_choice = hero[3]
         self.player_offset = self.data[0]
         self.player_hitbox = self.data[1]
         self.flip_offset = self.data[2]*coeff
+        
 
-        # Dust animation
+    # Initialize player animation
+        self.animation_state = 'Idle'
+        self.animation_state_save = 'Walk'
+        self.frame_index = 0
+        self.animation_speed = 0.15
+        self.special_animation = False
+
+    # Initialize dust animation
         self.dust_animations = store_dust_animations([[3], [6,5,5]])
         self.dust_animation_state = 'Run'
         self.dust_animation_state_save = 'Land'
@@ -29,88 +36,160 @@ class Player():
         self.dust_animation_running = False
         self.dust_image = self.dust_animations[0][0]
         self.jump_dust_coordonates = (0,0)
-        # Player display
+        self.dust_animation_allow = False
+
+
+    # Player display
         self.rect = pygame.Rect(pos[0], pos[1], self.player_hitbox[0]*coeff , self.player_hitbox[1]*coeff) 
         self.pos = pos
         self.player_on_ground, self.jump_pressed = True, False # to jump only on ground and only once per pression
+
+
+    # Player input
         if choice == 1:
-            self.move_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'sprint': pygame.K_LSHIFT}
+            self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f}
             self.flip = False
         elif choice == 2:
-            self.move_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'sprint': pygame.K_RCTRL}
+            self.input_keys = {'jump': pygame.K_o, 'down': pygame.K_l, 'left': pygame.K_k, 'right': pygame.K_m, 'attack': pygame.K_CARET}
             self.flip = True   
 
-        # player movement
+
+    # Player movement
+
+        # Default movement
         self.direction= pygame.math.Vector2(0,0)
         self.direction_save = pygame.math.Vector2(0,0)
         self.speed = coeff
         self.speed_boost = 1
         self.stamina = 10
-        self.sprinting, self.sprint_allowed, self.moving_pressed, self.sprint_release = False, False, False, False
-        self.sprint_timer, self.sprint_release_timer = 0, 0
         self.gravity = coeff/4
         self.jump_speed = -4.75*coeff
-        self.effect_timer = 0
-        self.effect_duration = -1
-        self.effect_ongoing = False
+
+        # Sprint
+        self.sprinting, self.sprint_allowed, self.moving_pressed, self.sprint_release = False, False, False, False
+        self.sprint_timer, self.sprint_release_timer = 0, 0
+
+        # Double jump (most of it in Level class)
         self.one_more_jump = True
+        self.slide_allowed = False
+
+        # Down movement (higher gravity / passing through plateforms)
         self.down_movement, self.down_pressed, self.down_movement_allowed = False, False, False
         self.down_movement_timer = 0
-        self.down_movement_timer_max = self.player_hitbox[1]*0.09
-        self.slide_allowed = False
+        # Change down_movement_timer_max because it depends on the size of the heroe. Taller heroe ==> higher down_movement_timer_max,
+        # but it can vary because the gravitry is not increasing linearly.
+        if self.hero_choice == 'minotaur' or self.hero_choice == 'cyclop':
+            self.down_movement_timer_max = self.player_hitbox[1]*0.07
+        elif self.hero_choice == 'santa':
+            self.down_movement_timer_max = self.player_hitbox[1]*0.08
+        elif self.hero_choice == 'demon' or self.hero_choice == 'bat':
+            self.down_movement_timer_max = 0
+        elif self.hero_choice == 'hobbit':
+            self.down_movement_timer_max = self.player_hitbox[1]*0.095
+        else:
+            self.down_movement_timer_max = self.player_hitbox[1]*0.09
+
+    # Player health
+        self.health = 100
+        self.temp_invincibility = False
+        
+    # Player attack
+        self.attack_rect_width, self.attack_rect_height = self.data[3]*coeff, self.player_hitbox[1]*coeff
+        self.attack_rect = pygame.Rect(-500,-100, self.attack_rect_width, self.attack_rect_height)
+        self.attack = 10
+        self.push = 0
+        self.opponent_flip = self.flip
+        self.attack_pressed = False
+        self.attack_timer = 0
+        self.attack_speed = self.player_hitbox[0]
+
+    # Effect
+        self.effect_timer = 0
+        self.effect_duration = -1
+        self.effect_ongoing = False  
 
     def animate(self):
         if self.frame_index == 0 or self.animation_state != self.animation_state_save:
             self.animation = self.animations_inventory[choice(self.animations_dico[self.animation_state])]
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.animation):
+            self.image = self.animation[len(self.animation)-1]
             self.frame_index = 0
-        self.image = self.animation[int(self.frame_index)]
+            self.special_animation = False
+        else:
+            self.image = self.animation[int(self.frame_index)]
         if self.flip :
             self.image = pygame.transform.flip(self.image, True, False)
 
     def get_input(self):
         self.keys = pygame.key.get_pressed()
 
-        if self.keys[self.move_keys['right']] and self.keys[self.move_keys['left']]:
+    # Move
+        if self.keys[self.input_keys['right']] and self.keys[self.input_keys['left']]:
             self.direction.x = 0
-        elif self.keys[self.move_keys['right']]:
+        elif self.keys[self.input_keys['right']]:
             self.direction.x = 1
-        elif self.keys[self.move_keys['left']]:
+        elif self.keys[self.input_keys['left']]:
             self.direction.x = -1
         else:
             self.direction.x = 0
-        
-        if self.keys[self.move_keys['jump']] and not self.jump_pressed:
+    
+    # Jump
+        if self.keys[self.input_keys['jump']] and not self.jump_pressed:
             if self.player_on_ground :
                 self.jump()
             elif self.wall_collision:
                 self.wall_jump()
-        if not self.keys[self.move_keys['jump']]:
+        if not self.keys[self.input_keys['jump']]:
             self.jump_pressed = False
         
-        if self.keys[self.move_keys['down']]:
+    # Fall
+        if self.keys[self.input_keys['down']]:
             if not self.down_movement_allowed:
                 self.gravity = coeff/2
+            else:
+                self.gravity = coeff/4
             if not self.down_pressed and self.down_movement_allowed:
                 self.down_movement_timer = self.down_movement_timer_max
                 self.down_pressed = True
-        if not self.keys[self.move_keys['down']]:
+        if not self.keys[self.input_keys['down']]:
             self.gravity = coeff/4
             self.down_pressed = False
+    
+    # Attack
+        if self.keys[self.input_keys['attack']] and not self.attack_pressed and self.attack_timer == 0:
+            self.fighting()
+            self.attack_pressed = True
+            self.attack_timer = self.attack_speed
+        elif not self.keys[self.input_keys['attack']]:
+            self.attack_pressed = False
+            self.attack_rect.x = -500
+            if self.attack_timer > 0:
+                self.update_attack_timer()
+        else:
+            self.attack_rect.x = -500
+    
+    def freeze_when_attacking(self):
+        if self.special_animation:
+            self.freeze()
+
+    def update_attack_timer(self):
+        self.attack_timer -= 0.5
+        if self.attack_timer < 0:
+            self.attack_timer = 0
 
     def reload_stamina(self):
         if self.stamina < 10:
             self.stamina += 0.03
-    
+
     def use_stamina(self):
         if self.stamina > 0:
             self.stamina -= 0.04
-    
+
     def check_if_sprinting(self):
         keys = pygame.key.get_pressed()
-        moving_right = keys[self.move_keys['right']]
-        moving_left = keys[self.move_keys['left']]
+        moving_right = keys[self.input_keys['right']]
+        moving_left = keys[self.input_keys['left']]
 
         if moving_right or moving_left:
 
@@ -157,7 +236,7 @@ class Player():
                 self.sprinting = False
                 self.sprint_release_timer = 0
                 self.sprint_release = False
-                
+
     def sprint(self):
         self.check_if_sprinting()
 
@@ -173,18 +252,19 @@ class Player():
             self.speed = coeff
             self.reload_stamina()
 
-    def get_animation_state(self):            
-        if self.direction.x > 0:
-            self.animation_state = 'Walk'
-            self.flip = False
-        elif self.direction.x < 0:
-            self.animation_state = 'Walk'
-            self.flip = True
-        else:
-            self.animation_state = 'Idle'
+    def get_animation_state(self):   
+        if not self.special_animation:  
+            if self.direction.x > 0:
+                self.animation_state = 'Walk'
+                self.flip = False
+            elif self.direction.x < 0:
+                self.animation_state = 'Walk'
+                self.flip = True
+            else:
+                self.animation_state = 'Idle'
 
     def check_animation_change(self):
-        if self.direction_save.x != self.direction.x:
+        if self.direction_save.x != self.direction.x and not self.special_animation:
             self.frame_index = 0
 
     def animate_dust(self, state):
@@ -203,6 +283,9 @@ class Player():
 
         return self.dust_animation_running
 
+    def update_dust_animation_allow(self):
+        self.dust_animation_allow = self.player_on_ground
+
     def update_dust_animation(self,screen):
         if self.speed != coeff and self.player_on_ground:
             width = 14*coeff
@@ -214,7 +297,7 @@ class Player():
             else:
                 screen.blit(self.dust_image, (self.rect.x-width, self.rect.y+self.player_hitbox[1]*coeff-height))
         
-        elif (self.direction.y < 0 and (self.direction_save.y == 0 or self.direction_save.y == 0.5) ) or (self.dust_animation_running):
+        elif self.dust_animation_allow and (self.direction.y < 0 and (self.direction_save.y == 0 or self.direction_save.y == 0.5) ) or (self.dust_animation_running):
             width = 34*coeff
             height = 32*coeff
             self.dust_animation_running = True
@@ -224,7 +307,7 @@ class Player():
 
             self.dust_animation_running = self.animate_dust('Jump')
             screen.blit(self.dust_image, self.jump_dust_coordonates)
-    
+
     def apply_gravity(self):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
@@ -249,7 +332,7 @@ class Player():
             self.down_movement = True
         else:
             self.down_movement = False
-            self.down_movement_allowed = False    
+            self.down_movement_allowed = False
 
     def clear_effects(self):
         if self.effect_ongoing:
@@ -258,17 +341,60 @@ class Player():
                 self.speed_boost = 1
                 self.effect_timer = 0
                 self.effect_ongoing = False
-    
+
+    def fighting(self):
+        if self.flip:
+            self.attack_rect.x = self.rect.left - self.attack_rect.width
+            self.attack_rect.y = self.rect.top
+        else:
+            self.attack_rect.x = self.rect.right
+            self.attack_rect.y = self.rect.top
+        
+        self.animation_state = 'Attack'
+        self.special_animation = True
+        self.frame_index = 0
+   
+    def damage(self, opponent_attack, opponent_flip):
+        self.health -= opponent_attack
+        self.push = 250/self.player_hitbox[0]
+        self.opponent_flip = opponent_flip
+        self.animation_state = 'Hit'
+        self.special_animation = True
+        self.frame_index = 0  
+
+    def check_freeze(self):
+        if self.special_animation:
+            self.direction.x = 0
+            if self.direction.y < 0:
+                self.direction.y = 0
+            self.down_movement = False
+            self.temp_invincibility = True
+        else:
+            self.temp_invincibility = False
+
+    def push_update(self):            
+        self.push -= 1
+        if self.push < 0:
+            self.push = 0
+        if self.opponent_flip:
+            self.rect.x -= self.push
+        else:
+            self.rect.x += self.push
+
+
     def update(self,screen):
         self.get_input()
         self.sprint()
         self.wall_slide()
         self.check_down_movement()
+        self.push_update()
+        self.check_freeze()
         self.get_animation_state()
         self.animate()
         self.check_animation_change()
         self.update_dust_animation(screen)
-        
+        self.update_dust_animation_allow()
+        pygame.draw.rect(screen, 'red', self.attack_rect)
         #screen.blit(pygame.Surface((self.rect.width,self.rect.height)),self.rect)
 
         if self.flip:
@@ -283,4 +409,12 @@ class Player():
         # stamina
         stamina_surface = pygame.Surface((self.stamina*5,10))
         stamina_surface.fill('Red')
-        screen.blit(stamina_surface,(self.rect.x,self.rect.y-20))
+        screen.blit(stamina_surface,(self.rect.x,self.rect.y-10))
+
+        # health
+        max_health_surface = pygame.Surface((100,15))
+        health_surface = pygame.Surface((self.health,15))
+        max_health_surface.fill('Grey')
+        health_surface.fill('Green')
+        screen.blit(max_health_surface,(self.rect.x, self.rect.y-30))
+        screen.blit(health_surface,(self.rect.x, self.rect.y-30))
