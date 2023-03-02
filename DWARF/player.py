@@ -4,7 +4,7 @@ from Heroes_Dico import *
 from settings import coeff, max_map_width, max_map_height
 from random import choice
 from copy import deepcopy
-from functions import store_dust_animations, get_mask
+from functions import store_special_animations, scale
 
 # Didn't do a sprite class because rectangle doesn't correspond to the image (there are alpha pixels)
 class Player():
@@ -28,7 +28,7 @@ class Player():
         self.special_animation = False
 
     # Initialize dust animation
-        self.dust_animations = store_dust_animations([[3], [6,5,5]])
+        self.dust_animations = store_special_animations([[3], [6,5,5]], 'Dust_particles')
         self.dust_animation_state = 'Run'
         self.dust_animation_state_save = 'Land'
         self.dust_frame_index = 0
@@ -58,8 +58,7 @@ class Player():
         # Default movement
         self.direction= pygame.math.Vector2(0,0)
         self.direction_save = pygame.math.Vector2(0,0)
-        self.speed = coeff
-        self.speed_boost = 1
+        self.speed = 4
         self.stamina = 10
         self.gravity = coeff/4
         self.jump_speed = -4.75*coeff
@@ -94,6 +93,7 @@ class Player():
         self.temp_invincibility = False
         self.dead = False
         self.death_animation_stop = False
+        self.resistance = 1
 
     # Player attack
         self.attack_rect_width, self.attack_rect_height = self.data[3]*coeff, self.player_hitbox[1]*coeff
@@ -111,6 +111,14 @@ class Player():
         self.effect_duration = -1
         self.effect_ongoing = False  
         self.effect_color = (0,0,0,0)
+    
+    # Boss explosion
+        self.boss_explosion_animations = store_special_animations([[1], [8]], 'Explosion')
+        self.boss_explosion_frame_index = 0
+        self.boss_explosion_animation_running = False
+        self.boss_explosion_image = self.boss_explosion_animations[0][0]
+        self.jump_boss_explosion_coordonates = (0,0)
+        self.boss_explosion_animation_allow = False
 
     def animate(self):
         if self.frame_index == 0 or self.animation_state != self.animation_state_save:
@@ -287,6 +295,7 @@ class Player():
         if self.direction_save.x != self.direction.x and not self.special_animation:
             self.frame_index = 0
 
+
     def animate_dust(self, state):
         if self.dust_frame_index == 0 or self.dust_animation_state != self.dust_animation_state_save:
             self.dust_animation = self.dust_animations[self.dust_animations_dico[state]]
@@ -328,6 +337,28 @@ class Player():
             self.dust_animation_running = self.animate_dust('Jump')
             screen.blit(self.dust_image, self.jump_dust_coordonates)
 
+
+    def start_boss_explosion_animation(self):
+        self.boss_explosion_animation_running = True
+        self.boss_explosion_frame_index = 0
+
+    def animate_boss_explosion(self):
+        if self.boss_explosion_animation_running:
+            if self.boss_explosion_frame_index == 0:
+                self.boss_explosion_animation = self.boss_explosion_animations[0]
+            self.boss_explosion_frame_index += self.animation_speed
+            
+            if self.boss_explosion_frame_index >= len(self.boss_explosion_animation):
+                self.boss_explosion_animation_running = False
+                return
+
+            self.boss_explosion_image = self.boss_explosion_animation[int(self.boss_explosion_frame_index)]
+            self.boss_explosion_image = scale(self.boss_explosion_image, 'mult', coeff/2)
+        
+    def draw_boss_explosion(self,screen):
+        if self.boss_explosion_animation_running:
+            screen.blit(self.boss_explosion_image, (self.rect.centerx-self.boss_explosion_image.get_width()/2 , self.rect.centery-self.boss_explosion_image.get_height()/2))
+
     def apply_gravity(self):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
@@ -358,10 +389,12 @@ class Player():
         if self.effect_ongoing:
             self.effect_timer += 0.1
             if int(self.effect_timer) == self.effect_duration:
-                self.speed_boost = 1
+                self.speed = 4
                 self.attack_boost = 1
                 self.effect_timer = 0
                 self.effect_ongoing = False
+                self.resistance = 1
+                self.attack_speed = 1
 
     def fighting(self):
         if self.flip:
@@ -376,7 +409,7 @@ class Player():
         self.frame_index = 0
    
     def damage(self, opponent_attack, opponent_flip):
-        self.health -= opponent_attack
+        self.health -= opponent_attack/self.resistance
         self.push = 250/self.player_hitbox[0]
         self.opponent_flip = opponent_flip
         self.animation_state = 'Hit'
@@ -396,9 +429,10 @@ class Player():
         if self.push < 0:
             self.push = 0
         if self.opponent_flip:
-            self.rect.x -= self.push
+            self.rect.x -= self.push/self.resistance
         else:
-            self.rect.x += self.push
+            self.rect.x += self.push/self.resistance
+    
     def void(self):
         if self.rect.top > max_map_height:
             self.health = 0
@@ -420,6 +454,7 @@ class Player():
             screen.blit(self.image, (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
             if self.effect_ongoing: screen.blit(mask.to_surface(unsetcolor=(255,255,255,0), setcolor=(self.effect_color)), (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
 
+
     def update(self,screen):
         if not self.freezed and not self.dead: self.get_input()
         else: self.attack_rect_update()
@@ -437,7 +472,7 @@ class Player():
             self.check_animation_change()
             self.update_dust_animation(screen)
             self.update_dust_animation_allow()
-
+            self.animate_boss_explosion()
         #screen.blit(pygame.Surface((self.rect.width,self.rect.height)),self.rect)
 
         self.draw_player(screen)
@@ -445,7 +480,6 @@ class Player():
         # saves
         self.animation_state_save, self.dust_animation_state_save = self.animation_state, self.dust_animation_state
         self.direction_save = deepcopy(self.direction)
-
         if not self.dead:
             # stamina
             max_stamina_surface = pygame.Surface((100,10))
@@ -464,3 +498,5 @@ class Player():
             health_surface.fill('Green')
             screen.blit(max_health_surface,(self.rect.x, self.rect.y-30))
             screen.blit(health_surface,(self.rect.x, self.rect.y-30))
+        
+        self.draw_boss_explosion(screen)

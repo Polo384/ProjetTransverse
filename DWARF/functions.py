@@ -116,13 +116,13 @@ def store_animations(spritesheets_list_v1,spritesheets_list_v2):
     return all_animations
     
 
-def store_dust_animations(list):
+def store_special_animations(list, path):
     global coeff
     all_animations = []
     for i in range(1, list[0][0]+1):
         animation = []
         for j in range(1,list[1][i-1]+1):
-            spritesheet = pygame.image.load('DWARF/Dust_particles/'+str(i)+'/'+str(j)+'.png').convert_alpha()
+            spritesheet = pygame.image.load(f'DWARF/{path}/'+str(i)+'/'+str(j)+'.png').convert_alpha()
             spritesheet = scale(spritesheet,'mult',coeff)
             animation.append(spritesheet)
         all_animations.append(animation)

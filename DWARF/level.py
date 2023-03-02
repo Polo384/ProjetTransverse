@@ -222,7 +222,7 @@ class Level:
     def horizontal_movement_collision(self):
         for player in self.players_list:
             check_semi_collide, player.slide_allowed, player.detect_wall_collision = True, False, False
-            player.rect.x += player.direction.x * player.speed * player.speed_boost
+            player.rect.x += player.direction.x * player.speed
 
             for sprite in self.collide_tiles.sprites():
                 if sprite.rect.colliderect(player.rect):
@@ -284,7 +284,7 @@ class Level:
                             player.rect.top = sprite.rect.bottom    
             
     def spawn_bonus(self):
-        bonus_choice = random.choice(['speed','attack','health'])
+        bonus_choice = random.choice(['speed','attack', 'attack_speed', 'health', 'resistance', 'spell', 'minotaur', 'demon', 'cyclop'])
         self.current_bonus = Bonus(bonus_choice)
         self.bonus_group.add(self.current_bonus)
     
