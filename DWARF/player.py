@@ -1,10 +1,10 @@
 import pygame
 from time import sleep
 from Heroes_Dico import *
-from settings import coeff
+from settings import coeff, max_map_width, max_map_height
 from random import choice
 from copy import deepcopy
-from functions import store_dust_animations
+from functions import store_dust_animations, get_mask
 
 # Didn't do a sprite class because rectangle doesn't correspond to the image (there are alpha pixels)
 class Player():
@@ -43,8 +43,7 @@ class Player():
         self.rect = pygame.Rect(pos[0], pos[1], self.player_hitbox[0]*coeff , self.player_hitbox[1]*coeff) 
         self.pos = pos
         self.player_on_ground, self.jump_pressed = True, False # to jump only on ground and only once per pression
-
-
+    
     # Player input
         if choice == 1:
             self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f}
@@ -64,6 +63,7 @@ class Player():
         self.stamina = 10
         self.gravity = coeff/4
         self.jump_speed = -4.75*coeff
+        self.freezed = False
 
         # Sprint
         self.sprinting, self.sprint_allowed, self.moving_pressed, self.sprint_release = False, False, False, False
@@ -92,11 +92,14 @@ class Player():
     # Player health
         self.health = 100
         self.temp_invincibility = False
-        
+        self.dead = False
+        self.death_animation_stop = False
+
     # Player attack
         self.attack_rect_width, self.attack_rect_height = self.data[3]*coeff, self.player_hitbox[1]*coeff
         self.attack_rect = pygame.Rect(-500,-100, self.attack_rect_width, self.attack_rect_height)
         self.attack = 10
+        self.attack_boost = 1
         self.push = 0
         self.opponent_flip = self.flip
         self.attack_pressed = False
@@ -107,6 +110,7 @@ class Player():
         self.effect_timer = 0
         self.effect_duration = -1
         self.effect_ongoing = False  
+        self.effect_color = (0,0,0,0)
 
     def animate(self):
         if self.frame_index == 0 or self.animation_state != self.animation_state_save:
@@ -116,6 +120,7 @@ class Player():
             self.image = self.animation[len(self.animation)-1]
             self.frame_index = 0
             self.special_animation = False
+            if self.dead : self.death_animation_stop = True
         else:
             self.image = self.animation[int(self.frame_index)]
         if self.flip :
@@ -169,9 +174,24 @@ class Player():
         else:
             self.attack_rect.x = -500
     
-    def freeze_when_attacking(self):
-        if self.special_animation:
-            self.freeze()
+    def attack_rect_update(self):
+        self.attack_rect.x = -500
+        if self.attack_timer > 0:
+            self.update_attack_timer()
+
+    def freeze(self):
+        self.direction.x = 0
+        if self.direction.y < 0:
+            self.direction.y = 0
+        self.down_movement = False
+        self.freezed = True
+    def unfreeze(self):
+        self.freezed = False
+
+    def invincible(self):
+        self.temp_invincibility = True
+    def not_invincible(self):
+        self.temp_invincibility = False
 
     def update_attack_timer(self):
         self.attack_timer -= 0.5
@@ -339,6 +359,7 @@ class Player():
             self.effect_timer += 0.1
             if int(self.effect_timer) == self.effect_duration:
                 self.speed_boost = 1
+                self.attack_boost = 1
                 self.effect_timer = 0
                 self.effect_ongoing = False
 
@@ -363,14 +384,12 @@ class Player():
         self.frame_index = 0  
 
     def check_freeze(self):
-        if self.special_animation:
-            self.direction.x = 0
-            if self.direction.y < 0:
-                self.direction.y = 0
-            self.down_movement = False
-            self.temp_invincibility = True
-        else:
-            self.temp_invincibility = False
+        if self.special_animation and not self.dead:
+            self.freeze()
+            self.invincible()
+        elif not self.special_animation or self.dead:
+            self.unfreeze()
+            self.not_invincible()
 
     def push_update(self):            
         self.push -= 1
@@ -380,41 +399,68 @@ class Player():
             self.rect.x -= self.push
         else:
             self.rect.x += self.push
+    def void(self):
+        if self.rect.top > max_map_height:
+            self.health = 0
 
+    def death(self):
+        if self.health <= 0:
+            self.special_animation = True
+            self.freeze()
+            self.animation_state = 'Death'
+            self.dead = True
+
+    def draw_player(self, screen):
+        mask = pygame.mask.from_surface(self.image)
+
+        if self.flip:
+            screen.blit(self.image, (self.rect.x-(self.player_offset[0]*coeff) - self.flip_offset, self.rect.y-(self.player_offset[1]*coeff)))
+            if self.effect_ongoing: screen.blit(mask.to_surface(unsetcolor=(255,255,255,0), setcolor=(self.effect_color)), (self.rect.x-(self.player_offset[0]*coeff) - self.flip_offset, self.rect.y-(self.player_offset[1]*coeff)))
+        else:
+            screen.blit(self.image, (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
+            if self.effect_ongoing: screen.blit(mask.to_surface(unsetcolor=(255,255,255,0), setcolor=(self.effect_color)), (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
 
     def update(self,screen):
-        self.get_input()
+        if not self.freezed and not self.dead: self.get_input()
+        else: self.attack_rect_update()
+
         self.sprint()
         self.wall_slide()
         self.check_down_movement()
         self.push_update()
         self.check_freeze()
-        self.get_animation_state()
-        self.animate()
-        self.check_animation_change()
-        self.update_dust_animation(screen)
-        self.update_dust_animation_allow()
-        pygame.draw.rect(screen, 'red', self.attack_rect)
+        self.void()
+        self.death()
+        if not self.death_animation_stop:
+            self.get_animation_state()
+            self.animate()
+            self.check_animation_change()
+            self.update_dust_animation(screen)
+            self.update_dust_animation_allow()
+
         #screen.blit(pygame.Surface((self.rect.width,self.rect.height)),self.rect)
 
-        if self.flip:
-            screen.blit(self.image, (self.rect.x-(self.player_offset[0]*coeff) - self.flip_offset, self.rect.y-(self.player_offset[1]*coeff)))
-        else:
-            screen.blit(self.image, (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
-            
+        self.draw_player(screen)
+        
         # saves
         self.animation_state_save, self.dust_animation_state_save = self.animation_state, self.dust_animation_state
         self.direction_save = deepcopy(self.direction)
 
-        # stamina
-        stamina_surface = pygame.Surface((self.stamina*5,10))
-        stamina_surface.fill('Red')
-        screen.blit(stamina_surface,(self.rect.x,self.rect.y-10))
+        if not self.dead:
+            # stamina
+            max_stamina_surface = pygame.Surface((100,10))
+            stamina_surface = pygame.Surface((self.stamina*10,10))
+            max_stamina_surface.fill('Grey')
+            stamina_surface.fill('Red')
+            screen.blit(max_stamina_surface,(self.rect.x,self.rect.y-10))
+            screen.blit(stamina_surface,(self.rect.x,self.rect.y-10))
 
-        # health
-        max_health_surface = pygame.Surface((100,15))
-        health_surface = pygame.Surface((self.health,15))
-        max_health_surface.fill('Grey')
-        health_surface.fill('Green')
-        screen.blit(max_health_surface,(self.rect.x, self.rect.y-30))
-        screen.blit(health_surface,(self.rect.x, self.rect.y-30))
+            # health
+            if self.health < 0:
+                self.health = 0
+            max_health_surface = pygame.Surface((100,15))
+            health_surface = pygame.Surface((self.health,15))
+            max_health_surface.fill('Grey')
+            health_surface.fill('Green')
+            screen.blit(max_health_surface,(self.rect.x, self.rect.y-30))
+            screen.blit(health_surface,(self.rect.x, self.rect.y-30))

@@ -315,9 +315,9 @@ class Level:
         player2 = self.players_list[1]
 
         if player1.rect.colliderect(player2.attack_rect) and not player1.temp_invincibility:
-            player1.damage(player2.attack, player2.flip)
+            player1.damage( player2.attack*player2.attack_boost , player2.flip )
         if player2.rect.colliderect(player1.attack_rect) and not player2.temp_invincibility:
-            player2.damage(player1.attack, player1.flip)
+            player2.damage( player1.attack*player1.attack_boost , player1.flip )
 
     def run(self):
         # background

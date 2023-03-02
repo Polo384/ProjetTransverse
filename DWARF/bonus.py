@@ -10,7 +10,7 @@ class Bonus(pygame.sprite.Sprite):
         self.image = pygame.image.load('DWARF/Bonus/bonus_'+self.choice+'.png').convert_alpha()
         self.image = scale(self.image, 'mult', coeff)
         self.rect = self.image.get_rect()
-        self.variable = 1
+        self.variable = 0
         self.apparition()
         
     def apparition(self):
@@ -27,24 +27,24 @@ class Bonus(pygame.sprite.Sprite):
             self.rect.y = 100*coeff
 
     def levitate(self):
-        self.variable += 0.14
-        y = coeff*0.8*math.sin(self.variable) #réduction du multiplicateur pcq sinon c'est le dawa
-        if y < 0:
-            self.rect.y += round(y)
-            
-        elif y > 0:
-            self.rect.y += round(y)
-        else:
-            self.variable = 0
+        self.rect.y += round(math.sin(self.variable)*coeff*0.5)
+        self.variable += 0.1
 
     def effect(self, player):
         if self.choice == 'speed':
-            player.speed *= 2
-            player.effect_duration = 30
+            player.speed_boost = 2
+            player.effect_duration = 40
+            player.effect_color = (165, 227, 255, 100)
         if self.choice == 'attack':
-            player.effect_duration = 10
+            player.attack_boost = 1.75
+            player.effect_duration = 30
+            player.effect_color = (137, 44, 192, 100)
         if self.choice == 'health':
-            player.effect_duration = 25
+            player.health += 30
+            if player.health > 100:
+                player.health = 100
+            player.effect_duration = 3
+            player.effect_color = (120, 253, 113, 150)
 
     def update(self):
         self.levitate()
