@@ -59,6 +59,12 @@ class Level:
                         tile = Tile(x,y,'Yellow_Rock_Block/UM.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
+                    
+                    elif level_data[i][j+1] == 0 and level_data[i][j-1] == 1 and level_data[i+1][j] == 1 and level_data[i-1][j] == 1 and level_data[i-2][j] != 1 and level_data[i+1][j+1] != 0:
+                        tile = Tile(x,y,'Yellow_Rock_Block/SR.png')
+                        self.tiles.add(tile)
+                        self.collide_tiles.add(tile) 
+
 
                     elif level_data[i][j+1] != 1 and level_data[i][j-1] == 1 and level_data[i-1][j] in (0,5,3,4) and level_data[i+1][j] == 1:
                         if level_data[i][j+1] == 2:
@@ -115,7 +121,11 @@ class Level:
                         tile = Tile(x,y,'Yellow_Rock_Block/R.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
-
+                    
+                    elif level_data[i][j+1] == 0 and level_data[i][j-1] != 0 and level_data[i-1][j] == 3 and level_data[i+1][j] == 1:
+                        tile = Tile(x,y,'Yellow_Rock_Block/UCR+.png')
+                        self.tiles.add(tile)
+                        self.collide_tiles.add(tile)
 
                     # Purple ks
                     elif (level_data[i][j+1] == 1 or level_data[i][j+1] == 3) and level_data[i][j-1] == 1 and level_data[i-1][j] == 1 and level_data[i+1][j] == 1 and level_data[i+1][j-1] == 0:
@@ -124,11 +134,11 @@ class Level:
                         self.collide_tiles.add(tile)
 
                     elif (level_data[i][j-1] == 1 or level_data[i][j-1] == 3) and level_data[i][j+1] == 1 and level_data[i-1][j] == 1 and level_data[i+1][j] == 1 and level_data[i+1][j+1] == 0:
-                        tile = Tile(x,y,'Purple_Rock_Round_Bottom_Bottom/L.png')
+                        tile = Tile(x,y,'Purple_Rock_Round_Bottom_Bottom/R.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
-                    elif if_matrix(level_data, i, j,1,1,1,0):
+                    elif level_data[i][j-1] == 1 and level_data[i+1][j] == 0 and level_data[i-1][j] == 1 and (level_data[i][j+1] == 1 or level_data[i][j+1] == 2):
                         tile = Tile(x,y,'Purple_Rock_Round_Top_Top/M.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
