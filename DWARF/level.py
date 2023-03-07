@@ -5,6 +5,8 @@ from functions import *
 from player import Player
 from bonus import Bonus
 from backgrounds import BG
+from hud import HUD
+
 class Level:
     def __init__(self, level_data, surface, player1_hero, player2_hero):
         # level setup
@@ -16,6 +18,7 @@ class Level:
         background_choice = random.randint(1,2)
         self.backgrounds_group = pygame.sprite.Group()
         self.backgrounds_group.add(BG(background_choice,1),BG(background_choice,2),BG(background_choice,3))
+        self.hud_list = [HUD(self.players_list[0], self.players_list[0].hero_choice, 1), HUD(self.players_list[1], self.players_list[1].hero_choice, 2)]
 
     def setup_level(self, level_data):
         self.collide_tiles = pygame.sprite.Group()
@@ -44,19 +47,25 @@ class Level:
             for j in range(len(level_data[0])):
 
                 # WATER
-                if  y == (len(level_data)-water_level)  and  y != (len(level_data)-1):
+                if  y == (len(level_data)-water_level)  and  y != (len(level_data)):
                     tile = Tile(x,y,'Water/W1.png')
                     self.tiles.add(tile)
-                elif y > (len(level_data)-water_level)  and  y != (len(level_data)-1):
+                elif y > (len(level_data)-water_level)  and  y != (len(level_data)):
                     tile = Tile(x,y,'Water/W2.png')
                     self.tiles.add(tile)
 
 
                 # ROCK
-                if level_data[i][j] == 1: # Collisions Blocks                    
+                if level_data[i][j] == 1: # Collisions Blocks   
+
                     # Yellow Blocks
                     if (level_data[i][j-1] == 1 or level_data[i][j-1] == 3) and (level_data[i][j+1] == 1 or level_data[i][j+1] == 3) and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 1:
                         tile = Tile(x,y,'Yellow_Rock_Block/UM.png')
+                        self.tiles.add(tile)
+                        self.collide_tiles.add(tile)
+
+                    elif if_matrix(level_data, i, j, 1, 3, 3, 1) or if_matrix(level_data, i, j, 3, 1, 3, 1):
+                        tile = Tile(x,y,'Yellow_Rock_Block/M.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
                     
@@ -174,6 +183,7 @@ class Level:
                         self.collide_tiles.add(tile)
 
                     # Classic
+
                     else:
                         tile = Tile(x,y,'Yellow_Rock_Block/M.png')
                         self.tiles.add(tile)
@@ -347,3 +357,7 @@ class Level:
         
         # bonus
         self.bonus_update()
+
+        # HUD
+        for player_hud in self.hud_list:
+            player_hud.update(self.display_surface)

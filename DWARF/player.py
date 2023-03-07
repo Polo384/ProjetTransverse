@@ -89,7 +89,8 @@ class Player():
             self.down_movement_timer_max = self.player_hitbox[1]*0.09
 
     # Player health
-        self.health = 100
+        self.max_health = 100
+        self.health = self.max_health
         self.temp_invincibility = False
         self.dead = False
         self.death_animation_stop = False
@@ -410,11 +411,13 @@ class Player():
    
     def damage(self, opponent_attack, opponent_flip):
         self.health -= opponent_attack/self.resistance
-        self.push = 250/self.player_hitbox[0]
+        self.push = 22*opponent_attack/self.player_hitbox[0]
         self.opponent_flip = opponent_flip
         self.animation_state = 'Hit'
         self.special_animation = True
         self.frame_index = 0  
+        if self.health < 0:
+            self.health = 0
 
     def check_freeze(self):
         if self.special_animation and not self.dead:
@@ -488,15 +491,5 @@ class Player():
             stamina_surface.fill('Red')
             screen.blit(max_stamina_surface,(self.rect.x,self.rect.y-10))
             screen.blit(stamina_surface,(self.rect.x,self.rect.y-10))
-
-            # health
-            if self.health < 0:
-                self.health = 0
-            max_health_surface = pygame.Surface((100,15))
-            health_surface = pygame.Surface((self.health,15))
-            max_health_surface.fill('Grey')
-            health_surface.fill('Green')
-            screen.blit(max_health_surface,(self.rect.x, self.rect.y-30))
-            screen.blit(health_surface,(self.rect.x, self.rect.y-30))
         
         self.draw_boss_explosion(screen)

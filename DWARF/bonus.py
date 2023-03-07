@@ -43,8 +43,8 @@ class Bonus(pygame.sprite.Sprite):
 
         if self.choice == 'health':
             player.health += 20
-            if player.health > 100:
-                player.health = 100
+            if player.health > player.max_health:
+                player.health = player.max_health
             player.effect_duration = 3
             player.effect_color = (134, 203, 61, 150)
 

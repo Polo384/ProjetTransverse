@@ -1,6 +1,6 @@
 import pygame
 from settings import coeff
-
+import numpy as np
 
 # To expand or shrink an image
 def scale(img, choice, multiplier):
@@ -150,4 +150,16 @@ def if_matrix(map, i, j, right,left,down,up):
         return True
     else:
         return False
+    
+
+def greyscale(surface: pygame.Surface):
+    arr = pygame.surfarray.pixels3d(surface)
+    mean_arr = np.dot(arr[:,:,:], [0.216, 0.587, 0.144])
+    mean_arr3d = mean_arr[..., np.newaxis]
+    new_arr = np.repeat(mean_arr3d[:, :, :], 3, axis=2)
+    image = pygame.surfarray.make_surface(new_arr)
+    image.set_colorkey((0,0,0))
+
+    return image
+
 
