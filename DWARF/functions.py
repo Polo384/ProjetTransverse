@@ -32,7 +32,6 @@ def detect_collision(mask1, mask2, pos1, pos2):
 # ================== ANIMATIONS ==================
 
 def store_spritesheets_v1_one(dico : dict):
-    global coeff
     spritesheet_animation = []
     for key, value in dico.items():
         animation = []
@@ -50,7 +49,6 @@ def store_spritesheets_v1_one(dico : dict):
     return spritesheet_animation
 
 def store_spritesheets_v1(dico_list : list):
-    global coeff
     all_animations = []
     for dico in dico_list:
         spritesheet_animation = []
@@ -71,7 +69,6 @@ def store_spritesheets_v1(dico_list : list):
     return all_animations
 
 def store_spritesheets_v2(dico_list : list):
-    global coeff
     all_animations = []
     for dico in dico_list:
         for key, value in dico.items(): #value is a list
@@ -88,7 +85,6 @@ def store_spritesheets_v2(dico_list : list):
 
 # For multiple horizontal spritesheets
 def store_spritesheets_v3(dico_list : list):
-    global coeff
     all_animations = []
     for dico in dico_list:
         spritesheet_animation = []
@@ -117,7 +113,6 @@ def store_animations(spritesheets_list_v1,spritesheets_list_v2):
     
 
 def store_special_animations(list, path):
-    global coeff
     all_animations = []
     for i in range(1, list[0][0]+1):
         animation = []

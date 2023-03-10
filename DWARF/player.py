@@ -59,6 +59,7 @@ class Player():
         self.direction= pygame.math.Vector2(0,0)
         self.direction_save = pygame.math.Vector2(0,0)
         self.speed = 4
+        self.speed_boost = 1
         self.stamina = 10
         self.gravity = coeff/4
         self.jump_speed = -4.75*coeff
@@ -390,12 +391,12 @@ class Player():
         if self.effect_ongoing:
             self.effect_timer += 0.1
             if int(self.effect_timer) == self.effect_duration:
-                self.speed = 4
+                self.speed_boost = 1
                 self.attack_boost = 1
                 self.effect_timer = 0
                 self.effect_ongoing = False
                 self.resistance = 1
-                self.attack_speed = 1
+                self.attack_speed = self.player_hitbox[0]
 
     def fighting(self):
         if self.flip:
@@ -409,9 +410,9 @@ class Player():
         self.special_animation = True
         self.frame_index = 0
    
-    def damage(self, opponent_attack, opponent_flip):
-        self.health -= opponent_attack/self.resistance
-        self.push = 22*opponent_attack/self.player_hitbox[0]
+    def damage(self, opponent_attack, opponent_attack_boost, opponent_flip):
+        self.health -= opponent_attack*opponent_attack_boost/self.resistance
+        self.push = 20*opponent_attack/self.player_hitbox[0]
         self.opponent_flip = opponent_flip
         self.animation_state = 'Hit'
         self.special_animation = True
@@ -422,7 +423,8 @@ class Player():
     def check_freeze(self):
         if self.special_animation and not self.dead:
             self.freeze()
-            self.invincible()
+            if not self.attack_pressed:
+                self.invincible()
         elif not self.special_animation or self.dead:
             self.unfreeze()
             self.not_invincible()
@@ -485,8 +487,8 @@ class Player():
         self.direction_save = deepcopy(self.direction)
         if not self.dead:
             # stamina
-            max_stamina_surface = pygame.Surface((100,10))
-            stamina_surface = pygame.Surface((self.stamina*10,10))
+            max_stamina_surface = pygame.Surface((80,10))
+            stamina_surface = pygame.Surface((self.stamina*8,10))
             max_stamina_surface.fill('Grey')
             stamina_surface.fill('Red')
             screen.blit(max_stamina_surface,(self.rect.x,self.rect.y-10))

@@ -26,7 +26,7 @@ level_map =  [[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
 #  3  = frame  /  1 = rock  /  2 = bridge  /  4 = grass  /  5 = rock
 
 tile_size = 17
-coeff = 3
+coeff = 2
 max_map_width = (len(level_map[0]) - 2) * tile_size * coeff
 max_map_height = (len(level_map) - 2)* tile_size * coeff
 

@@ -10,7 +10,7 @@ class BG(pygame.sprite.Sprite):
             bg_image = pygame.image.load(f'DWARF/Backgrounds/Sky{choice}/{number}.png').convert_alpha()
         else:
             bg_image = pygame.image.load(f'DWARF/Backgrounds/Menu_BG/{number}.png').convert_alpha()
-        bg_image = scale(bg_image, 'mult', coeff)
+        bg_image = scale(bg_image, 'mult', coeff*5/3)
 
         self.image = pygame.Surface((bg_image.get_width()*2, bg_image.get_height()), flags=pygame.SRCALPHA)
         self.image.blit(bg_image, (0, 0))

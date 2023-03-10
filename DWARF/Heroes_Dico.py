@@ -123,6 +123,17 @@ hobbit_indexs = {
     'Hit' : [3],
     'Death' : [2],}
 
+
+'''hobbit_dico_v2 = {
+    'Question_mark/' : [[2], [6,13,12,4,4,10,10,8]]}
+hobbit_data = ([26,22],[12,17],0, 20)
+hobbit_indexs = {
+    'Idle' : [4],
+    'Walk' : [6],
+    'Attack' : [0],
+    'Hit' : [3],
+    'Death' : [2],}'''
+
 '''''
 # skeleton buggué
 skeleton_dico_v3 = {

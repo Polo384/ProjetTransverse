@@ -242,7 +242,7 @@ class Level:
     def horizontal_movement_collision(self):
         for player in self.players_list:
             check_semi_collide, player.slide_allowed, player.detect_wall_collision = True, False, False
-            player.rect.x += player.direction.x * player.speed
+            player.rect.x += player.direction.x * player.speed * player.speed_boost
 
             for sprite in self.collide_tiles.sprites():
                 if sprite.rect.colliderect(player.rect):
@@ -335,9 +335,9 @@ class Level:
         player2 = self.players_list[1]
 
         if player1.rect.colliderect(player2.attack_rect) and not player1.temp_invincibility:
-            player1.damage( player2.attack*player2.attack_boost , player2.flip )
+            player1.damage( player2.attack, player2.attack_boost , player2.flip )
         if player2.rect.colliderect(player1.attack_rect) and not player2.temp_invincibility:
-            player2.damage( player1.attack*player1.attack_boost , player1.flip )
+            player2.damage( player1.attack, player1.attack_boost , player1.flip )
 
     def run(self):
         # background
