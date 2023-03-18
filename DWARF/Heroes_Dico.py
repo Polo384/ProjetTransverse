@@ -170,20 +170,13 @@ hobbit_stats = {
     'attack': 10,
     'attack_speed': hobbit_data[1][0]/2}
 
-'''hobbit_dico_v2 = {
-    'Question_mark/' : [[2], [6,13,12,4,4,10,10,8]]}
-hobbit_data = ([26,22],[12,17],0, 20)
-hobbit_indexs = {
-    'Idle' : [4],
-    'Walk' : [6],
-    'Attack' : [0],
-    'Hit' : [3],
-    'Death' : [2],}
-santa_stats = {
-    'health': 100,
-    'speed': coeff*1,
-    'attack': 10,
-    'attack_speed': santa_data[1][0]}'''
+question_mark_dico_v2 = {
+    'Question_mark/' : [[2], [6,8]]}
+question_mark_data = ([6,3],[19,30],0, 20)
+question_mark_indexs = {
+    'Idle' : [0],
+    'Attack' : [1]}
+question_mark_stats = {}
 
 
 heroes_dico = {
@@ -197,4 +190,5 @@ heroes_dico = {
     'gladiator' : [7, gladiator_data, gladiator_indexs, gladiator_stats],
     'demon' : [8, demon_data, demon_indexs, demon_stats],
     'cyclop' : [9, cyclop_data, cyclop_indexs, cyclop_stats],
-    'hobbit' : [10, hobbit_data, hobbit_indexs, hobbit_stats],}
+    'hobbit' : [10, hobbit_data, hobbit_indexs, hobbit_stats],
+    'question_mark' : [11, question_mark_data, question_mark_indexs, question_mark_stats]}
