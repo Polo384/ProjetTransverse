@@ -1,3 +1,4 @@
+from settings import coeff
 #data = [(offset_x,offset_y),(hitbox_w,hitbox_h), flip_offset, attack_width]
 
 santa_dico_v1 = {
@@ -9,6 +10,11 @@ santa_indexs = {
     'Attack' : [2,2,3,3,5,6],
     'Hit' : [9],
     'Death' : [10]}
+santa_stats = {
+    'health': 110,
+    'speed': coeff*2/3,
+    'attack': 13,
+    'attack_speed': santa_data[1][0]/0.75}
 
 
 minotaur_dico_v1 = {
@@ -20,7 +26,11 @@ minotaur_indexs = {
     'Attack' : [3,4,6],
     'Hit' : [8],
     'Death' : [9]}
-
+minotaur_stats = {
+    'health': 190,
+    'speed': coeff,
+    'attack': 21,
+    'attack_speed': minotaur_data[1][0]/0.5}
 
 dwarf_dico_v1 = {
     'Dwarf/Dwarf_SpriteSheet.png' : [[8],[5,8,7,6,2,5,4,7]]}
@@ -31,7 +41,11 @@ dwarf_indexs = {
     'Attack' : [2,3,4],
     'Hit' : [6],
     'Death' : [7]}
-
+dwarf_stats = {
+    'health': 85,
+    'speed': coeff*4/3,
+    'attack': 9,
+    'attack_speed': dwarf_data[1][0]/2}
 
 
 indiana_jones_dico_v1 = {
@@ -43,7 +57,11 @@ indiana_jones_indexs = {
     'Attack' : [4,4,5],
     'Hit' : [2],
     'Death' : [6]}
-
+indiana_jones_stats = {
+    'health': 90,
+    'speed': coeff,
+    'attack': 11,
+    'attack_speed': santa_data[1][0]/2}
 
 adventurer_dico_v1 = {
     'Adventurer/Adventurer_Spritesheet.png' : [[7],[6,8,9,4,7,9,6]]}
@@ -54,7 +72,11 @@ adventurer_indexs = {
     'Attack' : [2,5],
     'Hit' : [3],
     'Death' : [4]}
-
+adventurer_stats = {
+    'health': 80,
+    'speed': coeff*4/3,
+    'attack': 8,
+    'attack_speed': adventurer_data[1][0]/3}
 
 bat_dico_v1 = {
     'Bat/Bat_SpriteSheet.png' : [[3],[5,5,5]]}
@@ -65,7 +87,11 @@ bat_indexs = {
     'Attack' : [0],
     'Hit' : [1],
     'Death' : [2]}
-
+bat_stats = {
+    'health': 1,
+    'speed': coeff*5/3,
+    'attack': 0,
+    'attack_speed': santa_data[1][0]*0}
 
 halo_dico_v1 = {
     'Halo/Halo_Sprite_Sheet.png' : [[5],[4,8,5,3,8]]}
@@ -76,7 +102,11 @@ halo_indexs = {
     'Attack' : [2],
     'Hit' : [3],
     'Death' : [4]}
-
+halo_stats = {
+    'health': 100,
+    'speed': coeff,
+    'attack': 10,
+    'attack_speed': halo_data[1][0]/2}
 
 gladiator_dico_v1 = {
     'Gladiator/Gladiator_Spritesheet.png' : [[5],[5,8,7,3,7]]}
@@ -87,7 +117,11 @@ gladiator_indexs = {
     'Attack' : [2],
     'Hit' : [3],
     'Death' : [4]}
-
+gladiator_stats = {
+    'health': 85,
+    'speed': coeff,
+    'attack': 15,
+    'attack_speed': santa_data[1][0]/1.5}
 
 demon_dico_v1 = {
     'Demon/demon_spritesheet.png' : [[4], [6,6,4,8]]}
@@ -98,7 +132,11 @@ demon_indexs = {
     'Attack' : [1],
     'Hit' : [2],
     'Death' : [3]}
-
+demon_stats = {
+    'health': 150,
+    'speed': coeff,
+    'attack': 75,
+    'attack_speed': demon_data[1][0]/0.3}
 
 cyclop_dico_v1 = {
     'Cyclop/Cyclop_Spritesheet.png' : [[10],[15,12,5,8,3,5,9,8,6,8]]}
@@ -111,7 +149,11 @@ cyclop_indexs = {
     'Death' : [6],
     'Laser attack' : [7],
     'Laser beam': [8]}
-
+cyclop_stats = {
+    'health': 275,
+    'speed': coeff*2/3,
+    'attack': 16,
+    'attack_speed': cyclop_data[1][0]/0.8}
 
 hobbit_dico_v2 = {
     'Hobbit/' : [[8], [7,13,12,4,4,10,10,8]]}
@@ -122,7 +164,11 @@ hobbit_indexs = {
     'Attack' : [0],
     'Hit' : [3],
     'Death' : [2],}
-
+hobbit_stats = {
+    'health': 75,
+    'speed': coeff*4/3,
+    'attack': 10,
+    'attack_speed': hobbit_data[1][0]/2}
 
 '''hobbit_dico_v2 = {
     'Question_mark/' : [[2], [6,13,12,4,4,10,10,8]]}
@@ -132,35 +178,23 @@ hobbit_indexs = {
     'Walk' : [6],
     'Attack' : [0],
     'Hit' : [3],
-    'Death' : [2],}'''
-
-'''''
-# skeleton buggué
-skeleton_dico_v3 = {
-    'Skeleton/Skeleton_Hit.png':8,
-    'Skeleton/Skeleton_Idle.png':11,
-    'Skeleton/Skeleton_Walk.png':13,
-    'Skeleton/Skeleton_Dead.png':15,
-    'Skeleton/Skeleton_Attack.png':18,
-    'Skeleton/Skeleton_React.png':4}
-skeleton_data = ([10,13],[12,25],0)
-skeleton_indexs = {
-    'Idle' : [1,1,1,5],
-    'Walk' : [2],
-    'Attack' : [4],
-    'Hit' : [0],
-    'Death' : [3],}'''
+    'Death' : [2],}
+santa_stats = {
+    'health': 100,
+    'speed': coeff*1,
+    'attack': 10,
+    'attack_speed': santa_data[1][0]}'''
 
 
 heroes_dico = {
-    'santa' : [0,santa_data,santa_indexs],
-    'minotaur' : [1,minotaur_data,minotaur_indexs],
-    'dwarf' : [2,dwarf_data,dwarf_indexs],
-    'indiana_jones' : [3,indiana_jones_data,indiana_jones_indexs],
-    'adventurer' : [4,adventurer_data, adventurer_indexs],
-    'bat' : [5,bat_data,bat_indexs],
-    'halo' : [6,halo_data,halo_indexs],
-    'gladiator' : [7,gladiator_data,gladiator_indexs],
-    'demon' : [8,demon_data, demon_indexs],
-    'cyclop' : [9,cyclop_data, cyclop_indexs],
-    'hobbit' : [10,hobbit_data,hobbit_indexs],}
+    'santa' : [0, santa_data, santa_indexs, santa_stats],
+    'minotaur' : [1, minotaur_data, minotaur_indexs, minotaur_stats],
+    'dwarf' : [2, dwarf_data, dwarf_indexs, dwarf_stats],
+    'indiana_jones' : [3, indiana_jones_data, indiana_jones_indexs, indiana_jones_stats],
+    'adventurer' : [4, adventurer_data, adventurer_indexs, adventurer_stats],
+    'bat' : [5, bat_data, bat_indexs, bat_stats],
+    'halo' : [6, halo_data, halo_indexs, halo_stats],
+    'gladiator' : [7, gladiator_data, gladiator_indexs, gladiator_stats],
+    'demon' : [8, demon_data, demon_indexs, demon_stats],
+    'cyclop' : [9, cyclop_data, cyclop_indexs, cyclop_stats],
+    'hobbit' : [10, hobbit_data, hobbit_indexs, hobbit_stats],}

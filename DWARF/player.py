@@ -18,7 +18,7 @@ class Player():
         self.player_offset = self.data[0]
         self.player_hitbox = self.data[1]
         self.flip_offset = self.data[2]*coeff
-        
+        all_stats = hero[4]
 
     # Initialize player animation
         self.animation_state = 'Idle'
@@ -58,7 +58,8 @@ class Player():
         # Default movement
         self.direction= pygame.math.Vector2(0,0)
         self.direction_save = pygame.math.Vector2(0,0)
-        self.speed = 4
+        self.default_speed = all_stats['speed']
+        self.speed = self.default_speed
         self.speed_boost = 1
         self.stamina = 10
         self.gravity = coeff/4
@@ -85,12 +86,12 @@ class Player():
         elif self.hero_choice == 'demon' or self.hero_choice == 'bat':
             self.down_movement_timer_max = 0
         elif self.hero_choice == 'hobbit':
-            self.down_movement_timer_max = self.player_hitbox[1]*0.095
+            self.down_movement_timer_max = self.player_hitbox[1]*0.12
         else:
             self.down_movement_timer_max = self.player_hitbox[1]*0.09
 
     # Player health
-        self.max_health = 100
+        self.max_health = all_stats['health']
         self.health = self.max_health
         self.temp_invincibility = False
         self.dead = False
@@ -100,13 +101,13 @@ class Player():
     # Player attack
         self.attack_rect_width, self.attack_rect_height = self.data[3]*coeff, self.player_hitbox[1]*coeff
         self.attack_rect = pygame.Rect(-500,-100, self.attack_rect_width, self.attack_rect_height)
-        self.attack = 10
+        self.attack = all_stats['attack']
         self.attack_boost = 1
         self.push = 0
         self.opponent_flip = self.flip
         self.attack_pressed = False
         self.attack_timer = 0
-        self.attack_speed = self.player_hitbox[0]
+        self.attack_speed = all_stats['attack_speed']
 
     # Effect
         self.effect_timer = 0
@@ -272,14 +273,14 @@ class Player():
 
         if self.sprinting and self.direction.x != 0:
             if self.stamina > 0.1:
-                self.speed = coeff*1.5
+                self.speed = self.default_speed*1.5
                 self.use_stamina()
             elif self.stamina <= 0.1:
                 self.use_stamina()
-                self.speed = coeff
+                self.speed = self.default_speed
         else:
             self.sprinting = False
-            self.speed = coeff
+            self.speed = self.default_speed
             self.reload_stamina()
 
     def get_animation_state(self):   
@@ -318,7 +319,7 @@ class Player():
         self.dust_animation_allow = self.player_on_ground
 
     def update_dust_animation(self,screen):
-        if self.speed != coeff and self.player_on_ground:
+        if self.speed != self.default_speed*self.speed_boost and self.player_on_ground:
             width = 14*coeff
             height = 10*coeff
             self.animate_dust('Run')
@@ -463,7 +464,6 @@ class Player():
     def update(self,screen):
         if not self.freezed and not self.dead: self.get_input()
         else: self.attack_rect_update()
-
         self.sprint()
         self.wall_slide()
         self.check_down_movement()
@@ -471,6 +471,7 @@ class Player():
         self.check_freeze()
         self.void()
         self.death()
+
         if not self.death_animation_stop:
             self.get_animation_state()
             self.animate()
@@ -478,7 +479,7 @@ class Player():
             self.update_dust_animation(screen)
             self.update_dust_animation_allow()
             self.animate_boss_explosion()
-        #screen.blit(pygame.Surface((self.rect.width,self.rect.height)),self.rect)
+
 
         self.draw_player(screen)
         
