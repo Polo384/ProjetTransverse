@@ -32,7 +32,7 @@ class Bonus(pygame.sprite.Sprite):
 
     def effect(self, player):
         if self.choice == 'speed':
-            player.speed_boost += 0.3
+            player.speed_boost = 1.5
             player.effect_duration = 40
             player.effect_color = (190, 218, 240, 100)
 
@@ -54,7 +54,7 @@ class Bonus(pygame.sprite.Sprite):
             player.effect_color = (89, 86, 79, 150)
 
         if self.choice == 'attack_speed':
-            player.attack_speed /= 4
+            player.attack_speed_boost = 2
             player.effect_duration = 40
             player.effect_color = (48, 179, 174, 150)
 

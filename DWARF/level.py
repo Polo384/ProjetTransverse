@@ -242,7 +242,7 @@ class Level:
     def horizontal_movement_collision(self):
         for player in self.players_list:
             check_semi_collide, player.slide_allowed, player.detect_wall_collision = True, False, False
-            player.rect.x += player.direction.x * player.speed * player.speed_boost
+            player.rect.x += int(player.direction.x * player.speed * player.speed_boost)
 
             for sprite in self.collide_tiles.sprites():
                 if sprite.rect.colliderect(player.rect):
@@ -340,6 +340,9 @@ class Level:
             player2.damage( player1.attack, player1.attack_boost , player1.flip )
 
     def run(self):
+        # EVENTS
+        events = pygame.event.get()
+
         # background
         self.backgrounds_group.update()
         self.backgrounds_group.draw(self.display_surface)
@@ -352,6 +355,7 @@ class Level:
         self.vertical_movement_collision()
         self.fight()
         for player in self.players_list:
+            player.handle_events(events)
             player.update(self.display_surface)
             player.clear_effects()
         

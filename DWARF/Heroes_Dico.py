@@ -14,7 +14,8 @@ santa_stats = {
     'health': 110,
     'speed': coeff*2/3,
     'attack': 13,
-    'attack_speed': santa_data[1][0]/0.75}
+    'attack_speed': 16,
+    'stamina': 130}
 
 
 minotaur_dico_v1 = {
@@ -29,8 +30,9 @@ minotaur_indexs = {
 minotaur_stats = {
     'health': 190,
     'speed': coeff,
-    'attack': 21,
-    'attack_speed': minotaur_data[1][0]/0.5}
+    'attack': 24,
+    'attack_speed': 14,
+    'stamina': 130}
 
 dwarf_dico_v1 = {
     'Dwarf/Dwarf_SpriteSheet.png' : [[8],[5,8,7,6,2,5,4,7]]}
@@ -42,15 +44,16 @@ dwarf_indexs = {
     'Hit' : [6],
     'Death' : [7]}
 dwarf_stats = {
-    'health': 85,
+    'health': 93,
     'speed': coeff*4/3,
     'attack': 9,
-    'attack_speed': dwarf_data[1][0]/2}
+    'attack_speed': 24,
+    'stamina': 120}
 
 
 indiana_jones_dico_v1 = {
     'Indiana_Jones/Indiana_Jones_SpriteSheet.png' : [[7],[8,8,7,6,8,4,5]]}
-indiana_jones_data = ([26,10],[11,22],1, 28)
+indiana_jones_data = ([26,10],[11,22],1, 25)
 indiana_jones_indexs = {
     'Idle' : [0],
     'Walk' : [1],
@@ -58,14 +61,15 @@ indiana_jones_indexs = {
     'Hit' : [2],
     'Death' : [6]}
 indiana_jones_stats = {
-    'health': 90,
+    'health': 85,
     'speed': coeff,
     'attack': 11,
-    'attack_speed': santa_data[1][0]/2}
+    'attack_speed': 18,
+    'stamina': 95}
 
 adventurer_dico_v1 = {
     'Adventurer/Adventurer_Spritesheet.png' : [[7],[6,8,9,4,7,9,6]]}
-adventurer_data = ([7,11],[12,20], 6, 13)
+adventurer_data = ([7,11],[12,20], 6, 14)
 adventurer_indexs = {
     'Idle' : [0],
     'Walk' : [1],
@@ -73,10 +77,11 @@ adventurer_indexs = {
     'Hit' : [3],
     'Death' : [4]}
 adventurer_stats = {
-    'health': 80,
+    'health': 75,
     'speed': coeff*4/3,
     'attack': 8,
-    'attack_speed': adventurer_data[1][0]/3}
+    'attack_speed': 27,
+    'stamina': 150}
 
 bat_dico_v1 = {
     'Bat/Bat_SpriteSheet.png' : [[3],[5,5,5]]}
@@ -89,12 +94,13 @@ bat_indexs = {
     'Death' : [2]}
 bat_stats = {
     'health': 1,
-    'speed': coeff*5/3,
+    'speed': coeff*4/3,
     'attack': 0,
-    'attack_speed': santa_data[1][0]*0}
+    'attack_speed': 1,
+    'stamina': 0}
 
 halo_dico_v1 = {
-    'Halo/Halo_Sprite_Sheet.png' : [[5],[4,8,5,3,8]]}
+    'Halo/Halo_Sprite_Sheet.png' : [[5],[4,8,5,3,9]]}
 halo_data = ([11,8],[10,21],0, 35)
 halo_indexs = {
     'Idle' : [0],
@@ -103,10 +109,11 @@ halo_indexs = {
     'Hit' : [3],
     'Death' : [4]}
 halo_stats = {
-    'health': 100,
+    'health': 92,
     'speed': coeff,
     'attack': 10,
-    'attack_speed': halo_data[1][0]/2}
+    'attack_speed': 23,
+    'stamina': 105}
 
 gladiator_dico_v1 = {
     'Gladiator/Gladiator_Spritesheet.png' : [[5],[5,8,7,3,7]]}
@@ -118,10 +125,11 @@ gladiator_indexs = {
     'Hit' : [3],
     'Death' : [4]}
 gladiator_stats = {
-    'health': 85,
+    'health': 90,
     'speed': coeff,
-    'attack': 15,
-    'attack_speed': santa_data[1][0]/1.5}
+    'attack': 14,
+    'attack_speed': 17,
+    'stamina': 120}
 
 demon_dico_v1 = {
     'Demon/demon_spritesheet.png' : [[4], [6,6,4,8]]}
@@ -136,11 +144,12 @@ demon_stats = {
     'health': 150,
     'speed': coeff,
     'attack': 75,
-    'attack_speed': demon_data[1][0]/0.3}
+    'attack_speed': 13,
+    'stamina': 130}
 
 cyclop_dico_v1 = {
     'Cyclop/Cyclop_Spritesheet.png' : [[10],[15,12,5,8,3,5,9,8,6,8]]}
-cyclop_data = ([22,20],[18,34],2, 20)
+cyclop_data = ([22,20],[18,34],2, 26)
 cyclop_indexs = {
     'Idle' : [0,0,0,0,7],
     'Walk' : [1],
@@ -153,22 +162,24 @@ cyclop_stats = {
     'health': 275,
     'speed': coeff*2/3,
     'attack': 16,
-    'attack_speed': cyclop_data[1][0]/0.8}
+    'attack_speed': 16,
+    'stamina': 175}
 
 hobbit_dico_v2 = {
     'Hobbit/' : [[8], [7,13,12,4,4,10,10,8]]}
-hobbit_data = ([26,22],[12,17],0, 20)
+hobbit_data = ([26,22],[12,17],0, 28)
 hobbit_indexs = {
     'Idle' : [4],
     'Walk' : [6],
     'Attack' : [0],
     'Hit' : [3],
-    'Death' : [2],}
+    'Death' : [2]}
 hobbit_stats = {
     'health': 75,
     'speed': coeff*4/3,
-    'attack': 10,
-    'attack_speed': hobbit_data[1][0]/2}
+    'attack': 8,
+    'attack_speed': 26,
+    'stamina': 60}
 
 question_mark_dico_v2 = {
     'Question_mark/' : [[2], [6,8]]}

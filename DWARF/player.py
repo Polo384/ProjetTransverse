@@ -5,6 +5,7 @@ from settings import coeff, max_map_width, max_map_height
 from random import choice
 from copy import deepcopy
 from functions import store_special_animations, scale
+import sys
 
 # Didn't do a sprite class because rectangle doesn't correspond to the image (there are alpha pixels)
 class Player():
@@ -49,7 +50,7 @@ class Player():
             self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f}
             self.flip = False
         elif choice == 2:
-            self.input_keys = {'jump': pygame.K_o, 'down': pygame.K_l, 'left': pygame.K_k, 'right': pygame.K_m, 'attack': pygame.K_CARET}
+            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_KP_1}
             self.flip = True   
 
 
@@ -61,10 +62,12 @@ class Player():
         self.default_speed = all_stats['speed']
         self.speed = self.default_speed
         self.speed_boost = 1
-        self.stamina = 10
+        self.max_stamina = all_stats['stamina']
+        self.stamina = self.max_stamina
         self.gravity = coeff/4
         self.jump_speed = -4.75*coeff
         self.freezed = False
+        self.moving_left, self.moving_right, self.moving_up, self.moving_down = False, False, False, False
 
         # Sprint
         self.sprinting, self.sprint_allowed, self.moving_pressed, self.sprint_release = False, False, False, False
@@ -97,6 +100,7 @@ class Player():
         self.dead = False
         self.death_animation_stop = False
         self.resistance = 1
+        self.regeneration_timer = 75
 
     # Player attack
         self.attack_rect_width, self.attack_rect_height = self.data[3]*coeff, self.player_hitbox[1]*coeff
@@ -108,6 +112,7 @@ class Player():
         self.attack_pressed = False
         self.attack_timer = 0
         self.attack_speed = all_stats['attack_speed']
+        self.attack_speed_boost = 1
 
     # Effect
         self.effect_timer = 0
@@ -138,29 +143,25 @@ class Player():
             self.image = pygame.transform.flip(self.image, True, False)
 
     def get_input(self):
-        self.keys = pygame.key.get_pressed()
-
     # Move
-        if self.keys[self.input_keys['right']] and self.keys[self.input_keys['left']]:
-            self.direction.x = 0
-        elif self.keys[self.input_keys['right']]:
+        if self.moving_right:
             self.direction.x = 1
-        elif self.keys[self.input_keys['left']]:
+        elif self.moving_left:
             self.direction.x = -1
         else:
             self.direction.x = 0
-    
+
     # Jump
-        if self.keys[self.input_keys['jump']] and not self.jump_pressed:
+        if self.moving_up and not self.jump_pressed:
             if self.player_on_ground :
                 self.jump()
             elif self.wall_collision:
                 self.wall_jump()
-        if not self.keys[self.input_keys['jump']]:
+        if not self.moving_up:
             self.jump_pressed = False
         
     # Fall
-        if self.keys[self.input_keys['down']]:
+        if self.moving_down:
             if not self.down_movement_allowed:
                 self.gravity = coeff/2
             else:
@@ -168,17 +169,51 @@ class Player():
             if not self.down_pressed and self.down_movement_allowed:
                 self.down_movement_timer = self.down_movement_timer_max
                 self.down_pressed = True
-        if not self.keys[self.input_keys['down']]:
+        if not self.moving_down:
             self.gravity = coeff/4
             self.down_pressed = False
     
-    # Attack
-        if self.keys[self.input_keys['attack']] and not self.attack_pressed and self.attack_timer == 0:
+    def handle_events(self, events):
+        for event in events:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+                pygame.quit()
+                sys.exit()
+
+            if not self.dead:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == self.input_keys['attack']:
+                        self.attack_pressed = True
+                    if event.key == self.input_keys['left']:
+                        self.moving_left = True
+                    elif event.key == self.input_keys['right']:
+                        self.moving_right = True
+                    if event.key == self.input_keys['jump']:
+                        self.moving_up = True
+                    elif event.key == self.input_keys['down']:
+                        self.moving_down = True
+
+
+                if event.type == pygame.KEYUP:
+                    if event.key == self.input_keys['attack']:
+                        self.attack_pressed = False
+                    if event.key == self.input_keys['left']:
+                        self.moving_left = False
+                    elif event.key == self.input_keys['right']:
+                        self.moving_right = False
+                    if event.key == self.input_keys['jump']:
+                        self.moving_up = False
+                    elif event.key == self.input_keys['down']:
+                        self.moving_down = False
+            
+
+    def check_attack_input(self):
+        # Attack
+        if self.choice == 2:print(int(self.attack_timer))
+        if self.attack_pressed and self.attack_timer <= 0:
+            if self.choice == 2:print("\n\nATTAAAAAAAAAAAACK!\n\n")
             self.fighting()
-            self.attack_pressed = True
-            self.attack_timer = self.attack_speed
-        elif not self.keys[self.input_keys['attack']]:
-            self.attack_pressed = False
+            self.attack_timer = 600/(self.attack_speed*self.attack_speed_boost)
+        elif not self.attack_pressed:
             self.attack_rect.x = -500
             if self.attack_timer > 0:
                 self.update_attack_timer()
@@ -196,6 +231,7 @@ class Player():
             self.direction.y = 0
         self.down_movement = False
         self.freezed = True
+
     def unfreeze(self):
         self.freezed = False
 
@@ -206,23 +242,19 @@ class Player():
 
     def update_attack_timer(self):
         self.attack_timer -= 0.5
-        if self.attack_timer < 0:
+        if self.attack_timer <= 0:
             self.attack_timer = 0
 
     def reload_stamina(self):
-        if self.stamina < 10:
-            self.stamina += 0.03
+        if self.stamina < self.max_stamina:
+            self.stamina += 0.3*self.speed_boost
 
     def use_stamina(self):
-        if self.stamina > 0:
-            self.stamina -= 0.04
+        if self.stamina > 1:
+            self.stamina -= 0.4/self.speed_boost
 
     def check_if_sprinting(self):
-        keys = pygame.key.get_pressed()
-        moving_right = keys[self.input_keys['right']]
-        moving_left = keys[self.input_keys['left']]
-
-        if moving_right or moving_left:
+        if self.moving_right or self.moving_left:
 
             # 5 : pressed
             if not self.moving_pressed and self.sprint_release:
@@ -230,29 +262,30 @@ class Player():
                 self.sprint_release_timer = 0
                 self.moving_pressed = True
                 self.sprinting = True
-                
+
             # 3 : pressed
             elif not self.moving_pressed and self.sprint_allowed:
                 self.moving_pressed = True
                 self.sprinting = True
                 self.sprint_allowed = False
-                
+
             # 1 : pressed
             elif not self.moving_pressed:
                 self.moving_pressed = True
                 self.sprint_timer = 0
                 self.sprint_allowed = True
+
         else:
             # 4 : released
+
             if self.moving_pressed and self.sprinting:
                 self.moving_pressed = False
                 self.sprint_release = True
-            
+
             # 2 : released
             elif self.moving_pressed:
                 self.moving_pressed = False
                 self.sprint_timer = 0
-
         # 1
         if self.sprint_allowed:
             self.sprint_timer += 0.1
@@ -270,12 +303,11 @@ class Player():
 
     def sprint(self):
         self.check_if_sprinting()
-
         if self.sprinting and self.direction.x != 0:
-            if self.stamina > 0.1:
+            if self.stamina > 1:
                 self.speed = self.default_speed*1.5
                 self.use_stamina()
-            elif self.stamina <= 0.1:
+            elif self.stamina <= 1:
                 self.use_stamina()
                 self.speed = self.default_speed
         else:
@@ -397,7 +429,7 @@ class Player():
                 self.effect_timer = 0
                 self.effect_ongoing = False
                 self.resistance = 1
-                self.attack_speed = self.player_hitbox[0]
+                self.attack_speed_boost = 1
 
     def fighting(self):
         if self.flip:
@@ -412,6 +444,7 @@ class Player():
         self.frame_index = 0
    
     def damage(self, opponent_attack, opponent_attack_boost, opponent_flip):
+        self.regeneration_timer = 0
         self.health -= opponent_attack*opponent_attack_boost/self.resistance
         self.push = 20*opponent_attack/self.player_hitbox[0]
         self.opponent_flip = opponent_flip
@@ -421,10 +454,21 @@ class Player():
         if self.health < 0:
             self.health = 0
 
+    def update_regeneration(self):
+        if self.regeneration_timer < 75:
+            self.regeneration_timer += 0.1
+        else:
+            self.regenerate()
+
+        
+    def regenerate(self):
+        if self.health < self.max_health:
+            self.health += 0.1
+
     def check_freeze(self):
         if self.special_animation and not self.dead:
             self.freeze()
-            if not self.attack_pressed:
+            if self.animation_state!='Hit':
                 self.invincible()
         elif not self.special_animation or self.dead:
             self.unfreeze()
@@ -460,13 +504,14 @@ class Player():
             screen.blit(self.image, (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
             if self.effect_ongoing: screen.blit(mask.to_surface(unsetcolor=(255,255,255,0), setcolor=(self.effect_color)), (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
 
-
     def update(self,screen):
         if not self.freezed and not self.dead: self.get_input()
         else: self.attack_rect_update()
+        self.check_attack_input()
         self.sprint()
         self.wall_slide()
         self.check_down_movement()
+        self.update_regeneration()
         self.push_update()
         self.check_freeze()
         self.void()
@@ -486,13 +531,4 @@ class Player():
         # saves
         self.animation_state_save, self.dust_animation_state_save = self.animation_state, self.dust_animation_state
         self.direction_save = deepcopy(self.direction)
-        if not self.dead:
-            # stamina
-            max_stamina_surface = pygame.Surface((80,10))
-            stamina_surface = pygame.Surface((self.stamina*8,10))
-            max_stamina_surface.fill('Grey')
-            stamina_surface.fill('Red')
-            screen.blit(max_stamina_surface,(self.rect.x,self.rect.y-10))
-            screen.blit(stamina_surface,(self.rect.x,self.rect.y-10))
-        
         self.draw_boss_explosion(screen)
