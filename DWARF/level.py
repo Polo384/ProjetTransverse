@@ -304,12 +304,13 @@ class Level:
                             player.rect.top = sprite.rect.bottom    
             
     def spawn_bonus(self):
-        bonus_choice = random.choice(['speed','attack', 'attack_speed', 'health', 'resistance', 'spell', 'minotaur', 'demon', 'cyclop'])
+        bonus_choice = random.choice(['health'])
+        #bonus_choice = random.choice(['speed','attack', 'attack_speed', 'health', 'resistance', 'spell', 'minotaur', 'demon', 'cyclop'])
         self.current_bonus = Bonus(bonus_choice)
         self.bonus_group.add(self.current_bonus)
     
     def bonus_collision(self, player):
-        if player.rect.colliderect(self.current_bonus.rect):
+        if player.rect.colliderect(self.current_bonus.rect) and not player.dead:
             self.current_bonus.effect(player)
             self.bonus_group.remove(self.current_bonus)
             self.timer = 0 
