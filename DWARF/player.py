@@ -462,7 +462,7 @@ class Player():
 
         
     def regenerate(self):
-        if self.health < self.max_health:
+        if self.health < self.max_health and not self.dead:
             self.health += 0.1
 
     def check_freeze(self):
