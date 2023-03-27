@@ -40,7 +40,12 @@ class HUD:
         
         # bonus
         self.bonus_frame = scale(pygame.image.load('DWARF/Hud/bonus_frame.png').convert_alpha(), 'mult', coeff*4/3)
-        
+
+        #hero bar
+        self.hero_barbg = pygame.Rect( 1, self.player.rect.y - 25 , coeff*25 , 2*coeff*5/3)
+        self.hero_bar = pygame.Rect( 1, self.player.rect.y - 25 , coeff*25*self.player.health/self.player.max_health , 2*coeff*5/3)
+        self.process_hero_bar_width = coeff*25*self.player.health/self.player.max_health
+        self.process_hero_bar = pygame.Rect(1, self.player.rect.y - 25, self.process_hero_bar_width, 2*coeff*5/3)
         #transformation for the right part (second hero) of the screen
         if self.choice == 2:
             self.photo = pygame.transform.flip(self.photo, True, False)
@@ -61,19 +66,28 @@ class HUD:
             self.photo = greyscale(self.photo)
             self.health_bar = greyscale(self.health_bar)
             self.check_greyscale = True
+            self.stamina_image = greyscale(self.stamina_image)
+            self.bonus_frame = greyscale(self.bonus_frame)
 
     def update_process_bar(self):
         if self.choice == 1:
             if self.process_bar_width > coeff*68.5*self.player.health/self.player.max_health:
                 self.process_bar_width -= 1
             elif self.process_bar_width < coeff*68.5*self.player.health/self.player.max_health:
-                self.process_bar = coeff*68.5*self.player.health/self.player.max_health
+                self.process_bar_width = coeff*68.5*self.player.health/self.player.max_health
             
         else:
             if self.process_bar_width > coeff*151.3 - coeff*68.5*(1-self.player.health/self.player.max_health):
                 self.process_bar_width -= 1
             elif self.process_bar_width < coeff*151.3 - coeff*68.5*(1-self.player.health/self.player.max_health):
                 self.process_bar_width = coeff*151.3 - coeff*68.5*(1-self.player.health/self.player.max_health)
+
+        if self.process_hero_bar_width > coeff*25*self.player.health/self.player.max_health:
+            self.process_hero_bar_width -= 0.25
+
+        elif self.process_hero_bar_width < coeff*25*self.player.health/self.player.max_health:
+            self.process_hero_bar_width = coeff*25*self.player.health/self.player.max_health
+            
 
     def detect_bonus(self, screen):
         if self.player.effect_ongoing :
@@ -142,3 +156,25 @@ class HUD:
             #bonus
             screen.blit(self.bonus_frame, (screen_width - self.bonus_frame.get_width() - coeff*4/3*124, coeff*4/3*2))
             self.detect_bonus(screen)
+
+    #health bar above heroes
+        if not self.player.dead:
+            self.hero_barbg.centerx = self.player.rect.centerx
+            self.hero_barbg.y = self.player.rect.y - 25
+            self.hero_bar.centerx = self.player.rect.centerx
+            self.hero_bar.y = self.player.rect.y - 25
+
+            #on the left
+            self.hero_bar.x = self.hero_barbg.x
+            self.hero_bar.width = coeff*25*self.player.health/self.player.max_health
+
+            self.process_hero_bar.width = self.process_hero_bar_width
+            self.process_hero_bar.centerx = self.player.rect.centerx
+            self.process_hero_bar.y = self.player.rect.y - 25
+            self.process_hero_bar.x = self.hero_barbg.x
+            
+            pygame.draw.rect(screen, (186,186,186), self.hero_barbg)
+            pygame.draw.rect(screen, "white", self.process_hero_bar)
+            pygame.draw.rect(screen, self.health_bar_color, self.hero_bar)
+        
+

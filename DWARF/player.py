@@ -50,7 +50,7 @@ class Player():
             self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f}
             self.flip = False
         elif choice == 2:
-            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_KP_1}
+            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_RCTRL}
             self.flip = True   
 
 
@@ -208,9 +208,7 @@ class Player():
 
     def check_attack_input(self):
         # Attack
-        if self.choice == 2:print(int(self.attack_timer))
         if self.attack_pressed and self.attack_timer <= 0:
-            if self.choice == 2:print("\n\nATTAAAAAAAAAAAACK!\n\n")
             self.fighting()
             self.attack_timer = 600/(self.attack_speed*self.attack_speed_boost)
         elif not self.attack_pressed:

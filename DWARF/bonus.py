@@ -1,6 +1,6 @@
 import pygame, math, random
 from functions import *
-from settings import coeff
+from settings import coeff, tile_size
 clock = pygame.time.Clock()
 
 class Bonus(pygame.sprite.Sprite):
@@ -14,17 +14,36 @@ class Bonus(pygame.sprite.Sprite):
         self.apparition()
         
     def apparition(self):
-        coordonnees = random.random() #nombre random entre 0 et 1
+        coordonnees = random.randint(1, 9) #nombre random 
         #En fonction du nombre qu'on a eu, on fait spawn à trois endroits différents
-        if coordonnees<=0.25:
-            self.rect.x = 100*coeff
-            self.rect.y = 70*coeff
-        elif coordonnees>0.25 and coordonnees<=0.5:
-            self.rect.x = 200*coeff
-            self.rect.y = 60*coeff
-        else: #plage plus grande ici donc + de probabilité que ça spawn à ces coordonnées
-            self.rect.x = 300*coeff
-            self.rect.y = 100*coeff
+        
+        if coordonnees==1:
+            self.rect.x = tile_size*coeff*13.7 - tile_size*coeff
+            self.rect.y = tile_size*coeff*6.5 - tile_size*coeff
+        elif coordonnees==2:
+            self.rect.x = tile_size*coeff*13.25 - tile_size*coeff
+            self.rect.y = tile_size*coeff*15.4 - tile_size*coeff
+        elif coordonnees==3:
+            self.rect.x = tile_size*coeff*3.4 - tile_size*coeff 
+            self.rect.y = tile_size*coeff*16.5 - tile_size*coeff
+        elif coordonnees==4:
+            self.rect.x = tile_size*coeff*35 - tile_size*coeff
+            self.rect.y = tile_size*coeff*5.3 - tile_size*coeff
+        elif coordonnees==5:
+            self.rect.x = tile_size*coeff*3 - tile_size*coeff
+            self.rect.y = tile_size*coeff*6 - tile_size*coeff
+        elif coordonnees==6:
+            self.rect.x = tile_size*coeff*23.5 - tile_size*coeff
+            self.rect.y = tile_size*coeff*5.5 - tile_size*coeff
+        elif coordonnees==7:
+            self.rect.x = tile_size*coeff*27.8 - tile_size*coeff
+            self.rect.y = tile_size*coeff*10.3 - tile_size*coeff
+        elif coordonnees==8:
+            self.rect.x = tile_size*coeff*21 - tile_size*coeff
+            self.rect.y = tile_size*coeff*19.3 - tile_size*coeff
+        else:
+            self.rect.x = tile_size*coeff*32 - tile_size*coeff
+            self.rect.y = tile_size*coeff*16.5 - tile_size*coeff
 
     def levitate(self):
         self.rect.y += round(math.sin(self.variable)*coeff*0.5)
