@@ -1,5 +1,5 @@
 import pygame, random
-from tiles import Tile, Tile_special
+from tiles import *
 from settings import player1_pos, player2_pos
 from functions import *
 from player import Player
@@ -148,17 +148,17 @@ class Level:
                         self.collide_tiles.add(tile)
 
                     elif level_data[i][j-1] == 1 and level_data[i+1][j] == 0 and level_data[i-1][j] == 1 and (level_data[i][j+1] == 1 or level_data[i][j+1] == 2):
-                        tile = Tile(x,y,'Purple_Rock_Round_Top_Top/M.png')
+                        tile = Tile_Specific(x,y,'Purple_Rock_Round_Top_Top/M.png', False, True, False, False)
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
                     elif (level_data[i][j-1] == 1 or level_data[i][j-1] == 3) and level_data[i][j+1] == 0 and level_data[i-1][j] == 1 and level_data[i+1][j] == 0:
-                        tile = Tile(x,y,'Purple_Rock_Round_Top_Top/R.png')
+                        tile = Tile_Specific(x,y,'Purple_Rock_Round_Top_Top/R.png', False, True, False, True)
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
                     elif (level_data[i][j+1] == 1 or level_data[i][j+1] == 3) and level_data[i][j-1] == 0 and level_data[i-1][j] == 1 and level_data[i+1][j] == 0:
-                        tile = Tile(x,y,'Purple_Rock_Round_Top_Top/L.png')
+                        tile = Tile_Specific(x,y,'Purple_Rock_Round_Top_Top/L.png', False, True, True, False)
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
@@ -193,18 +193,18 @@ class Level:
                 # BRIDGE
                 elif level_data[i][j] == 2: # one-way collision blocks
                     if (level_data[i][j+1] == 2 or level_data[i][j+1] == 1) and (level_data[i][j-1] == 2 or level_data[i][j-1] == 1) and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0:
-                        tile = Tile(x,y,'Bridge/M.png')
+                        tile = Tile_Specific(x,y,'Bridge/M.png', False, True, False, False)
                         self.tiles.add(tile)
                         self.semi_collide_tiles.add(tile)
 
                     elif (level_data[i][j+1] == 2 or level_data[i][j+1] == 1) and level_data[i][j-1] == 0 and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0:
-                        tile = Tile(x,y,'Bridge/L.png')
+                        tile = Tile_Specific(x,y,'Bridge/L.png', False, True, False, False)
                         tile.rect.height -= 1*coeff
                         self.tiles.add(tile)
                         self.semi_collide_tiles.add(tile)
 
                     elif level_data[i][j+1] == 0 and (level_data[i][j-1] == 2 or level_data[i][j-1] == 1) and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0:
-                        tile = Tile(x,y,'Bridge/R.png')
+                        tile = Tile_Specific(x,y,'Bridge/R.png', False, True, False, False)
                         tile.rect.height -= 1*coeff
                         self.tiles.add(tile)
                         self.semi_collide_tiles.add(tile)
@@ -304,8 +304,7 @@ class Level:
                             player.rect.top = sprite.rect.bottom    
             
     def spawn_bonus(self):
-        bonus_choice = random.choice(['health'])
-        #bonus_choice = random.choice(['speed','attack', 'attack_speed', 'health', 'resistance', 'spell', 'minotaur', 'demon', 'cyclop'])
+        bonus_choice = random.choice(['speed','attack', 'attack_speed', 'health', 'resistance', 'spell', 'minotaur', 'demon', 'cyclop'])
         self.current_bonus = Bonus(bonus_choice)
         self.bonus_group.add(self.current_bonus)
     

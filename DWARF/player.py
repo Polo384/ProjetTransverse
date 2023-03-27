@@ -493,6 +493,7 @@ class Player():
             self.freeze()
             self.animation_state = 'Death'
             self.dead = True
+            self.stamina = 0
 
     def draw_player(self, screen):
         mask = pygame.mask.from_surface(self.image)

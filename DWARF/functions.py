@@ -147,6 +147,7 @@ def if_matrix(map, i, j, right,left,down,up):
         return False
     
 
+# Found on a blog on the internet, in order to render a B&W image :
 def greyscale(surface: pygame.Surface):
     arr = pygame.surfarray.pixels3d(surface)
     mean_arr = np.dot(arr[:,:,:], [0.216, 0.587, 0.144])
