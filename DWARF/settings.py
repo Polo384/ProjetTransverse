@@ -35,4 +35,5 @@ screen_height = 360*coeff
 FPS = 60
 
 player1_pos = (tile_size*coeff*6 -tile_size*coeff , tile_size*coeff*8-tile_size*coeff)
-player2_pos = (tile_size*coeff*18-tile_size*coeff , tile_size*coeff*15-tile_size*coeff)
+player2_pos = (tile_size*coeff*8 -tile_size*coeff , tile_size*coeff*8-tile_size*coeff)
+#player2_pos = (tile_size*coeff*18-tile_size*coeff , tile_size*coeff*15-tile_size*coeff)

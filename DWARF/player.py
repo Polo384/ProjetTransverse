@@ -2,7 +2,7 @@ import pygame
 from time import sleep
 from Heroes_Dico import *
 from settings import coeff, max_map_width, max_map_height
-from random import choice
+import random
 from copy import deepcopy
 from functions import store_special_animations, scale
 import sys
@@ -10,7 +10,9 @@ import sys
 # Didn't do a sprite class because rectangle doesn't correspond to the image (there are alpha pixels)
 class Player():
     def __init__(self, choice, pos, hero):
+        self.check_invincible = False
         self.choice = choice
+        
     # Store heroe data
         self.animations_inventory = hero[0]
         self.data = hero[1]
@@ -61,6 +63,7 @@ class Player():
         self.direction_save = pygame.math.Vector2(0,0)
         self.default_speed = all_stats['speed']
         self.speed = self.default_speed
+        self.speed_fix_timer = all_stats['speed_fix']
         self.speed_boost = 1
         self.max_stamina = all_stats['stamina']
         self.stamina = self.max_stamina
@@ -68,6 +71,8 @@ class Player():
         self.jump_speed = -4.75*coeff
         self.freezed = False
         self.moving_left, self.moving_right, self.moving_up, self.moving_down = False, False, False, False
+        self.speed_fix_variable = 0
+        self.speed_fix_check = False
 
         # Sprint
         self.sprinting, self.sprint_allowed, self.moving_pressed, self.sprint_release = False, False, False, False
@@ -128,9 +133,10 @@ class Player():
         self.jump_boss_explosion_coordonates = (0,0)
         self.boss_explosion_animation_allow = False
 
+
     def animate(self):
         if self.frame_index == 0 or self.animation_state != self.animation_state_save:
-            self.animation = self.animations_inventory[choice(self.animations_dico[self.animation_state])]
+            self.animation = self.animations_inventory[random.choice(self.animations_dico[self.animation_state])]
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.animation):
             self.image = self.animation[len(self.animation)-1]
@@ -173,6 +179,19 @@ class Player():
             self.gravity = coeff/4
             self.down_pressed = False
     
+    def speed_fix(self):
+        if self.speed <= 10:
+            self.speed_fix_variable += 1
+            if self.speed_fix_variable > self.speed_fix_timer:
+                self.speed_fix_variable = 0
+            
+            
+            if self.speed_fix_variable == 1:
+                self.speed_fix_check = True
+            else:
+                self.speed_fix_check = False
+        
+
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
@@ -210,6 +229,7 @@ class Player():
         # Attack
         if self.attack_pressed and self.attack_timer <= 0:
             self.fighting()
+            self.check_invincible = random.choice([True,True,False])
             self.attack_timer = 600/(self.attack_speed*self.attack_speed_boost)
         elif not self.attack_pressed:
             self.attack_rect.x = -500
@@ -431,10 +451,10 @@ class Player():
 
     def fighting(self):
         if self.flip:
-            self.attack_rect.x = self.rect.left - self.attack_rect.width
+            self.attack_rect.x = self.rect.centerx - self.attack_rect.width
             self.attack_rect.y = self.rect.top
         else:
-            self.attack_rect.x = self.rect.right
+            self.attack_rect.x = self.rect.centerx
             self.attack_rect.y = self.rect.top
         
         self.animation_state = 'Attack'
@@ -444,9 +464,13 @@ class Player():
     def damage(self, opponent_attack, opponent_attack_boost, opponent_flip):
         self.regeneration_timer = 0
         self.health -= opponent_attack*opponent_attack_boost/self.resistance
-        self.push = 20*opponent_attack/self.player_hitbox[0]
+        if opponent_attack > 30:
+            self.push = 20*opponent_attack/2/self.player_hitbox[0]
+        else :
+            self.push = 20*opponent_attack/1.2/self.player_hitbox[0]
         self.opponent_flip = opponent_flip
         self.animation_state = 'Hit'
+        self.check_hit_freeze = random.choice([False, False, True])
         self.special_animation = True
         self.frame_index = 0  
         if self.health < 0:
@@ -465,14 +489,20 @@ class Player():
 
     def check_freeze(self):
         if self.special_animation and not self.dead:
-            self.freeze()
-            if self.animation_state!='Hit':
-                self.invincible()
+            if self.animation_state != 'Hit':
+                self.freeze()
+                if self.check_invincible:
+                    self.invincible()
+                else:
+                    self.not_invincible()
+            elif not self.check_hit_freeze:
+                self.freeze()
+
         elif not self.special_animation or self.dead:
             self.unfreeze()
             self.not_invincible()
 
-    def push_update(self):            
+    def push_update(self):          
         self.push -= 1
         if self.push < 0:
             self.push = 0
@@ -507,6 +537,7 @@ class Player():
         if not self.freezed and not self.dead: self.get_input()
         else: self.attack_rect_update()
         self.check_attack_input()
+        self.speed_fix()
         self.sprint()
         self.wall_slide()
         self.check_down_movement()

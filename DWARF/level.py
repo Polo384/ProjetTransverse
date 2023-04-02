@@ -242,18 +242,25 @@ class Level:
     def horizontal_movement_collision(self):
         for player in self.players_list:
             check_semi_collide, player.slide_allowed, player.detect_wall_collision = True, False, False
-            player.rect.x += int(player.direction.x * player.speed * player.speed_boost)
-
+            if not player.speed_fix_check : player.rect.x += int(player.direction.x * player.speed * player.speed_boost)
+            else : player.rect.x += int(player.direction.x * coeff/3 * player.speed_boost)
+            
             for sprite in self.collide_tiles.sprites():
                 if sprite.rect.colliderect(player.rect):
                     check_semi_collide = False
                     if player.direction.x < 0 or (player.push > 0 and player.opponent_flip) :
+                        player.opponent_flip = not player.opponent_flip
+                        player.push /= 1.5
+
                         if player.wall_jump_left:
                             player.wall_collision = True
                             player.wall_jump_left, player.wall_jump_right = False, True
                         player.rect.left = sprite.rect.right
                         player.slide_allowed, player.detect_wall_collision = True, True
                     elif player.direction.x > 0 or (player.push > 0 and not player.opponent_flip):
+                        player.opponent_flip = not player.opponent_flip
+                        player.push /= 1.5
+
                         if player.wall_jump_right:
                             player.wall_collision = True
                             player.wall_jump_left, player.wall_jump_right = True, False
@@ -264,11 +271,17 @@ class Level:
                 for sprite in self.semi_collide_tiles.sprites():
                     if sprite.rect.colliderect(player.rect):
                         if player.direction.x < 0 and not player.down_movement or (player.push > 0 and player.opponent_flip):
+                            player.opponent_flip = not player.opponent_flip
+                            player.push /= 1.5
+
                             if player.wall_jump_left:
                                 player.wall_collision = True
                                 player.wall_jump_left, player.wall_jump_right = False, True
                             player.rect.left = sprite.rect.right
                         elif player.direction.x > 0 and not player.down_movement or (player.push > 0 and not player.opponent_flip):
+                            player.opponent_flip = not player.opponent_flip
+                            player.push /= 1.5
+
                             if player.wall_jump_right:
                                 player.wall_collision = True
                                 player.wall_jump_left, player.wall_jump_right = True, False

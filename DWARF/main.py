@@ -3,11 +3,10 @@ from functions import store_animations
 from Heroes_Dico import *
 from level import Level
 from settings import screen_width, screen_height, FPS, level_map
-    
-ctypes.windll.user32.SetProcessDPIAware() 
+
 
 pygame.init()
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED)
+screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.event.set_grab(True)
 clock = pygame.time.Clock()
 icon = pygame.image.load('DWARF/icon/icon.png')
