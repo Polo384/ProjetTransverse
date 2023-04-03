@@ -90,7 +90,7 @@ class Player():
         if self.hero_choice == 'minotaur' or self.hero_choice == 'cyclop':
             self.down_movement_timer_max = self.player_hitbox[1]*0.07
         elif self.hero_choice == 'santa':
-            self.down_movement_timer_max = self.player_hitbox[1]*0.08
+            self.down_movement_timer_max = self.player_hitbox[1]*0.07
         elif self.hero_choice == 'demon' or self.hero_choice == 'bat':
             self.down_movement_timer_max = 0
         elif self.hero_choice == 'hobbit':
@@ -314,10 +314,11 @@ class Player():
         # 4
         if self.sprint_release:
             self.sprint_release_timer += 0.1
-            if self.sprint_release_timer > 1.2:
+            if self.sprint_release_timer > 0.5:
                 self.sprinting = False
                 self.sprint_release_timer = 0
                 self.sprint_release = False
+
 
     def sprint(self):
         self.check_if_sprinting()

@@ -3,7 +3,7 @@ from functions import store_animations
 from Heroes_Dico import *
 from level import Level
 from settings import screen_width, screen_height, FPS, level_map
-
+    
 ctypes.windll.user32.SetProcessDPIAware() 
 
 pygame.init()
