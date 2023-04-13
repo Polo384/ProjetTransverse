@@ -69,7 +69,7 @@ class Level:
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
                     
-                    elif level_data[i][j+1] == 0 and level_data[i][j-1] == 1 and level_data[i+1][j] == 1 and level_data[i-1][j] == 1 and level_data[i-2][j] != 1 and level_data[i+1][j+1] != 0:
+                    elif level_data[i][j+1] == 0 and level_data[i][j-1] == 1 and level_data[i+1][j] == 1 and level_data[i-1][j] == 1 and level_data[i-2][j] != 1 and level_data[i+1][j+1] != 0 or (level_data[i][j+1] == 4 and  level_data[i-2][j] == 0):
                         tile = Tile(x,y,'Yellow_Rock_Block/SR.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile) 
@@ -111,8 +111,8 @@ class Level:
                             self.tiles.add(tile)
                             self.collide_tiles.add(tile)
 
-                    elif level_data[i][j+1] == 1 and level_data[i][j-1] == 0 and level_data[i-1][j] == 1 and (level_data[i+1][j] == 1 or level_data[i+1][j] == 3):
-                        if level_data[i-2][j] == 0 or level_data[i-2][j] == 4 or level_data[i-2][j] == 5:
+                    elif level_data[i][j+1] == 1 and (level_data[i][j-1] == 0 or level_data[i][j-1] == 2) and level_data[i-1][j] == 1 and (level_data[i+1][j] == 1 or level_data[i+1][j] == 3) or level_data[i+1][j-1] == 2:
+                        if level_data[i-2][j] == 0 or level_data[i-2][j] == 4 or level_data[i-2][j] == 5 or level_data[i][j-1] == 2 :
                             tile = Tile(x,y,'Purple_Rock_Yellow_Rock/L.png')
                             self.tiles.add(tile)
                             self.collide_tiles.add(tile)
@@ -192,7 +192,7 @@ class Level:
 
                 # BRIDGE
                 elif level_data[i][j] == 2: # one-way collision blocks
-                    if (level_data[i][j+1] == 2 or level_data[i][j+1] == 1) and (level_data[i][j-1] == 2 or level_data[i][j-1] == 1) and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0:
+                    if ((level_data[i][j+1] == 2 or level_data[i][j+1] == 1) and (level_data[i][j-1] == 2 or level_data[i][j-1] == 1) and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0) :
                         tile = Tile_Specific(x,y,'Bridge/M.png', False, True, False, False)
                         self.tiles.add(tile)
                         self.semi_collide_tiles.add(tile)
