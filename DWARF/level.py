@@ -111,6 +111,14 @@ class Level:
                             self.tiles.add(tile)
                             self.collide_tiles.add(tile)
 
+                    elif level_data[i][j+1] == 1 and level_data[i][j-1] == 2 and level_data[i+1][j] and level_data[i-1][j] == 1:
+                        tile = Tile_Specific(x,y,'Bridge/M.png', False, True, False, False)
+                        self.tiles.add(tile)
+                        self.semi_collide_tiles.add(tile)
+                        tile = Tile(x,y,'Purple_Rock_Ground/L.png')
+                        self.tiles.add(tile)
+                        self.collide_tiles.add(tile)
+
                     elif level_data[i][j+1] == 1 and (level_data[i][j-1] == 0 or level_data[i][j-1] == 2) and level_data[i-1][j] == 1 and (level_data[i+1][j] == 1 or level_data[i+1][j] == 3) or level_data[i+1][j-1] == 2:
                         if level_data[i-2][j] == 0 or level_data[i-2][j] == 4 or level_data[i-2][j] == 5 or level_data[i][j-1] == 2 :
                             tile = Tile(x,y,'Purple_Rock_Yellow_Rock/L.png')
@@ -121,12 +129,12 @@ class Level:
                             self.tiles.add(tile)
                             self.collide_tiles.add(tile)
                             
-                    elif if_matrix(level_data, i, j,1,1,1,1) and level_data[i-1][j-1] == 1 and (level_data[i-1][j+1] == 0 or level_data[i-1][j+1] == 4 or level_data[i-1][j+1] == 5):
+                    elif if_matrix(level_data, i, j,1,1,1,1) and level_data[i-1][j-1] == 1 and (level_data[i-1][j+1] == 0 or level_data[i-1][j+1] == 4 or level_data[i-1][j+1] == 5) or (level_data[i][j-2] == 3 and level_data[i][j+2] == 0 and level_data[i+1][j+1] == 1 and level_data[i+1][j+1] == 1 and level_data[i+2][j+2] == 1):
                         tile = Tile(x,y,'Yellow_Rock_Block/L.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
-                    elif if_matrix(level_data, i, j,1,1,1,1) and level_data[i-1][j+1] == 1 and (level_data[i-1][j-1] == 0 or level_data[i-1][j-1] == 4 or level_data[i-1][j-1] == 5):
+                    elif if_matrix(level_data, i, j,1,1,1,1) and level_data[i-1][j+1] == 1 and (level_data[i-1][j-1] == 0 or level_data[i-1][j-1] == 4 or level_data[i-1][j-1] == 5) or (level_data[i][j+1] == 3 and level_data[i-2][j-1] == 0):
                         tile = Tile(x,y,'Yellow_Rock_Block/R.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
