@@ -106,7 +106,7 @@ bat_stats = {
     'stamina': 1}
 
 halo_dico_v1 = {
-    'Halo/Halo_Sprite_Sheet.png' : [[5],[4,8,5,3,9]]}
+    'Halo/Halo_Sprite_Sheet.png' : [[5],[4,8,5,3,8]]}
 halo_data = ([11,8],[10,21],0, 40)
 halo_indexs = {
     'Idle' : [0],
@@ -197,7 +197,8 @@ question_mark_dico_v2 = {
 question_mark_data = ([6,3],[19,30],0, 20)
 question_mark_indexs = {
     'Idle' : [0],
-    'Attack' : [1]}
+    'Attack' : [1],
+    'Walk':[0]}
 question_mark_stats = {}
 
 

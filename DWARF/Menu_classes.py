@@ -462,6 +462,7 @@ class cursor_heroes():
         
         self.stop_animation1 = False
         self.stop_animation2 = False 
+
     def move_cursor(self,screen,idx, idy,stop_animations,idx2,idy2,acti,q_mark):
         react = False
         do_action = False
@@ -516,11 +517,11 @@ class cursor_heroes():
                     react = False
                 self.press_d = False
 
-        if keys[pygame.K_SPACE] and not self.press_action:
+        if keys[pygame.K_RCTRL] and not self.press_action:
             self.press_action = True
             stop_animations = not stop_animations
             acti = not acti
-        if self.press_action and not keys[pygame.K_SPACE]:
+        if self.press_action and not keys[pygame.K_RCTRL]:
             action = 2
             react = True
             do_action = True
@@ -559,9 +560,9 @@ class cursor_heroes():
                         react = False
                 self.press_r= False
             
-            if keys[pygame.K_a] and self.press_l == False:
+            if keys[pygame.K_q] and self.press_l == False:
                 self.press_l = True
-            if self.press_l and not keys[pygame.K_a]:
+            if self.press_l and not keys[pygame.K_q]:
                 self.x-= self.x_move
                 idx -= 1
                 react = True
@@ -571,9 +572,9 @@ class cursor_heroes():
                         react = False
                 self.press_l = False
             
-            if keys[pygame.K_w] and not self.press_u:
+            if keys[pygame.K_z] and not self.press_u:
                 self.press_u = True
-            if self.press_u and not keys[pygame.K_w]:
+            if self.press_u and not keys[pygame.K_z]:
                 self.y -= self.y_move
                 idy -= 1
                 react = True
@@ -595,11 +596,11 @@ class cursor_heroes():
                         react = False
                 self.press_d = False
 
-        if keys[pygame.K_e] and not self.press_action:
+        if keys[pygame.K_f] and not self.press_action:
             self.press_action = True
             stop_animations2 = not stop_animations2
             acti = not acti
-        if self.press_action and not keys[pygame.K_e]:
+        if self.press_action and not keys[pygame.K_f]:
             action = 2
             react = True
             do_action = True
