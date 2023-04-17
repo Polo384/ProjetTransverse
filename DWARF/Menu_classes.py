@@ -2,67 +2,98 @@ import numpy as np
 import pygame
 from moviepy.editor import VideoFileClip
 import math as math
-from settings import *
-from pygame.locals import *
+from settings import screen_width, screen_height, FPS, level_map
+#from pygame.locals import *
 from functions import scale
+from backgrounds import*
 
+
+
+
+from Heroes_Dico import heroes_dico, santa_dico_v1, minotaur_dico_v1, dwarf_dico_v1, indiana_jones_dico_v1, adventurer_dico_v1, bat_dico_v1, halo_dico_v1, gladiator_dico_v1, demon_dico_v1, cyclop_dico_v1, hobbit_dico_v2,question_mark_dico_v2
+from functions import store_animations,scale
+from Animation import*
+from random import*
+from level import Level
+from Heroes_Dico import santa_stats
+y_cord = 225
+x_cord = 110
+seed(57)
+separation_rows = 400
+
+
+hero_list = ['santa','indiana_jones','adventurer','halo','dwarf','gladiator','hobbit','question_mark']
 fonts = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", 75)
-
 
 # Classes
 
-class Menu:
-    def __init__(self):
+class Menu():
+    def __init__(self,all_ani):
 
+        self.title = None
         self.menu = 0
-        self.video = Video("DWARF/Menu/Foret.mp4", screen_width, screen_height)
-        self.bar = LoadingBar()
 
         self.confirm = -1
 
-        self.y_coord = 205
-        self.Start = Buttons("START", 290, 200, 400, 100, True, 75, 12,
-                             (57, 193, 178))  # Message, x,y,width,hight,bool,size_of_font,radius border,color)
-        self.Quit = Buttons("QUIT", 290, 400, 400, 100, True, 75, 12, (36, 148, 50))
+        self.y_coord = 130*coeff
+
+        self.play = Buttons_2(screen_width/coeff, 100*coeff,1.5, "DWARF/Menu/play.png","DWARF/Menu/play_press.png","DWARF/Menu/play_shadow.png",True)
+        self.options = Buttons_2(screen_width/coeff, 150*coeff, 1.5,"DWARF/Menu/options.png","DWARF/Menu/options_press.png","DWARF/Menu/options_shadow.png",True)
 
         # Title and sprites
-        self.y = 80
+        self.y = 35*coeff
         self.sin_increment = 0
-        self.title = Sprites(340, self.y, "DWARF/Menu/dwarf.png", 2)
         # music variables
-        
-        self.volume = 1
-        self.background_music = window("DWARF", "DWARF/Musics/menu.wav", self.volume)
+
+        self.volume = 0.1
+        self.background_music = window("DWARF", "DWARF/Musics/Menu2.wav", self.volume)
         self.play_music = True
-        self.music_on = Sprites(5, 5, "DWARF/Menu/mute_on.png", 1)
-        self.music_off = Sprites(5, 5, "DWARF/Menu/mute_off.png", 1)
+        self.music_on = Sprites(5, 5,False, "DWARF/Menu/mute_on.png", 1)
+        self.music_off = Sprites(5, 5,False, "DWARF/Menu/mute_off.png", 1)
         self.mute = False
         self.background_music.play()
 
         # import class for creation of characters page
         self.char_page = page_characters()
 
+        self.backgrounds_group = pygame.sprite.Group()
+        self.backgrounds_group.add(BG(3,1),BG(3,2),BG(3,3),BG(3,4))
+        
+        self.Selections = selection_of_characters(all_ani)
+        self.all_ani = all_ani
+
+        self.player1 = "none"
+        self.player2 = "none"
+
+        self.create_level = False
+        self.running = False
+
+        self.pos_player1_x = 0
+        self.pos_player1_y = 0
+
+        self.pos_player2_x = 0
+        self.pos_player2_y = 0
     def create_menu(self, screen, game_start_variable):
+        
 
-        if self.play_music:
-            self.background_music.play()
-            self.play_music = False
         if self.menu == 0:
-
+            self.create_level = False
             # PLays the video one time
-            self.video.Play(screen)
+            self.backgrounds_group.update()
+            self.backgrounds_group.draw(screen)
+            
             self.y += (math.sin(self.sin_increment) * 1)
             self.sin_increment += 0.1
-            self.title = Sprites(380, self.y, "DWARF/Menu/dwarf.png", 1)
+            self.title = Sprites(screen_width/coeff, self.y,True, "DWARF/Menu/dwarf.png", 0.8)
             self.title.detect_click(screen)
-
-            game_start_variable, self.y_coord, self.confirm = cursor_menu(screen,
-                                                                          190 + (math.sin(self.sin_increment) * 10),
-                                                                          self.y_coord, game_start_variable)
-            if self.Start.draw(screen) or self.confirm == 0:
+            game_start_variable, self.y_coord, self.confirm = \
+                cursor_menu(screen,100*coeff + (math.sin(self.sin_increment) * 10) ,self.y_coord, game_start_variable)
+            if self.play.Update(screen) or self.confirm == 0:
+                
                 self.menu = 1
-            if self.Quit.draw(screen) or self.confirm == 1:
+            if self.options.Update(screen) or self.confirm == 1:
                 game_start_variable = False
+            self.Selections = selection_of_characters(self.all_ani)
 
             # Mute the sound
             if not self.mute:
@@ -71,14 +102,22 @@ class Menu:
                     self.background_music.set_volume(0)
             else:
                 if self.music_off.detect_click(screen):
-                    self.background_music.set_volume(1)
+                    self.background_music.set_volume(self.volume)
                     self.mute = False
 
         elif self.menu == 1:
+            
             self.menu = self.char_page.put(screen,self.menu)
+            
+            self.player1 , self.player2,self.pos_player1_x, self.pos_player1_y, self.pos_player2_x, self.pos_player2_y = self.Selections.create_selection(screen)
+            show_data(screen,0,0,self.pos_player1_x, self.pos_player1_y)
+            if(self.menu == 2 and (self.player1 == "none" or self.player2 == "none")):
+                self.menu = 1
         elif self.menu == 2:
-            self.bar.create_bar(screen)
-        return game_start_variable
+            self.create_level = True
+            self.background_music.set_volume(0)
+
+        return game_start_variable, self.player1,self.player2, self.create_level
 
 
 class Buttons:
@@ -91,7 +130,7 @@ class Buttons:
         self.text = text
         self.f_size = int(font_size*coeff/2)
         # create rectangles
-        self.upper_rect = pygame.Rect((self.x, y), (self.w, self.h))
+        self.upper_rect = pygame.Rect((self.x, y*coeff/2), (self.w, self.h))
         self.down_rect = pygame.Rect((self.x + 4*coeff/2, self.y + 10*coeff/2), (self.w * 0.98, self.h * 0.98))
         self.colorc = (40, 40, 40)
         self.colortext = (255, 255, 255)
@@ -140,8 +179,7 @@ class Buttons:
                 if (not self.alt):
                     self.upper_rect = pygame.Rect((self.x, self.y), (self.w, self.h))
                     self.text_rect = self.texto.get_rect(center=self.upper_rect.center)
-
-            self.alt = True
+                self.alt = True
         if pygame.mouse.get_pressed()[0] == 0 and self.clicked:
             self.clicked = False
             self.topcolor, self.upper_rect, self.text_rect = self.animation(self.x, self.y, self.w, self.h, self.texto,
@@ -211,15 +249,20 @@ class LoadingBar:
 
 
 class Sprites(pygame.sprite.Sprite):
-    def __init__(self, x, y, image, multiplier):
+    def __init__(self, x, y,take_center, image, multiplier):
         super().__init__()
         self.image = pygame.image.load(image)
         self.image = scale(self.image, 'mult', coeff*multiplier)
 
         self.rect = self.image.get_rect()
+                
+
         self.rect.x = x*coeff/2
         self.rect.y = y*coeff/2
-
+        if take_center:
+            self.rect.x -= self.rect.width/2
+            self.rect.y -= self.rect.height/2
+            
         # Create a sprite group
         self.sprites = pygame.sprite.Group()
 
@@ -246,9 +289,15 @@ class Sprites(pygame.sprite.Sprite):
 
 # Funtions
 
-def text_creation(text, font, textcol, x, y, screen):
+def text_creation(text, font, textcol, x, y,take_center, screen):
     img = font.render(text, True, textcol)
-    screen.blit(img, (x*coeff/2, y*coeff/2))
+    x = x *coeff/2
+    y = y*coeff/2
+    if take_center:
+        rect = img.get_rect()
+        x -= rect.width/2
+        y -= rect.height/2
+    screen.blit(img, (x, y))
 
 
 def window(Title_window, Music, Volume):
@@ -268,53 +317,455 @@ def cursor_menu(screen, x, y, game_start_variable):
         if event.type == pygame.QUIT:
             game_start_variable = False
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and y > 175*coeff:
+                cord_y -= 65*coeff
+            if event.key == pygame.K_DOWN and y < 194*coeff:
+                cord_y += 65*coeff
+                
+            if (y == 175*coeff/2) and event.key == pygame.K_SPACE:
+                    select = 0
+            elif (y == 305*coeff/2) and event.key == pygame.K_SPACE :
+                    select = 1
+                
 
-            if event.key == pygame.K_UP and y > 205*coeff/2:
-                cord_y -= 100*coeff
-            else:
-                if event.key == pygame.K_DOWN and y < 405*coeff/2:
-                    cord_y += 100*coeff
-            if event.key == pygame.K_SPACE and (y == 205*coeff/2):
-                select = 0
-            elif event.key == pygame.K_SPACE and (y == 405*coeff/2):
-                select = 1
     y += cord_y
     screen.blit(image, (x, y))
+    
     return game_start_variable, y, select
 
 
 class page_characters:
     def __init__(self):
         self.x = 150
-        self.hero = Sprites(self.x, 200, "DWARF/Menu_x2/Hero.png", 1)
-        self.halo = Sprites(self.x + 250, 180, "DWARF/Menu_x2/Halo.png", 1)
-        self.gladiator = Sprites(self.x + 500, 180, "DWARF/Menu_x2/Gladiator.png", 1)
+
         self.herostext_font = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", int(30*coeff/2))
+        self.fonts = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", int(75*coeff/2))
 
         self.back_char = pygame.image.load("DWARF/Menu_x2/tabern.jpg")
-        self.back_char = scale(self.back_char, 'mult', coeff/4)
+        self.back_char = scale(self.back_char, 'mult', coeff/3)
 
-        self.y = 10
+        self.y = 35
         self.sin_increment = 0
-        self.back = Buttons("Back",20,430,150,80,True,50,12,(83,11,20))
-        self.play_game= Buttons("Play",780,430,150,80,True,50,12,(11,83,29))
+        self.back = Buttons("Back",20*coeff/2,425*coeff/2,120,60,True,50,12,(83,11,20))
+        self.play_game= Buttons("Play",750*coeff/2,425*coeff/2,120,60,True,50,12,(11,83,29))
 
     def put(self, screen,menu):
         screen.blit(self.back_char, (0, 0))
-        self.y += round(math.sin(self.sin_increment)*coeff*0.7)
-        self.sin_increment += 0.08
-        text_creation("Select you Hero", fonts, (255, 255, 255), 200, self.y, screen)
-        text_creation("HERO", self.herostext_font, (255, 255, 255), self.x+50, 370, screen)
-        text_creation("HALO", self.herostext_font, (255, 255, 255), self.x + 290, 370, screen)
-        text_creation("GLADIATOR", self.herostext_font, (255, 255, 255), self.x + 500, 370, screen)
-        self.play_game.draw(screen)
+        self.y += round(math.sin(self.sin_increment)*1)
+        self.sin_increment += 0.1
+        text_creation("Select your Hero", self.fonts, (255, 255, 255), screen_width/coeff, self.y,True, screen)
 
+
+        if self.play_game.draw(screen):
+            menu = 2
         if self.back.draw(screen):
             menu = 0
-        if self.hero.detect_click(screen):
-            print("Hero")
-        if self.halo.detect_click(screen):
-            print("Halo")
-        if self.gladiator.detect_click(screen):
-            print("gladiator")
+
+        
         return menu
+
+
+class Buttons_2():
+    def __init__(self, x, y, multiplier, image, image1, shadow, state):
+
+        #Loads images and gets their center coordenates
+        self.image, self.image1, self.shadow = load_images(image,image1,shadow,multiplier)
+
+        self.image_rect = self.image.get_rect()
+        self.image_x= x*coeff/2
+        self.image_y = y*coeff/2
+        
+        #set the center as coordenate for positioning
+        self.image_x -= self.image_rect.width/2
+        self.image_y -= self.image_rect.height/2
+
+        self.image_rect.x =self.image_x
+        self.image_rect.y = self.image_y
+        self.save = (self.image_rect.height/2)
+
+        self.shadow_rect = self.shadow.get_rect()
+        self.shadow_y = (y*coeff/2+self.save)
+        self.shadow_rect.x = self.image_x
+        self.shadow_rect.y = self.shadow_y
+
+        # Booleans used to adapt the button to different situations.
+        self.clicked = False
+        self.was_pressed = False
+        self.execute = False
+        self.alt = state
+    def Update(self, screen):
+        action = False
+        mouse_pos = pygame.mouse.get_pos()
+        if self.image_rect.collidepoint(mouse_pos) or self.shadow_rect.collidepoint(mouse_pos):
+            if not self.clicked and self.was_pressed and not self.alt:
+                screen.blit(self.image,(self.image_x, self.image_y-5*coeff/2))
+            if self.alt:  
+                if pygame.mouse.get_pressed()[0] == 0:
+                    self.was_pressed = True
+                else:
+                    self.was_pressed = False
+                self.alt = False
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.clicked = True
+        else:
+            screen.blit(self.image,(self.image_x, self.image_y))
+            if pygame.mouse.get_pressed()[0] == 0:
+                self.alt = True
+        if pygame.mouse.get_pressed()[0] == 0 and self.clicked:
+            self.clicked = False
+            self.alt = True
+            if self.image_rect.collidepoint(mouse_pos) or self.shadow_rect.collidepoint(mouse_pos):
+                action= True
+        if self.clicked and self.was_pressed:
+            screen.blit(self.image1,(self.image_x, self.image_y))
+        else:
+            screen.blit(self.image,(self.image_x, self.image_y))
+
+        screen.blit(self.shadow,(self.image_x,self.shadow_y))
+        return action
+
+    
+def load_images(image,image1,shadow,multiplier):
+    image = pygame.image.load(image,image1,)
+    image = scale(image, 'mult', coeff*multiplier)
+
+    image1 = pygame.image.load(image1)
+    image1 = scale(image1, 'mult', coeff*multiplier)
+
+    shadow = pygame.image.load(shadow)
+    shadow = scale(shadow, 'mult', coeff*multiplier)
+    return image, image1,shadow
+
+def create_animations(text,separation,x,y,mov,all_ani):
+    hero_all_animations = [all_ani[heroes_dico[text][0]], heroes_dico[text][1], heroes_dico[text][2], text]
+    return [Player([x+separation*coeff,y], hero_all_animations,mov)]
+
+class cursor_heroes():
+    def __init__(self,x,y,image):
+        self.x = x*coeff
+        self.y = y*2
+        self.image = pygame.image.load("DWARF/Menu/"+image)
+        self.image = scale(self.image, 'mult', coeff*3)
+        
+        rect = self.image.get_rect()
+        self.x -= rect.width/2 + 3
+        self.y -= rect.height/2 - 5
+
+        self.x_move = 130*coeff
+        self.y_move = separation_rows
+
+        self.press_r = False
+        self.press_l = False
+        self.press_u = False
+        self.press_d = False
+        self.press_action = False
+        
+        self.stop_animation1 = False
+        self.stop_animation2 = False 
+    def move_cursor(self,screen,idx, idy,stop_animations,idx2,idy2,acti,q_mark):
+        react = False
+        do_action = False
+        action = 0
+        keys = pygame.key.get_pressed()
+        if acti == True:
+            if keys[pygame.K_RIGHT] and self.press_r == False:
+                self.press_r = True
+            if self.press_r and not keys[pygame.K_RIGHT]:
+                self.x += self.x_move
+                idx += 1 
+                react = True
+                if self.x> 520*coeff or (idx == idx2 and idy == idy2):
+                    self.x -= self.x_move
+                    idx-= 1
+                    react = False
+                self.press_r= False
+            
+            if keys[pygame.K_LEFT] and self.press_l == False:
+                self.press_l = True
+            if self.press_l and not keys[pygame.K_LEFT]:
+                self.x-= self.x_move
+                idx -= 1
+                react = True
+                if self.x< 0 or (idx == idx2 and idy == idy2):
+                    self.x += self.x_move
+                    idx+= 1
+                    react = False
+                self.press_l = False
+            
+            if keys[pygame.K_UP] and not self.press_u:
+                self.press_u = True
+            if self.press_u and not keys[pygame.K_UP]:
+                self.y -= self.y_move
+                idy -= 1
+                react = True
+                if self.y< 100*coeff or (idx == idx2 and idy == idy2):
+                    self.y += self.y_move
+                    idy+= 1
+                    react = False
+                self.press_u = False
+
+            if keys[pygame.K_DOWN] and not self.press_d:          
+                self.press_d = True
+            if self.press_d and not keys[pygame.K_DOWN]:
+                self.y += self.y_move
+                idy += 1
+                react = True
+                if self.y> 280*coeff or (idx == idx2 and idy == idy2):
+                    self.y -= self.y_move
+                    idy-= 1
+                    react = False
+                self.press_d = False
+
+        if keys[pygame.K_SPACE] and not self.press_action:
+            self.press_action = True
+            stop_animations = not stop_animations
+            acti = not acti
+        if self.press_action and not keys[pygame.K_SPACE]:
+            action = 2
+            react = True
+            do_action = True
+            self.press_action = False
+        if q_mark:
+            idx = randint(0,3)
+            idy = randint(0,1)
+            while(idx == idx2 and idy== idy2):
+                idx = randint(0,3)
+                idy = randint(0,1)
+                
+            self.x = self.x_move*idx +226
+            self.y = self.y_move*idy + 440
+            react = True
+            do_action = True
+            q_mark = False
+        screen.blit(self.image,(self.x,self.y))
+        
+        return react, action, idx, idy, do_action, stop_animations,acti,q_mark
+    
+    def move_cursor2(self,screen,idx, idy,stop_animations2,idx2,idy2,acti,q_mark):
+        react = False
+        do_action = False
+        action = 0
+        keys = pygame.key.get_pressed()
+        if acti == True:
+            if keys[pygame.K_d] and self.press_r == False:
+                self.press_r = True
+            if self.press_r and not keys[pygame.K_d]:
+                self.x += self.x_move
+                idx += 1 
+                react = True
+                if self.x> 520*coeff  or (idx == idx2 and idy == idy2):
+                        self.x -= self.x_move
+                        idx-= 1
+                        react = False
+                self.press_r= False
+            
+            if keys[pygame.K_a] and self.press_l == False:
+                self.press_l = True
+            if self.press_l and not keys[pygame.K_a]:
+                self.x-= self.x_move
+                idx -= 1
+                react = True
+                if self.x< 0 or (idx == idx2 and idy == idy2):
+                        self.x += self.x_move
+                        idx+= 1
+                        react = False
+                self.press_l = False
+            
+            if keys[pygame.K_w] and not self.press_u:
+                self.press_u = True
+            if self.press_u and not keys[pygame.K_w]:
+                self.y -= self.y_move
+                idy -= 1
+                react = True
+                if self.y< 100*coeff or (idx == idx2 and idy == idy2):
+                        self.y += self.y_move
+                        idy+= 1
+                        react = False   
+                self.press_u = False
+
+            if keys[pygame.K_s] and not self.press_d:          
+                self.press_d = True
+            if self.press_d and not keys[pygame.K_s]:
+                self.y += self.y_move
+                idy += 1
+                react = True
+                if self.y> 280*coeff or (idx == idx2 and idy == idy2):
+                        self.y -= self.y_move
+                        idy-= 1
+                        react = False
+                self.press_d = False
+
+        if keys[pygame.K_e] and not self.press_action:
+            self.press_action = True
+            stop_animations2 = not stop_animations2
+            acti = not acti
+        if self.press_action and not keys[pygame.K_e]:
+            action = 2
+            react = True
+            do_action = True
+            self.press_action = False
+            
+        if q_mark:
+            idx = randint(0,3)
+            idy = randint(0,1)
+            while(idx == idx2 and idy == idy2):
+                idx = randint(0,3)
+                idy = randint(0,1)
+            
+            self.x = self.x_move*idx +226
+            self.y = self.y_move*idy + 440
+            react = True
+            do_action = True
+            q_mark = False
+        screen.blit(self.image,(self.x,self.y))
+        
+        return react, action, idx, idy, do_action, stop_animations2,acti,q_mark
+
+def generate(list_of_herosx,separation,all_ani):
+    y = 0
+    k = 0
+    ctr = 0
+    for o in range(4):
+        list_of_herosx.append(create_animations(hero_list[o],separation,x_cord*coeff,y_cord,0,all_ani))
+        separation+=130
+    separation = 0
+    for q in range(4):
+        list_of_herosx.append(create_animations(hero_list[q+4],separation,x_cord*coeff,y_cord + separation_rows,0,all_ani))
+        separation+=130
+    return list_of_herosx
+
+def show_selection(index_pos,indey_pos,move,detect,stop_animation,listx,list_heroes,hero_list, all_ani):
+    y =0
+    k= 0
+    ctr = 0
+    select = "none"
+    for i in range(len(hero_list)):
+        if(i >= 4):
+            ctr = 1
+            y = separation_rows
+            k = i - 4
+        else:
+            k = i
+        if (index_pos == k and indey_pos == ctr):
+            move = 1
+            if(detect and stop_animation):
+                move = 2
+                select = hero_list[i]
+            list_heroes[i] = create_animations(hero_list[i],130*k,x_cord*coeff,y_cord+y,move,all_ani)
+        else:
+            listx.append(hero_list[i])
+            
+    return listx, list_heroes,select
+
+class selection_of_characters():
+    def __init__(self,all_ani):
+        self.separation = 0
+        self.all_animations = all_ani
+
+        self.hero_list = ['santa','indiana_jones','adventurer','halo','dwarf','gladiator','hobbit','question_mark']
+        self.list_of_heros = []
+        self.list_of_heros = generate(self.list_of_heros,self.separation,self.all_animations)
+       
+
+        # Cursor 1
+        self.move = 0
+        self.detect = False
+        self.cursor = cursor_heroes(x_cord+15,y_cord+25,"P1_cursor.png")
+        self.index_pos = 0
+        self.indey_pos = 0
+        self.detect = False
+        self.stop_animation = False
+        self.selection1 = "none"
+        self.activate = True
+        self.listb = [] 
+        self.sel_rand = False
+
+        # Cursor 2
+        self.move_2 = 0
+        self.cursor2 = cursor_heroes(220+30,y_cord+25,"P2_cursor.png")
+        self.index_pos2 = 1
+        self.indey_pos2 = 0
+        self.detect2 =False
+        self.stop_animation2 = False
+        self.selection2 = "none"
+        self.activate2 = True
+        self.lista = [] 
+        self.sel_rand2 = False
+
+        self.listc = []
+
+
+        
+        self.cursor1_react = True
+        self.cursor2_react = True
+    def create_selection(self,screen):
+
+        self.cursor2_react, self.move_2, self.index_pos2, self.indey_pos2,self.detect2,self.stop_animation2,self.activate2,self.sel_rand2 = self.cursor2.move_cursor2(screen,self.index_pos2, self.indey_pos2,self.stop_animation2,self.index_pos,self.indey_pos,self.activate2,self.sel_rand2)
+
+        self.cursor1_react, self.move, self.index_pos, self.indey_pos, self.detect, self.stop_animation, self.activate, self.sel_rand = self.cursor.move_cursor(screen, self.index_pos, self.indey_pos, self.stop_animation, self.index_pos2, self.indey_pos2, self.activate, self.sel_rand)
+        
+
+        if self.cursor1_react:
+        
+            self.listb = []
+            self.listb, self.list_of_heros,self.selection1 = show_selection(self.index_pos,self.indey_pos,self.move,self.detect,self.stop_animation,self.listb,self.list_of_heros,self.hero_list,self.all_animations) 
+            if (self.selection1 == 'question_mark'):
+                self.sel_rand = True
+            
+
+        if self.cursor2_react:
+            self.lista = [] 
+            self.lista, self.list_of_heros, self.selection2 = show_selection(self.index_pos2,self.indey_pos2,self.move_2,self.detect2,self.stop_animation2,self.lista,self.list_of_heros,self.hero_list,self.all_animations)
+            
+            if (self.selection2 == 'question_mark'):
+                self.sel_rand2 = True
+            
+        if self.cursor2_react or self.cursor1_react:
+            self.listc=[]
+            if self.listb == []:
+                self.listc = self.lista
+            elif self.lista == []:
+                self.listc = self.listb
+            
+            for x in range(len(self.lista)):
+                if(self.lista[x] in self.listb):
+                    self.listc.append(self.lista[x])
+            
+            for element in self.listc:
+                y =0
+                k= 0
+                ctr = 0
+                for l in range(len(self.hero_list)):
+                    
+                    if(l >= 4):
+                        ctr = 1
+                        y = separation_rows
+                        k = l - 4
+                    else:
+                        k = l
+                    if element == self.hero_list[l]:
+                        self.list_of_heros[l] = create_animations(element,130*k,x_cord*coeff,y_cord+y,0,self.all_animations)
+
+            self.cursor1_react = False
+            self.cursor2_react = False
+        for self.list_of_animations in self.list_of_heros:
+            for player1 in self.list_of_animations:
+                player1.update(screen)
+        
+        return self.selection1,self.selection2, self.index_pos, self.indey_pos, self.index_pos2, self.indey_pos2
+    
+def show_data(screen,x,y,index,indey):
+    
+    width_health = 0
+    hero = "none"
+    #maybe store the healh of all heores in a list and then use a function to reduce lines
+    font = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", 40)
+
+    if(index == 0 and indey == 0):
+        width_health = santa_stats['health']
+        hero = "Santa"
+    back_rec = pygame.Rect(x,y,200,100)
+    front_rec = pygame.Rect(x+20,y+20,width_health,50)
+    text_creation(hero, font, (255, 255, 255), x+5, y+100,False, screen)
+    pygame.draw.rect(screen, (255,255,255), back_rec, border_radius=0)
+    pygame.draw.rect(screen, (206,76,76), front_rec, border_radius=0)
