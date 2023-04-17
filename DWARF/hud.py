@@ -137,7 +137,7 @@ class HUD:
             screen.blit(self.bonus_frame, (coeff*4/3*124, coeff*4/3*2))
             self.detect_bonus(screen)
             if self.player.effect_ongoing:
-                screen.blit(self.font.render(str(int((self.player.effect_duration-self.player.effect_timer)*60/coeff)+1), False, 'white'), (coeff*200, coeff*16))
+                screen.blit(self.font.render(str(int((self.player.effect_duration-self.player.effect_timer)*10/60)+1), False, 'white'), (coeff*200, coeff*16))
 
         else:
             # photo
@@ -159,7 +159,7 @@ class HUD:
             screen.blit(self.bonus_frame, (screen_width - self.bonus_frame.get_width() - coeff*4/3*124, coeff*4/3*2))
             self.detect_bonus(screen)
             if self.player.effect_ongoing:
-                screen.blit(self.font.render(str(int((self.player.effect_duration-self.player.effect_timer)*60/coeff)+1), False, 'white'), (screen_width -coeff*207, coeff*16))
+                screen.blit(self.font.render(str(int((self.player.effect_duration-self.player.effect_timer)*10/60)+1), False, 'white'), (screen_width -coeff*207, coeff*16))
 
     #health bar above heroes
         if not self.player.dead:
