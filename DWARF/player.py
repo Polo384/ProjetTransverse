@@ -1,11 +1,12 @@
 import pygame
-from time import sleep
 from Heroes_Dico import *
 from settings import coeff, max_map_width, max_map_height
 import random
 from copy import deepcopy
 from functions import store_special_animations, scale
 import sys
+from projectilesclass import Projectiles2
+import math
 
 # Didn't do a sprite class because rectangle doesn't correspond to the image (there are alpha pixels)
 class Player():
@@ -49,12 +50,20 @@ class Player():
     
     # Player input
         if choice == 1:
-            self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f}
+            self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f, 'shoot': pygame.K_g}
             self.flip = False
         elif choice == 2:
-            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_RCTRL}
+            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_RCTRL, 'shoot': pygame.K_m}
             self.flip = True   
 
+    # Player shooting
+        self.angle = 0
+        self.time_pressed = 0
+        self.shoot = False 
+        self.time = 0
+        self.shoot_pressed = False
+        self.shoot_allowed, self.shoot_allowed_save = False, False
+        self.shell = None
 
     # Player movement
 
@@ -149,6 +158,7 @@ class Player():
             self.image = pygame.transform.flip(self.image, True, False)
 
     def get_input(self):
+        keys = pygame.key.get_pressed()
     # Move
         if self.moving_right:
             self.direction.x = 1
@@ -178,6 +188,7 @@ class Player():
         if not self.moving_down:
             self.gravity = coeff/4
             self.down_pressed = False
+        
     
     def speed_fix(self):
         if self.speed <= 10:
@@ -202,6 +213,14 @@ class Player():
                 if event.type == pygame.KEYDOWN:
                     if event.key == self.input_keys['attack']:
                         self.attack_pressed = True
+                    elif event.key == self.input_keys['shoot']:
+                        self.shoot_pressed = True
+                        self.shoot_allowed = True
+                        if self.flip:
+                            self.angle = 180
+                        else:
+                            self.angle = 0
+
                     if event.key == self.input_keys['left']:
                         self.moving_left = True
                     elif event.key == self.input_keys['right']:
@@ -210,11 +229,14 @@ class Player():
                         self.moving_up = True
                     elif event.key == self.input_keys['down']:
                         self.moving_down = True
-
+                        
 
                 if event.type == pygame.KEYUP:
                     if event.key == self.input_keys['attack']:
                         self.attack_pressed = False
+                    elif event.key == self.input_keys['shoot']:
+                        self.shoot_pressed = False
+                        self.shoot_allowed = False
                     if event.key == self.input_keys['left']:
                         self.moving_left = False
                     elif event.key == self.input_keys['right']:
@@ -237,6 +259,47 @@ class Player():
                 self.update_attack_timer()
         else:
             self.attack_rect.x = -500
+    
+    def check_shoot_input(self):
+        if self.shoot_pressed and self.shoot_allowed:
+            self.freeze()
+            self.attack_timer = 2
+            self.check_change_orientation()
+            self.incline_cursor()
+            self.cursorx = int(self.rect.centerx + 30*coeff * math.cos(math.radians(self.angle)))
+            self.cursory = int(self.rect.centery + 30*coeff * math.sin(math.radians(self.angle)))
+
+        if self.shoot_allowed_save and not self.shoot_pressed:
+            self.shell = Projectiles2(self.rect.centerx, self.rect.centery, -self.angle, self.choice, self.flip)
+            self.unfreeze()
+            self.shoot_allowed = False
+
+        elif self.attack_pressed and self.shoot_allowed_save:
+            self.unfreeze()
+            self.shoot_allowed = False
+            
+    def check_change_orientation(self):
+        if self.moving_left and not self.flip:
+            self.flip = not self.flip
+            self.angle = 180
+        elif self.moving_right and self.flip:
+            self.flip = not self.flip
+            self.angle = 0
+
+    def incline_cursor(self):
+        if not self.flip:
+            if self.moving_up and not self.angle == -90:
+                self.angle -= 5
+            elif self.moving_down and not self.angle == 90:
+                self.angle += 5
+        else:
+            if self.moving_down and not self.angle == 90:
+                self.angle -= 5
+            elif self.moving_up and not self.angle == 270:
+                self.angle += 5
+
+    def shoot(self):
+        pass
     
     def attack_rect_update(self):
         self.attack_rect.x = -500
@@ -534,6 +597,7 @@ class Player():
             if self.effect_ongoing: screen.blit(mask.to_surface(unsetcolor=(255,255,255,0), setcolor=(self.effect_color)), (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
 
     def update(self,screen):
+        self.check_shoot_input()
         if not self.freezed and not self.dead: self.get_input()
         else: self.attack_rect_update()
         self.check_attack_input()
@@ -555,10 +619,14 @@ class Player():
             self.update_dust_animation_allow()
             self.animate_boss_explosion()
 
-
         self.draw_player(screen)
-        
+        if self.shell:
+            self.shell.update(screen)
+
+        if self.shoot_pressed and self.shoot_allowed:
+            pygame.draw.circle(screen, (255, 255, 255), (self.cursorx, self.cursory), 5)
         # saves
         self.animation_state_save, self.dust_animation_state_save = self.animation_state, self.dust_animation_state
         self.direction_save = deepcopy(self.direction)
+        self.shoot_allowed_save = self.shoot_allowed
         self.draw_boss_explosion(screen)

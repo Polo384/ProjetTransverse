@@ -69,7 +69,7 @@ class Level:
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
                     
-                    elif level_data[i][j+1] == 0 and level_data[i][j-1] == 1 and level_data[i+1][j] == 1 and level_data[i-1][j] == 1 and level_data[i-2][j] != 1 and level_data[i+1][j+1] != 0 or (level_data[i][j+1] == 4 and  level_data[i-2][j] == 0):
+                    elif level_data[i][j+1] == 0 and level_data[i][j-1] == 1 and level_data[i+1][j] == 1 and level_data[i-1][j] == 1 and level_data[i-2][j] != 1 and level_data[i+1][j+1] != 0:
                         tile = Tile(x,y,'Yellow_Rock_Block/SR.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile) 
@@ -111,16 +111,8 @@ class Level:
                             self.tiles.add(tile)
                             self.collide_tiles.add(tile)
 
-                    elif level_data[i][j+1] == 1 and level_data[i][j-1] == 2 and level_data[i+1][j] and level_data[i-1][j] == 1:
-                        tile = Tile_Specific(x,y,'Bridge/M.png', False, True, False, False)
-                        self.tiles.add(tile)
-                        self.semi_collide_tiles.add(tile)
-                        tile = Tile(x,y,'Purple_Rock_Ground/L.png')
-                        self.tiles.add(tile)
-                        self.collide_tiles.add(tile)
-
-                    elif level_data[i][j+1] == 1 and (level_data[i][j-1] == 0 or level_data[i][j-1] == 2) and level_data[i-1][j] == 1 and (level_data[i+1][j] == 1 or level_data[i+1][j] == 3) or level_data[i+1][j-1] == 2:
-                        if level_data[i-2][j] == 0 or level_data[i-2][j] == 4 or level_data[i-2][j] == 5 or level_data[i][j-1] == 2 :
+                    elif level_data[i][j+1] == 1 and level_data[i][j-1] == 0 and level_data[i-1][j] == 1 and (level_data[i+1][j] == 1 or level_data[i+1][j] == 3):
+                        if level_data[i-2][j] == 0 or level_data[i-2][j] == 4 or level_data[i-2][j] == 5:
                             tile = Tile(x,y,'Purple_Rock_Yellow_Rock/L.png')
                             self.tiles.add(tile)
                             self.collide_tiles.add(tile)
@@ -129,12 +121,12 @@ class Level:
                             self.tiles.add(tile)
                             self.collide_tiles.add(tile)
                             
-                    elif if_matrix(level_data, i, j,1,1,1,1) and level_data[i-1][j-1] == 1 and (level_data[i-1][j+1] == 0 or level_data[i-1][j+1] == 4 or level_data[i-1][j+1] == 5) or (level_data[i][j-2] == 3 and level_data[i][j+2] == 0 and level_data[i+1][j+1] == 1 and level_data[i+1][j+1] == 1 and level_data[i+2][j+2] == 1):
+                    elif if_matrix(level_data, i, j,1,1,1,1) and level_data[i-1][j-1] == 1 and (level_data[i-1][j+1] == 0 or level_data[i-1][j+1] == 4 or level_data[i-1][j+1] == 5):
                         tile = Tile(x,y,'Yellow_Rock_Block/L.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
 
-                    elif if_matrix(level_data, i, j,1,1,1,1) and level_data[i-1][j+1] == 1 and (level_data[i-1][j-1] == 0 or level_data[i-1][j-1] == 4 or level_data[i-1][j-1] == 5) or (level_data[i][j+1] == 3 and level_data[i-2][j-1] == 0):
+                    elif if_matrix(level_data, i, j,1,1,1,1) and level_data[i-1][j+1] == 1 and (level_data[i-1][j-1] == 0 or level_data[i-1][j-1] == 4 or level_data[i-1][j-1] == 5):
                         tile = Tile(x,y,'Yellow_Rock_Block/R.png')
                         self.tiles.add(tile)
                         self.collide_tiles.add(tile)
@@ -200,7 +192,7 @@ class Level:
 
                 # BRIDGE
                 elif level_data[i][j] == 2: # one-way collision blocks
-                    if ((level_data[i][j+1] == 2 or level_data[i][j+1] == 1) and (level_data[i][j-1] == 2 or level_data[i][j-1] == 1) and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0) :
+                    if (level_data[i][j+1] == 2 or level_data[i][j+1] == 1) and (level_data[i][j-1] == 2 or level_data[i][j-1] == 1) and (level_data[i-1][j] == 0 or level_data[i-1][j] == 5 or level_data[i-1][j] == 4) and level_data[i+1][j] == 0:
                         tile = Tile_Specific(x,y,'Bridge/M.png', False, True, False, False)
                         self.tiles.add(tile)
                         self.semi_collide_tiles.add(tile)
@@ -247,6 +239,24 @@ class Level:
                 x += 1
             y += 1
 
+    def shell_collision(self):
+        for player in self.players_list:
+            for sprite in self.collide_tiles.sprites():
+                if player.shell and (sprite.rect.colliderect(player.shell.rect) or player.rect.colliderect(player.shell.rect)):
+                    pass
+                    '''if player.shell and sprite.rect.colliderect(player.shell.rect):
+                        if player.shell.distY < player.shell.distY_save:
+                            coords = sprite.rect.bottom
+
+                        elif player.shell.distY > player.shell.distY_save:
+                            coords = sprite.rect.top'''
+                    # explosion : lui donner les coordonées de l'emplacement de la collision
+                    # créer un cercle invisible : si joueur joueur pres du centre alors degat = 100% inversement s'il est au bord du cercle alors 25% par exemple
+                    # calculer distance de l'explosion et du joueur 
+                    # degats si c un joueur
+                    
+        
+
     def horizontal_movement_collision(self):
         for player in self.players_list:
             check_semi_collide, player.slide_allowed, player.detect_wall_collision = True, False, False
@@ -265,6 +275,7 @@ class Level:
                             player.wall_jump_left, player.wall_jump_right = False, True
                         player.rect.left = sprite.rect.right
                         player.slide_allowed, player.detect_wall_collision = True, True
+                    
                     elif player.direction.x > 0 or (player.push > 0 and not player.opponent_flip):
                         player.opponent_flip = not player.opponent_flip
                         player.push /= 1.5
@@ -274,7 +285,14 @@ class Level:
                             player.wall_jump_left, player.wall_jump_right = True, False
                         player.rect.right = sprite.rect.left
                         player.slide_allowed, player.detect_wall_collision = True, True
-            
+      
+                '''if player.shell and sprite.rect.colliderect(player.shell.rect):
+                    if player.shell.distX < player.shell.distX_save:
+                        player.shell.rect.x = sprite.rect.right
+
+                    elif player.shell.distX > player.shell.distX_save:
+                        player.shell.rect.x = sprite.rect.left-player.shell.image.get_width()'''
+
             if check_semi_collide:
                 for sprite in self.semi_collide_tiles.sprites():
                     if sprite.rect.colliderect(player.rect):
@@ -294,7 +312,7 @@ class Level:
                                 player.wall_collision = True
                                 player.wall_jump_left, player.wall_jump_right = True, False
                             player.rect.right = sprite.rect.left
-
+                
     def vertical_movement_collision(self):
         for player in self.players_list:
             check_semi_collide = True
@@ -310,6 +328,13 @@ class Level:
                     elif player.direction.y < 0:
                         player.direction.y = 0
                         player.rect.top = sprite.rect.bottom
+
+                '''if player.shell and sprite.rect.colliderect(player.shell.rect):
+                    if player.shell.distY < player.shell.distY_save:
+                        player.shell.rect.top = sprite.rect.bottom
+
+                    elif player.shell.distY > player.shell.distY_save:
+                        player.shell.rect.bottom = sprite.rect.top'''
 
             if check_semi_collide:
                 for sprite in self.semi_collide_tiles.sprites():
@@ -379,6 +404,7 @@ class Level:
             player.handle_events(events)
             player.update(self.display_surface)
             player.clear_effects()
+        self.shell_collision()
         
         # bonus
         self.bonus_update()
