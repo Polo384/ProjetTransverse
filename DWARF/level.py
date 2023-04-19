@@ -240,9 +240,10 @@ class Level:
             y += 1
 
     def shell_collision(self):
+        
         for player in self.players_list:
             for sprite in self.collide_tiles.sprites():
-                if player.shell and (sprite.rect.colliderect(player.shell.rect) or player.rect.colliderect(player.shell.rect)):
+                if sprite.rect.colliderect(player.shell.rect) or player.rect.colliderect(player.shell.rect):
                     pass
                     '''if player.shell and sprite.rect.colliderect(player.shell.rect):
                         if player.shell.distY < player.shell.distY_save:
@@ -254,9 +255,48 @@ class Level:
                     # créer un cercle invisible : si joueur joueur pres du centre alors degat = 100% inversement s'il est au bord du cercle alors 25% par exemple
                     # calculer distance de l'explosion et du joueur 
                     # degats si c un joueur
-                    
-        
 
+    def grenade_collision_horizontal(self):
+        for player in self.players_list:
+            grenade = player.grenade
+
+            if grenade : 
+                grenade.rect.x += int(grenade.direction.x*coeff/3)
+
+                for sprite in self.collide_tiles.sprites():
+                        if sprite.rect.colliderect(grenade.rect):
+
+                            if grenade.direction.x > 0:
+                                grenade.rect.right = sprite.rect.left
+                                grenade.rotation_factor_value /= -1.01
+                                grenade.direction.x /= -1.4
+
+                            elif grenade.direction.x < 0:
+                                grenade.rect.left = sprite.rect.right
+                                grenade.rotation_factor_value /= -1.01
+                                grenade.direction.x /= -1.4
+
+    def grenade_collision_vertical(self):
+        for player in self.players_list:
+            grenade = player.grenade
+
+            if grenade : 
+                grenade.apply_gravity()
+
+                for sprite in self.collide_tiles.sprites():             
+                    if grenade and sprite.rect.colliderect(grenade.rect):
+
+                        if grenade.direction.y > 0:
+                            grenade.rect.bottom = sprite.rect.top
+                            grenade.apply_bounce()
+
+                        elif grenade.direction.y < 0:
+                            grenade.rect.top = sprite.rect.bottom
+                            grenade.direction.y = 0
+
+                
+        print('\n')
+                    
     def horizontal_movement_collision(self):
         for player in self.players_list:
             check_semi_collide, player.slide_allowed, player.detect_wall_collision = True, False, False
@@ -286,12 +326,12 @@ class Level:
                         player.rect.right = sprite.rect.left
                         player.slide_allowed, player.detect_wall_collision = True, True
       
-                '''if player.shell and sprite.rect.colliderect(player.shell.rect):
-                    if player.shell.distX < player.shell.distX_save:
-                        player.shell.rect.x = sprite.rect.right
+                '''if player.projectile and sprite.rect.colliderect(player.projectile.rect):
+                    if player.projectile.distX < player.projectile.distX_save:
+                        player.projectile.rect.x = sprite.rect.right
 
-                    elif player.shell.distX > player.shell.distX_save:
-                        player.shell.rect.x = sprite.rect.left-player.shell.image.get_width()'''
+                    elif player.projectile.distX > player.projectile.distX_save:
+                        player.projectile.rect.x = sprite.rect.left-player.projectile.image.get_width()'''
 
             if check_semi_collide:
                 for sprite in self.semi_collide_tiles.sprites():
@@ -328,13 +368,6 @@ class Level:
                     elif player.direction.y < 0:
                         player.direction.y = 0
                         player.rect.top = sprite.rect.bottom
-
-                '''if player.shell and sprite.rect.colliderect(player.shell.rect):
-                    if player.shell.distY < player.shell.distY_save:
-                        player.shell.rect.top = sprite.rect.bottom
-
-                    elif player.shell.distY > player.shell.distY_save:
-                        player.shell.rect.bottom = sprite.rect.top'''
 
             if check_semi_collide:
                 for sprite in self.semi_collide_tiles.sprites():
@@ -400,11 +433,14 @@ class Level:
         self.horizontal_movement_collision()
         self.vertical_movement_collision()
         self.fight()
+        
         for player in self.players_list:
             player.handle_events(events)
             player.update(self.display_surface)
             player.clear_effects()
-        self.shell_collision()
+        
+        self.grenade_collision_horizontal()
+        self.grenade_collision_vertical()
         
         # bonus
         self.bonus_update()

@@ -3,78 +3,87 @@ import math
 from functions import scale
 from settings import coeff
 
-class Projectiles2():
+class Shell():
     def __init__(self,x,y, angle, choice, flip):
         self.image = pygame.image.load(f'DWARF/Projectiles/shell_p{choice}.png').convert_alpha()
-        self.image = scale(self.image, 'mult', 2.5/3*coeff)
-        if flip: self.flip_image()
+        self.image = scale(self.image, 'mult', coeff)
+        if flip: self.image = pygame.transform.flip(self.image, True, False)
 
-        self.rect = pygame.Rect(x, y, self.image.get_width() , self.image.get_height())
+        self.rect = self.image.get_rect(center = (x,y))
         self.start_x, self.start_y = x, y
-        self.rect.x, self.rect.y = x, y
 
-        self.power = 50
+        self.power = 34
         self.angle = angle
+        self.rotation_angle = self.angle
         self.time = 1
         self.time_incrementation = 0.5
-        self.rotation_factor = 0
-        self.rotation_factor_value = 20
         self.distX, self.distX_save, self.distY, self.distY_save = 0, 0, 0, 0
-        self.x_collision_factor = 1
-
-    def flip_image(self):
-        self.image = pygame.transform.flip(self.image, True, False)
+        self.wind_factor = 1
 
     def rotation(self):
-        self.rotation_factor += self.rotation_factor_value
-        self.rotation_factor %= 360
-        self.image_copy = pygame.transform.rotate(self.image, self.rotation_factor)
-        
+        self.rotation_angle = math.degrees(math.atan((self.distY_save - self.distY)/(self.distX_save - self.distX)))
+        self.image_copy = pygame.transform.rotate(self.image, self.rotation_angle)
+    
+    def reduce_x_speed(self): # simuler force de frottements
+        self.wind_factor *= 1.01
+        self.distX -= self.wind_factor
+
     def update(self, screen):
-        #self.rotation()
         self.time += self.time_incrementation
 
         self.distX_save = self.distX
         self.distY_save = self.distY
 
-        self.distX = math.cos(math.radians(self.angle)) * self.power * self.time * self.x_collision_factor
-        self.distY = ((math.sin(math.radians(self.angle)) * self.power * self.time) + ((-2.75 * (self.time ** 2)) / 2) ) 
+        self.distX = math.cos(math.radians(self.angle)) * self.power * self.time
+        self.distY = (math.sin(math.radians(self.angle)) * self.power * self.time) + ((-1.8 * (self.time ** 2)) / 2)
 
-        self.rect.x = round(self.start_x + self.distX)
-        self.rect.y = round(self.start_y - self.distY)
+        self.reduce_x_speed()
+        self.rotation()
 
-        screen.blit(self.image, (self.rect.centerx, self.rect.centery))
-        #screen.blit(self.image_copy, (self.rect.centerx - int(self.image_copy.get_width()/2), self.rect.centery - int(self.image_copy.get_height()/2)))
+        self.rect.centerx = round(self.start_x + self.distX)
+        self.rect.centery = round(self.start_y - self.distY)
+        screen.blit(self.image_copy, (self.rect.centerx - int(self.image_copy.get_width()/2), self.rect.centery - int(self.image_copy.get_height()/2)))
 
+class Grenade():
+    def __init__(self,x,y, x_cursor, y_cursor, choice, flip):
+        self.image = pygame.image.load(f'DWARF/Projectiles/grenade_p{choice}.png').convert_alpha()
+        self.image = scale(self.image, 'mult', coeff)
+        if flip:
+            self.flip_image()
 
-        
-class Projectiles(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.x = x
-        self.y = y 
-        self.radius = 5
-        self.color = ((255,0,0))
-        self.power = 10
+        self.rect = self.image.get_rect(center = (x,y))
+        self.x_speed, y_speed = (x_cursor - x)/5, (y_cursor - y)/4/1.5
+        self.direction= pygame.math.Vector2(self.x_speed, y_speed)
+        self.gravity = coeff/4/1.5
+        self.bounce_value = -12
 
-    def draw(self, screen):
-        pygame.draw.circle(screen, (0,0,0), (self.x,self.y), self.radius)
-        pygame.draw.circle(screen, self.color, (self.x,self.y), self.radius-1)
+        self.rotation_factor = 0
+        self.rotation_factor_value = 15
+
+    def flip_image(self):
+        self.image = pygame.transform.flip(self.image, True, False)
+
+    def rotation(self):
+        if abs(self.rotation_factor_value) >= 1 and abs(self.direction.x) > 1:
+            self.rotation_factor_value /= 1.01
+            self.rotation_factor += self.rotation_factor_value
+            self.rotation_factor %= 360
+            self.image_copy = pygame.transform.rotate(self.image, self.rotation_factor)
     
-    @staticmethod
-    def ballPath(startx, starty, power, ang, time):
-        #we calculate the trajectory of the ball 
-        angle = ang
-        velx = math.cos(angle) * power #here we calculate the vx
-        vely = math.sin(angle) * power #here we calaculate vy
+    def apply_bounce(self):
+        self.bounce_value /= 1.5
+        self.direction.x /= 1.1
+        self.direction.y = self.bounce_value
+    
+    def apply_gravity(self):
+        self.direction.y += self.gravity
+        self.rect.centery += self.direction.y
 
-        #here we have the equation of x and y (physic course: in french it's équation horaires)
-        distX = velx * time
-        distY = (vely * time) + ((-9.81 * (time ** 2)) / 2)
+    def divide_speed(self):
+        self.direction.x /= 1.01
 
-        #we calculate the new coordonates of x and y 
-        newx = round(distX + startx)
-        newy = round(starty - distY)
-
-
-        return (newx, newy)
+    def update(self, screen):
+        self.rotation()
+        self.divide_speed()
+        
+        screen.blit(self.image_copy, (self.rect.centerx - int(self.image_copy.get_width()/2), self.rect.centery - int(self.image_copy.get_height()/2)))

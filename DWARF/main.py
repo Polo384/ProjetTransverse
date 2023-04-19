@@ -24,14 +24,20 @@ def display_fps():
 
 all_animations = store_animations([santa_dico_v1, minotaur_dico_v1, dwarf_dico_v1, indiana_jones_dico_v1, adventurer_dico_v1, bat_dico_v1, halo_dico_v1, gladiator_dico_v1, demon_dico_v1, cyclop_dico_v1], [hobbit_dico_v2, question_mark_dico_v2])
 
-MAIN_menu = Menu(all_animations)
+player1_hero_choice = "demon"
+player2_hero_choice = "hobbit"
+player1_hero = [all_animations[heroes_dico[player1_hero_choice][0]], heroes_dico[player1_hero_choice][1], heroes_dico[player1_hero_choice][2], player1_hero_choice, heroes_dico[player1_hero_choice][3]]
+player2_hero = [all_animations[heroes_dico[player2_hero_choice][0]], heroes_dico[player2_hero_choice][1], heroes_dico[player2_hero_choice][2], player2_hero_choice, heroes_dico[player2_hero_choice][3]]
+level = Level(level_map, screen, player1_hero, player2_hero)
+
+'''MAIN_menu = Menu(all_animations)
 player1_hero_choice = "none"
 player2_hero_choice = "none"
 start = False
-create_level = True
+create_level = True'''
 game_start_variable = True
 while game_start_variable:
-    if(start == False):
+    '''if(start == False):
         game_start_variable,player1_hero_choice,player2_hero_choice,start = MAIN_menu.create_menu(screen,game_start_variable)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -41,9 +47,10 @@ while game_start_variable:
             player1_hero = [all_animations[heroes_dico[player1_hero_choice][0]], heroes_dico[player1_hero_choice][1], heroes_dico[player1_hero_choice][2], player1_hero_choice, heroes_dico[player1_hero_choice][3]]
             player2_hero = [all_animations[heroes_dico[player2_hero_choice][0]], heroes_dico[player2_hero_choice][1], heroes_dico[player2_hero_choice][2], player2_hero_choice, heroes_dico[player2_hero_choice][3]]
             level = Level(level_map, screen, player1_hero, player2_hero)
-            create_level = False
-        screen.fill((255, 255, 255))
-        level.run()
-        display_fps()
-    clock.tick(60)
+            create_level = False'''
+        #normalement trois prochaines lignes dans le if
+    screen.fill((255, 255, 255))
+    level.run()
+    display_fps()
+    clock.tick(FPS)
     pygame.display.update()

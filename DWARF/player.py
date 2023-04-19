@@ -5,7 +5,7 @@ import random
 from copy import deepcopy
 from functions import store_special_animations, scale
 import sys
-from projectilesclass import Projectiles2
+from projectilesclass import Shell, Grenade
 import math
 
 # Didn't do a sprite class because rectangle doesn't correspond to the image (there are alpha pixels)
@@ -50,10 +50,10 @@ class Player():
     
     # Player input
         if choice == 1:
-            self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f, 'shoot': pygame.K_g}
+            self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f, 'shoot': pygame.K_g, 'change_weapon': pygame.K_e}
             self.flip = False
         elif choice == 2:
-            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_RCTRL, 'shoot': pygame.K_m}
+            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_RCTRL, 'shoot': pygame.K_m, 'change_weapon': pygame.K_p}
             self.flip = True   
 
     # Player shooting
@@ -63,7 +63,8 @@ class Player():
         self.time = 0
         self.shoot_pressed = False
         self.shoot_allowed, self.shoot_allowed_save = False, False
-        self.shell = None
+        self.shell, self.grenade = None, None
+        self.current_weapon = True # True means shell and False means grenade
 
     # Player movement
 
@@ -220,6 +221,8 @@ class Player():
                             self.angle = 180
                         else:
                             self.angle = 0
+                    elif event.key == self.input_keys['change_weapon']:
+                        self.current_weapon = not self.current_weapon
 
                     if event.key == self.input_keys['left']:
                         self.moving_left = True
@@ -270,7 +273,11 @@ class Player():
             self.cursory = int(self.rect.centery + 30*coeff * math.sin(math.radians(self.angle)))
 
         if self.shoot_allowed_save and not self.shoot_pressed:
-            self.shell = Projectiles2(self.rect.centerx, self.rect.centery, -self.angle, self.choice, self.flip)
+            if self.current_weapon:
+                self.shell = Shell(self.rect.centerx, self.rect.centery, -self.angle, self.choice, self.flip)
+            else:
+                self.grenade = Grenade(self.rect.centerx, self.rect.centery, self.cursorx, self.cursory, self.choice, self.flip)
+
             self.unfreeze()
             self.shoot_allowed = False
 
@@ -288,19 +295,22 @@ class Player():
 
     def incline_cursor(self):
         if not self.flip:
-            if self.moving_up and not self.angle == -90:
-                self.angle -= 5
-            elif self.moving_down and not self.angle == 90:
-                self.angle += 5
+            if self.moving_up and self.angle > -85:
+                self.angle -= 3.5
+            elif self.moving_down and self.angle < 85:
+                self.angle += 3.5
         else:
-            if self.moving_down and not self.angle == 90:
-                self.angle -= 5
-            elif self.moving_up and not self.angle == 270:
-                self.angle += 5
-
-    def shoot(self):
-        pass
+            if self.moving_down and self.angle > 95:
+                self.angle -= 3.5
+            elif self.moving_up and self.angle < 265:
+                self.angle += 3.5
     
+    def delete_projectile(self):
+        if self.grenade and abs(self.grenade.direction.x) <= 0.5:
+            self.grenade = None
+        elif self.shell and abs(self.shell.rect.x) < 1:
+            self.shell = None
+
     def attack_rect_update(self):
         self.attack_rect.x = -500
         if self.attack_timer > 0:
@@ -622,7 +632,9 @@ class Player():
         self.draw_player(screen)
         if self.shell:
             self.shell.update(screen)
-
+        if self.grenade:
+            self.grenade.update(screen)
+        self.delete_projectile()
         if self.shoot_pressed and self.shoot_allowed:
             pygame.draw.circle(screen, (255, 255, 255), (self.cursorx, self.cursory), 5)
         # saves
