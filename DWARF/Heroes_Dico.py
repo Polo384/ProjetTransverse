@@ -1,5 +1,12 @@
 from settings import coeff
 #data = [(offset_x,offset_y),(hitbox_w,hitbox_h), flip_offset, attack_width]
+max_stats = {
+    'health': 110,
+    'speed': 13,
+    'attack': 15,
+    'attack_speed': 24,
+    'stamina': 175
+}
 
 santa_dico_v1 = {
     'Santa/Santa_SpriteSheet.png' : [[22], [5,8,4,4,6,8,6,6,5,4,7,1,1,1,1,1,1,1,1,1,1,9]]}
