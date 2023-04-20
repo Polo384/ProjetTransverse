@@ -630,10 +630,12 @@ class Player():
             self.animate_boss_explosion()
 
         self.draw_player(screen)
+        
         if self.shell:
             self.shell.update(screen)
         if self.grenade:
             self.grenade.update(screen)
+
         self.delete_projectile()
         if self.shoot_pressed and self.shoot_allowed:
             pygame.draw.circle(screen, (255, 255, 255), (self.cursorx, self.cursory), 5)
