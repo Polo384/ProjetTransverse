@@ -46,6 +46,12 @@ class HUD:
         self.hero_bar = pygame.Rect( 1, self.player.rect.y - 25 , coeff*25*self.player.health/self.player.max_health , 2*coeff*5/3)
         self.process_hero_bar_width = coeff*25*self.player.health/self.player.max_health
         self.process_hero_bar = pygame.Rect(1, self.player.rect.y - 25, self.process_hero_bar_width, 2*coeff*5/3)
+        self.above_health_bar_timer = 50
+
+        self.above_sprint_bar = pygame.Rect( 1, self.player.rect.y - 20 , coeff*25*self.player.stamina/self.player.max_stamina , coeff*5/3)
+        self.above_sprint_bar_timer = 30
+
+
         #transformation for the right part (second hero) of the screen
         if self.choice == 2:
             self.photo = pygame.transform.flip(self.photo, True, False)
@@ -112,10 +118,62 @@ class HUD:
         else:
             screen.blit(bonus_image, (screen_width - bonus_image.get_width() - coeff*4/3*129, coeff*4/3*7))
 
+    def above_health_bar_timer_update(self, screen):
+        if self.player.animation_state == 'Hit':
+            self.above_health_bar_timer = 0
+            self.display_above_health_bar(screen)
+
+        elif self.above_health_bar_timer < 50:
+            self.above_health_bar_timer += 0.1
+            self.display_above_health_bar(screen)
+
+    def display_above_health_bar(self, screen):
+        if not self.player.dead:
+            self.hero_barbg.centerx = self.player.rect.centerx
+            self.hero_barbg.y = self.player.rect.y - coeff*11
+            self.hero_bar.y = self.player.rect.y - coeff*11
+
+            #on the left
+            self.hero_bar.x = self.hero_barbg.x
+            self.hero_bar.width = coeff*25*self.player.health/self.player.max_health
+
+            self.process_hero_bar.width = self.process_hero_bar_width
+            self.process_hero_bar.centerx = self.player.rect.centerx
+            self.process_hero_bar.y = self.player.rect.y - coeff*11
+            self.process_hero_bar.x = self.hero_barbg.x
+            
+            # contour gris  :  pygame.draw.rect(screen, (47,47,46), pygame.Rect(self.hero_barbg.left - coeff, self.hero_barbg.top - coeff, self.hero_barbg.width + 2*coeff, self.hero_barbg.height + 2*coeff))
+            pygame.draw.rect(screen, (186,186,186), self.hero_barbg, 30)
+            pygame.draw.rect(screen, "white", self.process_hero_bar)
+            pygame.draw.rect(screen, self.health_bar_color, self.hero_bar)
+
+    def above_sprint_bar_timer_update(self, screen):
+        if self.player.sprinting:
+            self.above_sprint_bar_timer = 0
+            self.display_above_sprint_bar(screen)
+
+        elif self.above_sprint_bar_timer < 30:
+            self.above_sprint_bar_timer += 0.1
+            self.display_above_sprint_bar(screen)
+    
+    def display_above_sprint_bar(self, screen):
+        if not self.player.dead:
+            self.hero_barbg.centerx = self.player.rect.centerx
+            self.above_sprint_bar.centerx = self.player.rect.centerx
+            self.above_sprint_bar.y = self.player.rect.y - coeff*7
+
+            #on the left
+            self.above_sprint_bar.x = self.hero_barbg.x
+            self.above_sprint_bar.width = coeff*25*self.player.stamina/self.player.max_stamina
+            
+            pygame.draw.rect(screen, 'white', self.above_sprint_bar)
+
     def update(self,screen):
         self.update_health_bar_color()
         self.update_death()
         self.update_process_bar()
+        self.above_health_bar_timer_update(screen)
+        self.above_sprint_bar_timer_update(screen)
 
         if self.choice == 1:
             # photo
@@ -160,25 +218,7 @@ class HUD:
             self.detect_bonus(screen)
             if self.player.effect_ongoing:
                 screen.blit(self.font.render(str(int((self.player.effect_duration-self.player.effect_timer)*10/60)+1), False, 'white'), (screen_width -coeff*207, coeff*16))
-
-    #health bar above heroes
-        if not self.player.dead:
-            self.hero_barbg.centerx = self.player.rect.centerx
-            self.hero_barbg.y = self.player.rect.y - 25
-            self.hero_bar.centerx = self.player.rect.centerx
-            self.hero_bar.y = self.player.rect.y - 25
-
-            #on the left
-            self.hero_bar.x = self.hero_barbg.x
-            self.hero_bar.width = coeff*25*self.player.health/self.player.max_health
-
-            self.process_hero_bar.width = self.process_hero_bar_width
-            self.process_hero_bar.centerx = self.player.rect.centerx
-            self.process_hero_bar.y = self.player.rect.y - 25
-            self.process_hero_bar.x = self.hero_barbg.x
-            
-            pygame.draw.rect(screen, (186,186,186), self.hero_barbg)
-            pygame.draw.rect(screen, "white", self.process_hero_bar)
-            pygame.draw.rect(screen, self.health_bar_color, self.hero_bar)
+        
+        
         
 

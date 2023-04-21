@@ -308,7 +308,8 @@ class Player():
     
     def draw_cursor(self, screen):
         if self.shoot_pressed and self.shoot_allowed:
-            pygame.draw.circle(screen, (255, 255, 255), (self.cursorx, self.cursory), 5)
+            pygame.draw.circle(screen, (47, 47, 46), (self.cursorx, self.cursory), 7)
+            pygame.draw.circle(screen, (255, 255, 255), (self.cursorx, self.cursory), 4)
 
     def grenade_countdown(self):
         if self.grenade:

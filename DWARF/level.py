@@ -407,7 +407,7 @@ class Level:
         self.bonus_group.add(self.current_bonus)
     
     def bonus_collision(self, player):
-        if player.rect.colliderect(self.current_bonus.rect) and not player.dead:
+        if (player.rect.colliderect(self.current_bonus.rect) or (player.shell and player.shell.rect.colliderect(self.current_bonus.rect) or player.grenade and player.grenade.rect.colliderect(self.current_bonus.rect)))and not player.dead:
             self.current_bonus.effect(player)
             self.bonus_group.remove(self.current_bonus)
             self.timer = 0 
