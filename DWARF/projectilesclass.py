@@ -40,8 +40,8 @@ class Shell():
         self.reduce_x_speed()
         self.rotation()
 
-        self.rect.centerx = round(self.start_x + self.distX)
-        self.rect.centery = round(self.start_y - self.distY)
+        self.rect.centerx = int(self.start_x + self.distX)
+        self.rect.centery = int(self.start_y - self.distY)
         screen.blit(self.image_copy, (self.rect.centerx - int(self.image_copy.get_width()/2), self.rect.centery - int(self.image_copy.get_height()/2)))
 
 class Grenade():
@@ -53,8 +53,9 @@ class Grenade():
 
         self.image_copy = self.image
         self.rect = self.image.get_rect(center = (x,y))
-        self.x_speed, y_speed = (x_cursor - x)/5, (y_cursor - y)/4/1.5
+        self.x_speed, y_speed = (x_cursor - x)/5, (y_cursor - y)/5
         self.direction= pygame.math.Vector2(self.x_speed, y_speed)
+        self.direction_save = self.direction
         self.gravity = coeff/4/1.5
         self.bounce_value = -12
 
@@ -88,3 +89,5 @@ class Grenade():
         self.divide_speed()
         
         screen.blit(self.image_copy, (self.rect.centerx - int(self.image_copy.get_width()/2), self.rect.centery - int(self.image_copy.get_height()/2)))
+        
+        self.direction_save = self.direction

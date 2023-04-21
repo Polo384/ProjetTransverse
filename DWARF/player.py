@@ -64,6 +64,7 @@ class Player():
         self.shoot_pressed = False
         self.shoot_allowed, self.shoot_allowed_save = False, False
         self.shell, self.grenade = None, None
+        self.grenade_timer = 0
         self.current_weapon = True # True means shell and False means grenade
 
     # Player movement
@@ -305,11 +306,22 @@ class Player():
             elif self.moving_up and self.angle < 265:
                 self.angle += 3.5
     
-    def delete_projectile(self):
-        if self.grenade and abs(self.grenade.direction.x) <= 0.5:
-            self.grenade = None
-        elif self.shell and abs(self.shell.rect.x) < 1:
-            self.shell = None
+    def draw_cursor(self, screen):
+        if self.shoot_pressed and self.shoot_allowed:
+            pygame.draw.circle(screen, (255, 255, 255), (self.cursorx, self.cursory), 5)
+
+    def grenade_countdown(self):
+        if self.grenade:
+            self.grenade_timer += 0.1
+            if self.grenade_timer > 17:
+                self.explode_grenade()
+
+    def explode_grenade(self):
+        self.grenade = None
+        self.grenade_timer = 0
+
+    def explode_shell(self):
+        self.shell = 0
 
     def attack_rect_update(self):
         self.attack_rect.x = -500
@@ -630,15 +642,15 @@ class Player():
             self.animate_boss_explosion()
 
         self.draw_player(screen)
-        
+        self.draw_cursor(screen)
+
         if self.shell:
             self.shell.update(screen)
         if self.grenade:
             self.grenade.update(screen)
 
-        self.delete_projectile()
-        if self.shoot_pressed and self.shoot_allowed:
-            pygame.draw.circle(screen, (255, 255, 255), (self.cursorx, self.cursory), 5)
+        self.grenade_countdown()
+
         # saves
         self.animation_state_save, self.dust_animation_state_save = self.animation_state, self.dust_animation_state
         self.direction_save = deepcopy(self.direction)
