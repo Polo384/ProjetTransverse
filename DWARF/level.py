@@ -5,7 +5,7 @@ from functions import *
 from player import Player
 from bonus import Bonus
 from backgrounds import BG
-from hud import HUD
+from hud import *
 
 class Level:
     def __init__(self, level_data, surface, player1_hero, player2_hero):
@@ -19,6 +19,7 @@ class Level:
         self.backgrounds_group = pygame.sprite.Group()
         self.backgrounds_group.add(BG(background_choice,1),BG(background_choice,2),BG(background_choice,3))
         self.hud_list = [HUD(self.players_list[0], self.players_list[0].hero_choice, 1), HUD(self.players_list[1], self.players_list[1].hero_choice, 2)]
+        self.win = WIN(self.players_list)
 
     def setup_level(self, level_data):
         self.collide_tiles = pygame.sprite.Group()
@@ -468,3 +469,6 @@ class Level:
         # HUD
         for player_hud in self.hud_list:
             player_hud.update(self.display_surface)
+        self.win.update(self.display_surface)
+
+        return self.win.start, self.win.create_level

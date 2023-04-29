@@ -1,7 +1,7 @@
 import pygame
-from settings import screen_width, coeff
+from settings import screen_width, screen_height, coeff
 from functions import scale, greyscale
-from math import floor
+from math import floor, sin, pi
 
 class HUD:
     def __init__(self, player, hero, choice):
@@ -218,6 +218,66 @@ class HUD:
             self.detect_bonus(screen)
             if self.player.effect_ongoing:
                 screen.blit(self.font.render(str(int((self.player.effect_duration-self.player.effect_timer)*10/60)+1), False, 'white'), (screen_width -coeff*207, coeff*16))
+        
+class WIN():
+    def __init__(self, players_list):
+        self.player1 = players_list[0]
+        self.player2 = players_list[1]
+        self.check_dead = True
+        self.variable = 0
+        self.levitation_factor = 0
+        self.flicker_factor = 0
+        self.flickered = True
+        self.space_bar_image_1 = pygame.image.load('DWARF/Menu/press_space_bar_1.png').convert_alpha()
+        self.space_bar_image_1 = scale(self.space_bar_image_1, 'mult', coeff*1.5)
+        self.space_bar_image_2 = pygame.image.load('DWARF/Menu/press_space_bar_2.png').convert_alpha()
+        self.space_bar_image_2 = scale(self.space_bar_image_2, 'mult', coeff*1.5)
+
+        self.start, self.create_level = True, False
+
+    def levitate(self):
+        self.levitation_factor = round(sin(self.variable)*coeff*4.5)
+        self.variable += 0.08
+
+    def flicker(self):
+        self.flicker_factor += 1
+        if self.flicker_factor == 12:
+            self.flickered = not self.flickered
+            self.flicker_factor = 0
+
+    def launch_again(self):
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_ESCAPE]:
+            self.start = False 
+            
+        elif keys[pygame.K_SPACE]:
+            self.create_level = True
+
+    def update(self, screen):
+        if self.check_dead:
+            if self.player1.dead:
+                self.check_dead = False
+                self.winner_image = pygame.image.load('DWARF/Menu/p2_wins.png').convert_alpha()
+                self.winner_image = scale(self.winner_image, 'mult', coeff*6)
+
+            elif self.player2.dead:
+                self.check_dead = False
+                self.winner_image = pygame.image.load('DWARF/Menu/p1_wins.png').convert_alpha()
+                self.winner_image = scale(self.winner_image, 'mult', coeff*6)
+        
+        else:
+            self.levitate()
+            screen.blit(self.winner_image, (screen_width/2 - self.winner_image.get_width()/2  ,  coeff*65 + self.levitation_factor))
+
+            self.flicker()
+            if self.flickered:
+                screen.blit(self.space_bar_image_1, (screen_width/2 - self.space_bar_image_1.get_width()/2  ,  coeff*300))
+            else:
+                screen.blit(self.space_bar_image_2, (screen_width/2 - self.space_bar_image_2.get_width()/2  ,  coeff*300))
+
+            self.launch_again()
+
         
         
         
