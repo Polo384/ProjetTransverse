@@ -28,7 +28,7 @@ hero_list = ['santa','indiana_jones','adventurer','halo','dwarf','gladiator','ho
 
 class Menu():
     def __init__(self,all_ani):
-
+        
         self.title = None
         self.menu = 0
 
@@ -105,12 +105,14 @@ class Menu():
                     self.mute = False
 
         elif self.menu == 1:
-            
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE]:
+                self.menu = 0
             self.menu = self.char_page.put(screen,self.menu)
             
             self.player1 , self.player2,self.pos_player1_x, self.pos_player1_y, self.pos_player2_x, self.pos_player2_y = self.Selections.create_selection(screen)
-            show_data(screen,0,0,self.pos_player1_x, self.pos_player1_y)
-            show_data2(screen,0,1,self.pos_player2_x, self.pos_player2_y)
+            show_data(screen,50,250,self.pos_player1_x, self.pos_player1_y,1)
+            show_data(screen,1620,250,self.pos_player2_x, self.pos_player2_y,2)
             if(self.menu == 2 and (self.player1 == "none" or self.player2 == "none")):
                 self.menu = 1
         elif self.menu == 2:
@@ -231,7 +233,7 @@ class Options:
             self.frame_iter = iter(self.video.iter_frames())"""
 
 
-class LoadingBar:
+"""class LoadingBar:
     def __init__(self):
         self.bar = pygame.Rect((190, 200), (400, 100))
         self.width = 75
@@ -245,7 +247,7 @@ class LoadingBar:
         pygame.draw.rect(screen, (255, 255, 255), self.loading_bar, border_radius=2)
         if self.loading_bar.width < 360:
             self.increase += 0.05
-            self.loading_bar.width = self.width + self.increase
+            self.loading_bar.width = self.width + self.increase"""
 
 
 class Sprites(pygame.sprite.Sprite):
@@ -291,8 +293,8 @@ class Sprites(pygame.sprite.Sprite):
 
 def text_creation(text, font, textcol, x, y,take_center, screen):
     img = font.render(text, True, textcol)
-    x = x *coeff/2
-    y = y*coeff/2
+    x = x *coeff/3
+    y = y*coeff/3
     if take_center:
         rect = img.get_rect()
         x -= rect.width/2
@@ -310,24 +312,20 @@ def window(Title_window, Music, Volume):
 def cursor_menu(screen, x, y, game_start_variable):
     image = pygame.image.load("DWARF/Menu/cursor.png")
     image = scale(image, 'mult', coeff*2)
-
+    keys = pygame.key.get_pressed()
     select = -1
     cord_y = 0
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            game_start_variable = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and y > 175*coeff:
-                cord_y -= 65*coeff
-            if event.key == pygame.K_DOWN and y < 194*coeff:
-                cord_y += 65*coeff
-                
-            if (y == 175*coeff/2) and event.key == pygame.K_SPACE:
-                    select = 0
-            elif (y == 305*coeff/2) and event.key == pygame.K_SPACE :
-                    select = 1
-                
 
+    
+    if keys[pygame.K_UP] and y > 175*coeff:
+        cord_y -= 65*coeff
+    if keys[pygame.K_DOWN] and y < 194*coeff:
+        cord_y += 65*coeff
+    if (y == 390) and keys[pygame.K_SPACE]:
+            select = 0
+
+    elif (y == 585) and keys[pygame.K_SPACE] :
+            select = 1                
     y += cord_y
     screen.blit(image, (x, y))
     
@@ -344,7 +342,7 @@ class page_characters:
         self.back_char = pygame.image.load("DWARF/Menu_x2/tabern.jpg")
         self.back_char = scale(self.back_char, 'mult', coeff/3)
 
-        self.y = 35
+        self.y = 45
         self.sin_increment = 0
         self.back = Buttons("Back",20*coeff/2,425*coeff/2,120,60,True,50,12,(83,11,20))
         self.play_game= Buttons("Play",750*coeff/2,425*coeff/2,120,60,True,50,12,(11,83,29))
@@ -353,10 +351,10 @@ class page_characters:
         screen.blit(self.back_char, (0, 0))
         self.y += round(math.sin(self.sin_increment)*1)
         self.sin_increment += 0.1
-        text_creation("Select your Hero", self.fonts, (255, 255, 255), screen_width/coeff, self.y,True, screen)
-
-
-        if self.play_game.draw(screen):
+        text_creation("Select your Hero", self.fonts, (255, 255, 255), screen_width/2, self.y,True, screen)
+        keys = pygame.key.get_pressed()
+    
+        if self.play_game.draw(screen) or keys[pygame.K_SPACE]:
             menu = 2
         if self.back.draw(screen):
             menu = 0
@@ -437,6 +435,8 @@ def load_images(image,image1,shadow,multiplier):
     return image, image1,shadow
 
 def create_animations(text,separation,x,y,mov,all_ani):
+    if(text == 'santa'):
+        y-=60
     hero_all_animations = [all_ani[heroes_dico[text][0]], heroes_dico[text][1], heroes_dico[text][2], text]
     return [Player([x+separation*coeff,y], hero_all_animations,mov)]
 
@@ -526,11 +526,11 @@ class cursor_heroes():
                     react = False
                 self.press_d = False
 
-        if keys[pygame.K_SPACE] and not self.press_action:
+        if keys[pygame.K_RCTRL] and not self.press_action:
             self.press_action = True
             stop_animations = not stop_animations
             acti = not acti
-        if self.press_action and not keys[pygame.K_SPACE]:
+        if self.press_action and not keys[pygame.K_RCTRL]:
             action = 2
             react = True
             do_action = True
@@ -543,7 +543,7 @@ class cursor_heroes():
                 idy = randint(0,1)
                 
             self.x = self.x_move*idx + 420
-            self.y = self.y_move*idy + 445
+            self.y = self.y_move*idy + 534
             react = True
             do_action = True
             q_mark = False
@@ -569,9 +569,9 @@ class cursor_heroes():
                         react = False
                 self.press_r= False
             
-            if keys[pygame.K_a] and self.press_l == False:
+            if keys[pygame.K_q] and self.press_l == False:
                 self.press_l = True
-            if self.press_l and not keys[pygame.K_a]:
+            if self.press_l and not keys[pygame.K_q]:
                 self.x-= self.x_move
                 idx -= 1
                 react = True
@@ -581,9 +581,9 @@ class cursor_heroes():
                         react = False
                 self.press_l = False
             
-            if keys[pygame.K_w] and not self.press_u:
+            if keys[pygame.K_z] and not self.press_u:
                 self.press_u = True
-            if self.press_u and not keys[pygame.K_w]:
+            if self.press_u and not keys[pygame.K_z]:
                 self.y -= self.y_move
                 idy -= 1
                 react = True
@@ -605,11 +605,11 @@ class cursor_heroes():
                         react = False
                 self.press_d = False
 
-        if keys[pygame.K_e] and not self.press_action:
+        if keys[pygame.K_f] and not self.press_action:
             self.press_action = True
             stop_animations2 = not stop_animations2
             acti = not acti
-        if self.press_action and not keys[pygame.K_e]:
+        if self.press_action and not keys[pygame.K_f]:
             action = 2
             react = True
             do_action = True
@@ -623,7 +623,7 @@ class cursor_heroes():
                 idy = randint(0,1)
             
             self.x = self.x_move*idx + 420
-            self.y = self.y_move*idy + 445
+            self.y = self.y_move*idy + 534
             react = True
             do_action = True
             q_mark = False
@@ -680,7 +680,7 @@ class selection_of_characters():
         # Cursor 1
         self.move = 0
         self.detect = False
-        self.cursor = cursor_heroes(x_cord+15,y_cord+25,"P1_cursor.png")
+        self.cursor = cursor_heroes(x_cord+15,y_cord-5,"P1_cursor.png")
         self.index_pos = 0
         self.indey_pos = 0
         self.detect = False
@@ -692,7 +692,7 @@ class selection_of_characters():
 
         # Cursor 2
         self.move_2 = 0
-        self.cursor2 = cursor_heroes(x_cord+115,y_cord+25,"P2_cursor.png")
+        self.cursor2 = cursor_heroes(x_cord+115,y_cord-5,"P2_cursor.png")
         self.index_pos2 = 1
         self.indey_pos2 = 0
         self.detect2 =False
@@ -708,12 +708,14 @@ class selection_of_characters():
         
         self.cursor1_react = True
         self.cursor2_react = True
+        self.a = True
     def create_selection(self,screen):
-
         self.cursor2_react, self.move_2, self.index_pos2, self.indey_pos2,self.detect2,self.stop_animation2,self.activate2,self.sel_rand2 = self.cursor2.move_cursor2(screen,self.index_pos2, self.indey_pos2,self.stop_animation2,self.index_pos,self.indey_pos,self.activate2,self.sel_rand2)
-
         self.cursor1_react, self.move, self.index_pos, self.indey_pos, self.detect, self.stop_animation, self.activate, self.sel_rand = self.cursor.move_cursor(screen, self.index_pos, self.indey_pos, self.stop_animation, self.index_pos2, self.indey_pos2, self.activate, self.sel_rand)
-        
+        if self.a == True:
+            self.cursor1_react = True
+            self.cursor2_react = True
+            self.a =False
 
         if self.cursor1_react:
         
@@ -764,13 +766,11 @@ class selection_of_characters():
         
         return self.selection1,self.selection2, self.index_pos, self.indey_pos, self.index_pos2, self.indey_pos2
     
-def show_data(screen,x,y,index,indey):
+def show_data(screen,x,y,index,indey,nb_player):
     
     width_health = 0
     hero = "none"
-    #maybe store the healh of all heores in a list and then use a function to reduce lines
     font = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", 40)
-
     if(index == 0 and indey == 0):
         width_health = santa_stats['health']
         width_speed = santa_stats['speed']
@@ -813,96 +813,28 @@ def show_data(screen,x,y,index,indey):
         width_attack = halo_stats['attack']
         width_speed_attack = halo_stats['attack_speed']
         hero = "Halo"
-    back_rec = pygame.Rect(x,y,200,100)
-    front_rec = pygame.Rect(x+20,y+20,width_health,50)
-    text_creation(hero+' :', font, (255, 255, 255), x+5, y+100,False, screen)
-    pygame.draw.rect(screen, (255,255,255), back_rec, border_radius=0)
-    pygame.draw.rect(screen, (206,76,76), front_rec, border_radius=0)
+    elif(index ==3 and indey ==1):
+        width_health = 0
+        width_speed = 0
+        width_attack = 0
+        width_speed_attack = 0
+        hero = "Random"    
 
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(5, coeff*75, 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (206,76,76), pygame.Rect(5, coeff*75, 200*width_health/max_stats['health'], 5*coeff*5/3))
-    text_creation('Health', font, (255, 255, 255), 5, coeff*55,False, screen)
+    font2 = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", 60)
+    text_creation('PLAYER '+str(nb_player)+':', font2, (255, 255, 255), x, y,False, screen)
 
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(5, coeff*105, 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (75,175,194), pygame.Rect(5, coeff*105, 200*width_speed/max_stats['speed'], 5*coeff*5/3))
-    text_creation('Speed', font, (255, 255, 255), 5, coeff*75,False, screen)
+    text_creation(hero+' :', font, (255, 255, 255), x, y+75,False, screen)
+    pygame.draw.rect(screen, (230,230,230), pygame.Rect(x,(coeff/3)*(y+200), 200 , 5*coeff*5/3))
+    pygame.draw.rect(screen, (206,76,76), pygame.Rect(x, (coeff/3)*(y+200), 200*width_health/max_stats['health'], 5*coeff*5/3))
+    text_creation('Health', font, (255, 255, 255), x, y+150,False, screen)
+    pygame.draw.rect(screen, (230,230,230), pygame.Rect(x, (coeff/3)*(y+290), 200 , 5*coeff*5/3))
+    pygame.draw.rect(screen, (75,175,194), pygame.Rect(x, (coeff/3)*(y+290), 200*width_speed/max_stats['speed'], 5*coeff*5/3))
+    text_creation('Speed', font, (255, 255, 255), x,y+240,False, screen)
 
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(5, coeff*135, 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (135, 142, 141), pygame.Rect(5, coeff*135, 200*width_attack/max_stats['attack'], 5*coeff*5/3))
-    text_creation('Attack', font, (255, 255, 255), 5, coeff*95,False, screen)
+    pygame.draw.rect(screen, (230,230,230), pygame.Rect(x, (coeff/3)*(y+380), 200 , 5*coeff*5/3))
+    pygame.draw.rect(screen, (135, 142, 141), pygame.Rect(x, (coeff/3)*(y+380), 200*width_attack/max_stats['attack'], 5*coeff*5/3))
+    text_creation('Attack', font, (255, 255, 255), x, y+330,False, screen)
 
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(5, coeff*165, 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (255, 255, 47), pygame.Rect(5, coeff*165, 200*width_speed_attack/max_stats['attack_speed'], 5*coeff*5/3))
-    text_creation('Speed Attack', font, (255, 255, 255), 5, coeff*115,False, screen)
-
-   
-def show_data2(screen,x,y,index,indey):
-    
-    width_health = 0
-    hero = "none"
-    #maybe store the healh of all heores in a list and then use a function to reduce lines
-    font = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", 40)
-
-    if(index == 0 and indey == 0):
-        width_health = santa_stats['health']
-        width_speed = santa_stats['speed']
-        width_attack = santa_stats['attack']
-        width_speed_attack = santa_stats['attack_speed']
-        hero = "Santa"
-    elif(index ==0 and indey ==1):
-        width_health = dwarf_stats['health']
-        width_speed = dwarf_stats['speed']
-        width_attack = dwarf_stats['attack']
-        width_speed_attack = dwarf_stats['attack_speed']
-        hero = "Dwarf"
-    elif(index ==1 and indey ==0):
-        width_health = indiana_jones_stats['health']
-        width_speed = indiana_jones_stats['speed']
-        width_attack = indiana_jones_stats['attack']
-        width_speed_attack = indiana_jones_stats['attack_speed']
-        hero = "Indiana Jones"
-    elif(index ==1 and indey ==1):
-        width_health = gladiator_stats['health']
-        width_speed = gladiator_stats['speed']
-        width_attack = gladiator_stats['attack']
-        width_speed_attack = gladiator_stats['attack_speed']
-        hero = "Gladiator"
-    elif(index ==2 and indey ==0):
-        width_health = adventurer_stats['health']
-        width_speed = adventurer_stats['speed']
-        width_attack = adventurer_stats['attack']
-        width_speed_attack = adventurer_stats['attack_speed']
-        hero = "Adventurer"
-    elif(index ==2 and indey ==1):
-        width_health = hobbit_stats['health']
-        width_speed = hobbit_stats['speed']
-        width_attack = hobbit_stats['attack']
-        width_speed_attack = hobbit_stats['attack_speed']
-        hero = "Hobbit"
-    elif(index ==3 and indey ==0):
-        width_health = halo_stats['health']
-        width_speed = halo_stats['speed']
-        width_attack = halo_stats['attack']
-        width_speed_attack = halo_stats['attack_speed']
-        hero = "Halo"
-    back_rec = pygame.Rect(x,y,200,100)
-    front_rec = pygame.Rect(x+20,y+20,width_health,50)
-    text_creation(hero+' :', font, (255, 255, 255), screen_width-300, y+100,False, screen)
-    pygame.draw.rect(screen, (255,255,255), back_rec, border_radius=0)
-    pygame.draw.rect(screen, (206,76,76), front_rec, border_radius=0)
-
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(screen_width-205, coeff*75, 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (206,76,76), pygame.Rect(screen_width-205, coeff*75, 200*width_health/max_stats['health'], 5*coeff*5/3))
-    text_creation('Health', font, (255, 255, 255), screen_width-205, coeff*55,False, screen)
-
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(screen_width-205, coeff*105, 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (75,175,194), pygame.Rect(screen_width-205, coeff*105, 200*width_speed/max_stats['speed'], 5*coeff*5/3))
-    text_creation('Speed', font, (255, 255, 255), screen_width-205, coeff*75,False, screen)
-
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(screen_width-205, coeff*135, 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (135, 142, 141), pygame.Rect(screen_width-205, coeff*135, 200*width_attack/max_stats['attack'], 5*coeff*5/3))
-    text_creation('Attack', font, (255, 255, 255), screen_width-300, coeff*95,False, screen)
-
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(screen_width-205, coeff*165, 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (255, 255, 47), pygame.Rect(screen_width-205, coeff*165, 200*width_speed_attack/max_stats['attack_speed'], 5*coeff*5/3))
-    text_creation('Speed Attack', font, (255, 255, 255), screen_width-300, coeff*115,False, screen)
+    pygame.draw.rect(screen, (230,230,230), pygame.Rect(x, (coeff/3)*(y+470), 200 , 5*coeff*5/3))
+    pygame.draw.rect(screen, (255, 255, 47), pygame.Rect(x, (coeff/3)*(y+470), 200*width_speed_attack/max_stats['attack_speed'], 5*coeff*5/3))
+    text_creation('Speed Attack', font, (255, 255, 255), x, y+420,False, screen)
