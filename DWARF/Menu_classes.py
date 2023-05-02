@@ -1,24 +1,17 @@
 import pygame
-#from moviepy.editor import VideoFileClip
 import math as math
-from settings import screen_width, screen_height, FPS, level_map
-#from pygame.locals import *
+from settings import screen_width
 from functions import scale
 from backgrounds import*
-
-
-
-
 from Heroes_Dico import *
-from functions import store_animations,scale
+from functions import scale
 from Animation import*
 from random import*
-from level import Level
 from Heroes_Dico import santa_stats
 y_cord = 300
 x_cord = 160
 seed(57)
-separation_rows = 400
+separation_rows = coeff*4/3*100
 
 
 hero_list = ['santa','indiana_jones','adventurer','halo','dwarf','gladiator','hobbit','question_mark']
@@ -33,11 +26,11 @@ class Menu():
 
         self.confirm = -1
 
-        self.y_coord = 130*coeff
+        self.y_coord = 150*coeff
 
-        self.play = Buttons_2(screen_width/coeff, 100*coeff,5.5, "DWARF/Menu/play.png","DWARF/Menu/play_press.png","DWARF/Menu/play_shadow.png",True)
-        self.quit = Buttons_2(screen_width/coeff, 200*coeff, 5.5,"DWARF/Menu/quit.png","DWARF/Menu/quit_pressed.png","DWARF/Menu/quit_shadow.png",True)
-        self.options = Buttons_2(screen_width/coeff, 150*coeff, 5.5,"DWARF/Menu/options.png","DWARF/Menu/options_press.png","DWARF/Menu/options_shadow.png",True)
+        self.play = Buttons_2(screen_width/coeff, 110*coeff,coeff/3*2, "DWARF/Menu/play.png","DWARF/Menu/play_press.png","DWARF/Menu/play_shadow.png",True)
+        self.options = Buttons_2(screen_width/coeff, 150*coeff, coeff/3*2,"DWARF/Menu/options.png","DWARF/Menu/options_press.png","DWARF/Menu/options_shadow.png",True)
+        self.quit = Buttons_2(screen_width/coeff, 190*coeff, coeff/3*2,"DWARF/Menu/quit.png","DWARF/Menu/quit_press.png","DWARF/Menu/quit_shadow.png",True)
 
         # Title and sprites
         self.y = 35*coeff
@@ -45,10 +38,10 @@ class Menu():
         # music variables
 
         self.volume = 0.1
-        self.background_music = window("DWARF", "DWARF/Musics/Menu2.wav", self.volume)
+        self.background_music = window("DWARF", "DWARF/Musics/menu.wav", self.volume)
         self.play_music = True
-        self.music_on = Sprites(5, 5,False, "DWARF/Menu/mute_on.png", 1)
-        self.music_off = Sprites(5, 5,False, "DWARF/Menu/mute_off.png", 1)
+        self.music_on = Sprites(15*coeff, 15*coeff,False, "DWARF/Menu/mute_on.png", 1)
+        self.music_off = Sprites(15*coeff, 15*coeff,False, "DWARF/Menu/mute_off.png", 1)
         self.mute = False
         self.background_music.play()
 
@@ -74,6 +67,7 @@ class Menu():
         self.pos_player2_y = 0
 
         self.cursor_main = cursor_main_menu()
+
     def create_menu(self, screen, game_start_variable):
         
 
@@ -85,10 +79,10 @@ class Menu():
             
             self.y += (math.sin(self.sin_increment) * 1)
             self.sin_increment += 0.1
-            self.title = Sprites(screen_width/coeff, self.y,True, "DWARF/Menu/dwarf.png", 0.8)
+            self.title = Sprites(screen_width/coeff, self.y,True, "DWARF/Menu/dwarf.png", coeff*1.25)
             self.title.detect_click(screen)
             game_start_variable, self.y_coord, self.confirm = \
-                self.cursor_main.cursor_menu(screen,100*coeff + (math.sin(self.sin_increment) * 10) ,self.y_coord, game_start_variable)
+                self.cursor_main.cursor_menu(screen,135*coeff + (math.sin(self.sin_increment) * 10) ,self.y_coord, game_start_variable)
             if self.play.Update(screen) or self.confirm == 0:
                 
                 self.menu = 1
@@ -256,7 +250,7 @@ class Options:
 class Sprites(pygame.sprite.Sprite):
     def __init__(self, x, y,take_center, image, multiplier):
         super().__init__()
-        self.image = pygame.image.load(image)
+        self.image = pygame.image.load(image).convert_alpha()
         self.image = scale(self.image, 'mult', coeff*multiplier)
 
         self.rect = self.image.get_rect()
@@ -315,18 +309,37 @@ class cursor_main_menu():
     def __init__(self):
         self.pressed_up = False
         self.pressed_down = False
-        self.separation = 72*coeff
+
     def cursor_menu(self,screen, x, y, game_start_variable):
-        image = pygame.image.load("DWARF/Menu/cursor.png")
-        image = scale(image, 'mult', coeff*2)
+        image = pygame.image.load("DWARF/Menu/cursor.png").convert_alpha()
+        image = scale(image, 'mult', coeff*coeff/3*2)
         keys = pygame.key.get_pressed()
         select = -1
         
         if keys[pygame.K_DOWN] and self.pressed_down == False:
+            self.pressed_down = True
+        if keys[pygame.K_UP] and self.pressed_up == False:
+            self.pressed_up = True 
+
+        if self.pressed_down and not keys[pygame.K_DOWN]:
+            self.pressed_down = False
+            if y <= 150*coeff:
+                y = 210*coeff
+            elif y == 210*coeff:
+                y = 270*coeff
+                
+        elif self.pressed_up and not keys[pygame.K_UP]:
+            self.pressed_up = False
+            if y == 210*coeff:
+                y = 150*coeff
+            elif y == 270*coeff:
+                y = 210*coeff
+
+        '''if keys[pyame.K_DOWN] and self.pressed_down == False:
                 self.pressed_down = True
         if self.pressed_down and not keys[pygame.K_DOWN]:
             y += self.separation
-            if(y> 274*coeff):
+            if(y> 150*coeff):
                 y -= self.separation
             self.pressed_down = False
 
@@ -336,15 +349,14 @@ class cursor_main_menu():
             y -= self.separation
             if(y< 130*coeff):
                 y+= self.separation
-            self.pressed_up = False    
+            self.pressed_up = False    '''
 
-        if (y == 390) and keys[pygame.K_SPACE]:
+        if (y == 150*coeff) and keys[pygame.K_SPACE]:
             select = 0
-        elif (y == 606) and keys[pygame.K_SPACE] :
+        elif (y == 210*coeff) and keys[pygame.K_SPACE] :
             select = 1 
-        elif(y == 822) and keys[pygame.K_SPACE]:
+        elif(y == 270*coeff) and keys[pygame.K_SPACE]:
             select = 2  
-        
         screen.blit(image, (x, y))
 
         return game_start_variable, y, select
@@ -354,10 +366,7 @@ class page_characters:
     def __init__(self):
         self.x = 150
 
-        self.herostext_font = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", int(30*coeff/2))
-        self.fonts = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", int(75*coeff/2))
-
-        self.back_char = pygame.image.load("DWARF/Menu/tabern.jpg")
+        self.back_char = pygame.image.load("DWARF/Menu/tavern.jpg").convert_alpha()
         self.back_char = scale(self.back_char, 'mult', coeff/3)
 
         self.y = 45
@@ -365,11 +374,14 @@ class page_characters:
         self.back = Buttons("Back",20*coeff/2,425*coeff/2,120,60,True,50,12,(83,11,20))
         self.play_game= Buttons("Play",750*coeff/2,425*coeff/2,120,60,True,50,12,(11,83,29))
 
+        self.select_hero_title = pygame.image.load('DWARF/Menu/select_hero_title.png').convert_alpha()
+        self.select_hero_title = scale(self.select_hero_title, 'mult', coeff*3.5)
+
     def put(self, screen,menu):
         screen.blit(self.back_char, (0, 0))
         self.y += round(math.sin(self.sin_increment)*1)
         self.sin_increment += 0.1
-        text_creation("Select your Hero", self.fonts, (255, 255, 255), screen_width/2, self.y,True, screen)
+        screen.blit(self.select_hero_title, (screen_width/2 - self.select_hero_title.get_width()/2, self.y))
         keys = pygame.key.get_pressed()
     
         if self.play_game.draw(screen) or keys[pygame.K_SPACE]:
@@ -383,8 +395,10 @@ class page_characters:
 
 class Buttons_2():
     def __init__(self, x, y, multiplier, image, image1, shadow, state):
-
+        self.y = y
+        self.increment = 0
         #Loads images and gets their center coordenates
+        self.multiplier = multiplier
         self.image, self.image1, self.shadow = load_images(image,image1,shadow,multiplier)
 
         self.image_rect = self.image.get_rect()
@@ -409,13 +423,21 @@ class Buttons_2():
         self.was_pressed = False
         self.execute = False
         self.alt = state
+
     def Update(self, screen):
         action = False
         mouse_pos = pygame.mouse.get_pos()
-        screen.blit(self.shadow,(self.image_x-15,self.shadow_y-15))
+        if self.y == 110*coeff:
+            screen.blit(self.shadow,(self.image_x-coeff*self.multiplier,self.shadow_y-coeff*self.multiplier))
+        elif self.y == 150*coeff:
+            screen.blit(self.shadow,(self.image_x+coeff*self.multiplier,self.shadow_y-coeff*self.multiplier))
+        else:
+            screen.blit(self.shadow,(self.image_x+coeff*self.multiplier,self.shadow_y-coeff*self.multiplier))
+
         if self.image_rect.collidepoint(mouse_pos) or self.shadow_rect.collidepoint(mouse_pos):
             if not self.clicked and self.was_pressed and not self.alt:
-                screen.blit(self.image,(self.image_x, self.image_y-5*coeff/2))
+                self.increment += 0.25
+                screen.blit(self.image,(self.image_x, self.image_y- 3*coeff - 4*math.sin(self.increment)))
             if self.alt:  
                 if pygame.mouse.get_pressed()[0] == 0:
                     self.was_pressed = True
@@ -435,27 +457,46 @@ class Buttons_2():
                 action= True
         if self.clicked and self.was_pressed:
             screen.blit(self.image1,(self.image_x, self.image_y))
-        else:
+        if not(self.clicked and self.was_pressed) and not (not self.clicked and self.was_pressed and not self.alt):
             screen.blit(self.image,(self.image_x, self.image_y))
+        
 
         
         return action
 
     
 def load_images(image,image1,shadow,multiplier):
-    image = pygame.image.load(image,image1,)
+    image = pygame.image.load(image).convert_alpha()
     image = scale(image, 'mult', coeff*multiplier)
 
-    image1 = pygame.image.load(image1)
+    image1 = pygame.image.load(image1).convert_alpha()
     image1 = scale(image1, 'mult', coeff*multiplier)
 
-    shadow = pygame.image.load(shadow)
+    shadow = pygame.image.load(shadow).convert_alpha()
     shadow = scale(shadow, 'mult', coeff*multiplier)
     return image, image1,shadow
 
 def create_animations(text,separation,x,y,mov,all_ani):
-    if(text == 'santa'):
-        y-=60
+    if text == 'santa':
+        y += coeff*6
+    if text == 'indiana_jones':
+        y += coeff*30
+    elif text == 'adventurer':
+        y += coeff*33
+        x += coeff*2
+    elif text == 'halo':
+        y += coeff*33
+    elif text == 'gladiator':
+        x += coeff*5
+        y += coeff*5
+    elif text == 'dwarf':
+        y += coeff*13
+    elif text == 'hobbit':
+        x -= coeff*3
+        y += coeff*13
+    elif text == 'hobbit':
+        x -= coeff*3
+        y += coeff*13
     hero_all_animations = [all_ani[heroes_dico[text][0]], heroes_dico[text][1], heroes_dico[text][2], text]
     return [Player([x+separation*coeff,y], hero_all_animations,mov)]
 
@@ -463,10 +504,9 @@ class cursor_heroes():
     def __init__(self,x,y,image):
         self.origin =x*coeff
         self.x = x*coeff
-        
         self.y = y*2
 
-        self.image = pygame.image.load("DWARF/Menu/"+image)
+        self.image = pygame.image.load("DWARF/Menu/"+image).convert_alpha()
         self.image = scale(self.image, 'mult', (coeff-0.5)*3)
         
         rect = self.image.get_rect()
@@ -491,6 +531,7 @@ class cursor_heroes():
         self.limit_down = 380*coeff
 
         self.random
+        
     def move_cursor(self,screen,idx, idy,stop_animations,idx2,idy2,acti,q_mark):
         react = False
         do_action = False
@@ -566,7 +607,10 @@ class cursor_heroes():
             react = True
             do_action = True
             q_mark = False
-        screen.blit(self.image,(self.x,self.y))
+        if self.y > coeff*200:
+            screen.blit(self.image,(self.x,self.y-coeff*22))
+        else:
+            screen.blit(self.image,(self.x,self.y))
         
         return react, action, idx, idy, do_action, stop_animations,acti,q_mark
     
@@ -646,7 +690,11 @@ class cursor_heroes():
             react = True
             do_action = True
             q_mark = False
-        screen.blit(self.image,(self.x,self.y))
+
+        if self.y > coeff*200:
+            screen.blit(self.image,(self.x,self.y-coeff*22))
+        else:
+            screen.blit(self.image,(self.x,self.y))
         
         return react, action, idx, idy, do_action, stop_animations2,acti,q_mark
 
