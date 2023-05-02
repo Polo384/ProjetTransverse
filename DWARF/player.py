@@ -53,7 +53,7 @@ class Player():
             self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f, 'shoot': pygame.K_g, 'change_weapon': pygame.K_e}
             self.flip = False
         elif choice == 2:
-            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_RCTRL, 'shoot': pygame.K_m, 'change_weapon': pygame.K_p}
+            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_l, 'shoot': pygame.K_m, 'change_weapon': pygame.K_p}
             self.flip = True   
 
     # Player shooting
@@ -160,7 +160,6 @@ class Player():
             self.image = pygame.transform.flip(self.image, True, False)
 
     def get_input(self):
-        keys = pygame.key.get_pressed()
     # Move
         if self.moving_right:
             self.direction.x = 1
@@ -207,7 +206,7 @@ class Player():
 
     def handle_events(self, events):
         for event in events:
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_h):
                 pygame.quit()
                 sys.exit()
 
