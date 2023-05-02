@@ -197,6 +197,11 @@ class HUD:
             if self.player.effect_ongoing:
                 screen.blit(self.font.render(str(int((self.player.effect_duration-self.player.effect_timer)*10/60)+1), False, 'white'), (coeff*200, coeff*16))
 
+            #projectile
+            if self.player.current_weapon:
+                screen.blit(scale(pygame.image.load("DWARF/Projectiles/shell_p1.png"), 'mult', 3), (650, 50))
+            else:
+                screen.blit(scale(pygame.image.load("DWARF/Projectiles/grenade_p1.png"), 'mult', 3), (650, 45))
         else:
             # photo
             screen.blit(self.photo, (screen_width - self.photo.get_width() - coeff*3, coeff*3))
@@ -218,6 +223,12 @@ class HUD:
             self.detect_bonus(screen)
             if self.player.effect_ongoing:
                 screen.blit(self.font.render(str(int((self.player.effect_duration-self.player.effect_timer)*10/60)+1), False, 'white'), (screen_width -coeff*207, coeff*16))
+            
+            #projectile
+            if self.player.current_weapon:
+                screen.blit(scale(pygame.image.load("DWARF/Projectiles/shell_p2.png"), 'mult', 3), (screen_width-670, 50))
+            else:
+                screen.blit(scale(pygame.image.load("DWARF/Projectiles/grenade_p2.png"), 'mult', 3), (screen_width-670, 45))
         
 class WIN():
     def __init__(self, players_list):
