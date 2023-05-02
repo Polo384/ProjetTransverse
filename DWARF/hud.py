@@ -49,14 +49,14 @@ class HUD:
         self.above_health_bar_timer = 50
 
         self.above_sprint_bar = pygame.Rect( 1, self.player.rect.y - 20 , coeff*25*self.player.stamina/self.player.max_stamina , coeff*5/3)
-        self.above_sprint_bar_timer = 30
+        self.above_sprint_bar_timer = 12
 
 
         #transformation for the right part (second hero) of the screen
         if self.choice == 2:
             self.photo = pygame.transform.flip(self.photo, True, False)
             self.health_bar = pygame.transform.flip(self.health_bar, True, False)
-            self.stamina_image = pygame.transform.flip(self.stamina_image, True, False)
+            self.stamina_image = pygame.transform.flip(self.stamina_image, True, False)       
         
 
     def update_health_bar_color(self):
@@ -165,8 +165,19 @@ class HUD:
             #on the left
             self.above_sprint_bar.x = self.hero_barbg.x
             self.above_sprint_bar.width = coeff*25*self.player.stamina/self.player.max_stamina
-            
             pygame.draw.rect(screen, 'white', self.above_sprint_bar)
+
+    def charge_projectile(self):
+        self.charge = pygame.Surface((coeff*19,coeff*19*(1-self.player.shoot_timer/self.player.max_shoot_timer)), pygame.SRCALPHA)
+        self.charge.fill((200, 200, 200))
+        self.charge.set_alpha(100)
+        self.charge_rect = self.charge.get_rect()
+        if self.choice == 1:
+            self.charge_rect.left = 645
+            self.charge_rect.bottom = 85
+        else:
+            self.charge_rect.left = screen_width-695
+            self.charge_rect.bottom = 85
 
     def update(self,screen):
         self.update_health_bar_color()
@@ -199,9 +210,14 @@ class HUD:
 
             #projectile
             if self.player.current_weapon:
-                screen.blit(scale(pygame.image.load("DWARF/Projectiles/shell_p1.png"), 'mult', 3), (650, 50))
+                screen.blit(scale(pygame.image.load("DWARF/Hud/shell_frame_below.png"), 'mult', 3), (635, 22))
             else:
-                screen.blit(scale(pygame.image.load("DWARF/Projectiles/grenade_p1.png"), 'mult', 3), (650, 45))
+                screen.blit(scale(pygame.image.load("DWARF/Hud/grenade_frame_below.png"), 'mult', 3), (635, 22))
+            if self.player.shoot_timer_incrementation:
+                self.charge_projectile()
+                screen.blit(self.charge, self.charge_rect)
+                screen.blit(scale(pygame.image.load("DWARF/Hud/projectile_frame.png"), 'mult', 3), (635, 22))
+
         else:
             # photo
             screen.blit(self.photo, (screen_width - self.photo.get_width() - coeff*3, coeff*3))
@@ -226,9 +242,14 @@ class HUD:
             
             #projectile
             if self.player.current_weapon:
-                screen.blit(scale(pygame.image.load("DWARF/Projectiles/shell_p2.png"), 'mult', 3), (screen_width-670, 50))
+                screen.blit(scale(pygame.image.load("DWARF/Hud/shell_frame_below.png"), 'mult', 3), (screen_width-710, 22))
             else:
-                screen.blit(scale(pygame.image.load("DWARF/Projectiles/grenade_p2.png"), 'mult', 3), (screen_width-670, 45))
+                screen.blit(scale(pygame.image.load("DWARF/Hud/grenade_frame_below.png"), 'mult', 3), (screen_width-710, 22))
+            if self.player.shoot_timer_incrementation:
+                self.charge_projectile()
+                screen.blit(self.charge, self.charge_rect)
+                screen.blit(scale(pygame.image.load("DWARF/Hud/projectile_frame.png"), 'mult', 3), (screen_width-710, 22))
+        
         
 class WIN():
     def __init__(self, players_list):
