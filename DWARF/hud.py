@@ -170,7 +170,7 @@ class HUD:
     def charge_projectile(self):
         self.charge = pygame.Surface((coeff*19,coeff*19*(1-self.player.shoot_timer/self.player.max_shoot_timer)), pygame.SRCALPHA)
         self.charge.fill((200, 200, 200))
-        self.charge.set_alpha(100)
+        self.charge.set_alpha(200)
         self.charge_rect = self.charge.get_rect()
         if self.choice == 1:
             self.charge_rect.left = 645
