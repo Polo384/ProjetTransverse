@@ -53,7 +53,7 @@ class Player():
             self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f, 'shoot': pygame.K_g, 'change_weapon': pygame.K_e}
             self.flip = False
         elif choice == 2:
-            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_l, 'shoot': pygame.K_m, 'change_weapon': pygame.K_p}
+            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_RCTRL, 'shoot': pygame.K_m, 'change_weapon': pygame.K_p}
             self.flip = True   
 
     # Player shooting
@@ -63,6 +63,9 @@ class Player():
         self.time = 0
         self.shoot_pressed = False
         self.shoot_allowed, self.shoot_allowed_save = False, False
+        self.shoot_timer_incrementation = False
+        self.shoot_timer = 35
+        self.max_shoot_timer = 30
         self.shell, self.grenade = None, None
         self.grenade_timer = 0
         self.current_weapon = True # True means shell and False means grenade
@@ -160,6 +163,7 @@ class Player():
             self.image = pygame.transform.flip(self.image, True, False)
 
     def get_input(self):
+        keys = pygame.key.get_pressed()
     # Move
         if self.moving_right:
             self.direction.x = 1
@@ -214,7 +218,7 @@ class Player():
                 if event.type == pygame.KEYDOWN:
                     if event.key == self.input_keys['attack']:
                         self.attack_pressed = True
-                    elif event.key == self.input_keys['shoot']:
+                    elif event.key == self.input_keys['shoot'] and not self.shoot_timer_incrementation:
                         self.shoot_pressed = True
                         self.shoot_allowed = True
                         if self.flip:
@@ -264,7 +268,7 @@ class Player():
             self.attack_rect.x = -500
     
     def check_shoot_input(self):
-        if self.shoot_pressed and self.shoot_allowed:
+        if self.shoot_pressed and self.shoot_allowed :
             self.freeze()
             self.attack_timer = 2
             self.check_change_orientation()
@@ -272,18 +276,25 @@ class Player():
             self.cursorx = int(self.rect.centerx + 30*coeff * math.cos(math.radians(self.angle)))
             self.cursory = int(self.rect.centery + 30*coeff * math.sin(math.radians(self.angle)))
 
-        if self.shoot_allowed_save and not self.shoot_pressed:
+        if self.shoot_allowed_save and not self.shoot_pressed and self.shoot_timer>=self.max_shoot_timer:
             if self.current_weapon:
                 self.shell = Shell(self.rect.centerx, self.rect.centery, -self.angle, self.choice, self.flip)
             else:
                 self.grenade = Grenade(self.rect.centerx, self.rect.centery, self.cursorx, self.cursory, self.choice, self.flip)
-
+            self.shoot_timer = 0
+            self.shoot_timer_incrementation = True
             self.unfreeze()
             self.shoot_allowed = False
 
         elif self.attack_pressed and self.shoot_allowed_save:
             self.unfreeze()
-            self.shoot_allowed = False
+            self.shoot_alloswed = False
+    
+    def shoot_timer_update(self):
+        if self.shoot_timer_incrementation:
+            self.shoot_timer+=0.1
+        if int(self.shoot_timer) >= int(self.max_shoot_timer):
+            self.shoot_timer_incrementation = False
             
     def check_change_orientation(self):
         if self.moving_left and not self.flip:
@@ -619,6 +630,7 @@ class Player():
             if self.effect_ongoing: screen.blit(mask.to_surface(unsetcolor=(255,255,255,0), setcolor=(self.effect_color)), (self.rect.x-(self.player_offset[0]*coeff), self.rect.y-(self.player_offset[1]*coeff)))
 
     def update(self,screen):
+        self.shoot_timer_update()
         self.check_shoot_input()
         if not self.freezed and not self.dead: self.get_input()
         else: self.attack_rect_update()
