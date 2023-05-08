@@ -50,13 +50,13 @@ while game_start_variable:
             level = Level(level_map, screen, player1_hero, player2_hero)
             create_level = False
         screen.fill((255, 255, 255))
-        start, create_level = level.run()
-        display_fps()
+        start, create_level = level.run() 
     
         if not start:
             MAIN_menu = Menu(all_animations)
             player1_hero_choice = "none"
             player2_hero_choice = "none"
-
+            
+    display_fps()
     clock.tick(FPS)
     pygame.display.update()
