@@ -53,7 +53,7 @@ class Player():
             self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f, 'shoot': pygame.K_g, 'change_weapon': pygame.K_e}
             self.flip = False
         elif choice == 2:
-            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_RCTRL, 'shoot': pygame.K_m, 'change_weapon': pygame.K_p}
+            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_o, 'shoot': pygame.K_m, 'change_weapon': pygame.K_p}
             self.flip = True   
 
     # Player shooting
@@ -324,8 +324,6 @@ class Player():
     def grenade_countdown(self):
         if self.grenade:
             self.grenade_timer += 0.1
-            if self.grenade_timer > 17:
-                self.explode_grenade()
 
     def explode_grenade(self):
         self.grenade = None

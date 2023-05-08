@@ -6,6 +6,7 @@ from player import Player
 from bonus import Bonus
 from backgrounds import BG
 from hud import *
+from math import *
 
 class Level:
     def __init__(self, level_data, surface, player1_hero, player2_hero):
@@ -247,18 +248,52 @@ class Level:
                             stone_index = 0
                 x += 1
             y += 1
+
     def shell_collision(self):
         player1, player2 = self.players_list[0], self.players_list[1]
+
         for sprite in self.collide_tiles.sprites():
             if player1.shell and (sprite.rect.colliderect(player1.shell.rect) or player2.rect.colliderect(player1.shell.rect)):
+                self.projectile_damage_player(player1.shell, 100, 40)
+                self.draw_impact(player1.shell.rect.centerx, player1.shell.rect.centery)
                 player1.explode_shell()
+                
             if player2.shell and (sprite.rect.colliderect(player2.shell.rect) or player1.rect.colliderect(player2.shell.rect)):
+                self.projectile_damage_player(player2.shell, 100, 40)
+                self.draw_impact(player2.shell.rect.centerx, player2.shell.rect.centery)
                 player2.explode_shell()
+    
+    def draw_impact(self, x, y):
+        pygame.draw.circle(self.display_surface, (255, 0, 0), (x ,y), 150)
 
-                # explosion : lui donner les coordonées de l'emplacement de la collision
-                # créer un cercle invisible : si joueur joueur pres du centre alors degat = 100% inversement s'il est au bord du cercle alors 25% par exemple
-                # calculer distance de l'explosion et du joueur 
-                # degats si c un joueur
+    def projectile_damage_player(self, projectile, range, damage):
+        for player in self.players_list:
+            xb, xa = projectile.rect.centerx, player.rect.centerx
+            yb, ya = projectile.rect.centery, player.rect.centery
+            distance = round(sqrt((xb - xa)**2+(yb-ya)**2))
+
+            if distance <= 50:
+                player.health -= damage
+                player.regeneration_timer = 0
+
+            elif (50 < distance <= range/2):
+                player.health -= damage/4*3
+                player.regeneration_timer = 0
+
+            elif (range/2 < distance <= range/1.5):
+                player.health -= damage/4*2
+                player.regeneration_timer = 0
+
+            elif range/1.5 < distance <= range:
+                player.health -= damage/4
+                player.regeneration_timer = 0
+
+    def grenade_collision(self):
+        for player in self.players_list:
+            if player.grenade_timer > 17:
+                self.projectile_damage_player(player.grenade, 200, 50)
+                self.draw_impact(player.grenade.rect.centerx, player.grenade.rect.centery)
+                player.explode_grenade()
 
     def grenade_collision_horizontal(self):
         for player in self.players_list:
@@ -324,6 +359,7 @@ class Level:
                                 grenade.rect.bottom = sprite.rect.top
                                 grenade.apply_bounce()
                     
+    
     def horizontal_movement_collision(self):
         for player in self.players_list:
             check_semi_collide, player.slide_allowed, player.detect_wall_collision = True, False, False
@@ -469,6 +505,7 @@ class Level:
         self.shell_collision()
         self.grenade_collision_horizontal()
         self.grenade_collision_vertical()
+        self.grenade_collision()
         
         # bonus
         self.bonus_update()
