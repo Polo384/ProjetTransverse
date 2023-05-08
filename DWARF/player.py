@@ -571,8 +571,8 @@ class Player():
             self.health = 0
 
     def update_regeneration(self):
-        if self.regeneration_timer < 75:
-            self.regeneration_timer += 0.1
+        if self.regeneration_timer < 100:
+            self.regeneration_timer += 0.08
         else:
             self.regenerate()
 

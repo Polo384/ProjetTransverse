@@ -255,16 +255,16 @@ class Level:
         for sprite in self.collide_tiles.sprites():
             if player1.shell and (sprite.rect.colliderect(player1.shell.rect) or player2.rect.colliderect(player1.shell.rect)):
                 self.projectile_damage_player(player1.shell, 100, 40)
-                self.draw_impact(player1.shell.rect.centerx, player1.shell.rect.centery)
+                self.draw_impact(player1.shell.rect.centerx, player1.shell.rect.centery, 100)
                 player1.explode_shell()
                 
             if player2.shell and (sprite.rect.colliderect(player2.shell.rect) or player1.rect.colliderect(player2.shell.rect)):
                 self.projectile_damage_player(player2.shell, 100, 40)
-                self.draw_impact(player2.shell.rect.centerx, player2.shell.rect.centery)
+                self.draw_impact(player2.shell.rect.centerx, player2.shell.rect.centery, 100)
                 player2.explode_shell()
     
-    def draw_impact(self, x, y):
-        pygame.draw.circle(self.display_surface, (255, 0, 0), (x ,y), 150)
+    def draw_impact(self, x, y, range):
+        pygame.draw.circle(self.display_surface, (255, 0, 0), (x ,y), range)
 
     def projectile_damage_player(self, projectile, range, damage):
         for player in self.players_list:
@@ -292,7 +292,7 @@ class Level:
         for player in self.players_list:
             if player.grenade_timer > 17:
                 self.projectile_damage_player(player.grenade, 200, 50)
-                self.draw_impact(player.grenade.rect.centerx, player.grenade.rect.centery)
+                self.draw_impact(player.grenade.rect.centerx, player.grenade.rect.centery, 200)
                 player.explode_grenade()
 
     def grenade_collision_horizontal(self):
