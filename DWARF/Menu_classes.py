@@ -81,14 +81,13 @@ class Menu():
             self.sin_increment += 0.1
             self.title = Sprites(screen_width/coeff, self.y,True, "DWARF/Menu/dwarf.png", coeff*1.25)
             self.title.detect_click(screen)
-            game_start_variable, self.y_coord, self.confirm = \
+            game_start_variable, self.y_coord, self.confirm, self.button_choice = \
                 self.cursor_main.cursor_menu(screen,135*coeff + (math.sin(self.sin_increment) * 10) ,self.y_coord, game_start_variable)
-            if self.play.Update(screen) or self.confirm == 0:
-                
+            if self.play.Update(screen, self.button_choice, 0) or self.confirm == 0:
                 self.menu = 1
-            if self.options.Update(screen) or self.confirm == 1:
+            if self.options.Update(screen, self.button_choice, 1) or self.confirm == 1:
                 print("options")    
-            if self.quit.Update(screen) or self.confirm == 2:
+            if self.quit.Update(screen, self.button_choice, 2) or self.confirm == 2:
                 game_start_variable = False
             self.Selections = selection_of_characters(self.all_ani)
             # Mute the sound
@@ -206,47 +205,6 @@ class Options:
         self.pos = (x, y)
 
 
-"""class Video:
-    def __init__(self, video_file, w, h):
-        self.video = VideoFileClip(video_file)
-        self.video_width, self.video_height = w, h
-        self.scaled_width = w
-        self.scaled_height = h
-        self.frame_iter = iter(self.video.iter_frames())
-
-    def Play(self, screen):
-        try:
-            # Get the next frame
-            frame = next(self.frame_iter)
-            # Convert the frame to a Pygame surface
-            frame = np.rot90(frame)
-            frame = pygame.surfarray.make_surface(frame)
-            frame = pygame.transform.scale(frame, (self.scaled_width, self.scaled_height))
-            # Blit the frame to the screen
-            screen.blit(frame, (0, 0))
-            pygame.time.wait(20)
-        except:
-            # Reset the frame_iter if all frames have been retrieved
-            self.frame_iter = iter(self.video.iter_frames())"""
-
-
-"""class LoadingBar:
-    def __init__(self):
-        self.bar = pygame.Rect((190, 200), (400, 100))
-        self.width = 75
-        self.increase = 1
-        self.loading_bar = pygame.Rect((210, 212), (1, 75))
-
-    def create_bar(self, screen):
-        screen.fill((0, 0, 0))
-        text_creation("Loading", (pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", 75)), (255, 255, 255), 280, 100, screen)
-        pygame.draw.rect(screen, (255, 255, 255), self.bar, 5, border_radius=6)
-        pygame.draw.rect(screen, (255, 255, 255), self.loading_bar, border_radius=2)
-        if self.loading_bar.width < 360:
-            self.increase += 0.05
-            self.loading_bar.width = self.width + self.increase"""
-
-
 class Sprites(pygame.sprite.Sprite):
     def __init__(self, x, y,take_center, image, multiplier):
         super().__init__()
@@ -335,31 +293,19 @@ class cursor_main_menu():
             elif y == 270*coeff:
                 y = 210*coeff
 
-        '''if keys[pyame.K_DOWN] and self.pressed_down == False:
-                self.pressed_down = True
-        if self.pressed_down and not keys[pygame.K_DOWN]:
-            y += self.separation
-            if(y> 150*coeff):
-                y -= self.separation
-            self.pressed_down = False
+        if (y == 150*coeff):
+            choice = 0
+        elif (y == 210*coeff):
+            choice = 1
+        elif(y == 270*coeff):
+            choice = 2
+        
+        if keys[pygame.K_SPACE]:
+            select = choice
 
-        if keys[pygame.K_UP] and self.pressed_up == False:
-                self.pressed_up = True
-        if self.pressed_up and not keys[pygame.K_UP] :
-            y -= self.separation
-            if(y< 130*coeff):
-                y+= self.separation
-            self.pressed_up = False    '''
-
-        if (y == 150*coeff) and keys[pygame.K_SPACE]:
-            select = 0
-        elif (y == 210*coeff) and keys[pygame.K_SPACE] :
-            select = 1 
-        elif(y == 270*coeff) and keys[pygame.K_SPACE]:
-            select = 2  
         screen.blit(image, (x, y))
 
-        return game_start_variable, y, select
+        return game_start_variable, y, select, choice
 
 
 class page_characters:
@@ -424,8 +370,8 @@ class Buttons_2():
         self.execute = False
         self.alt = state
 
-    def Update(self, screen):
-        action = False
+    def Update(self, screen, button_choice, choice):
+        action, check_levitation = False, False
         mouse_pos = pygame.mouse.get_pos()
         if self.y == 110*coeff:
             screen.blit(self.shadow,(self.image_x-coeff*self.multiplier,self.shadow_y-coeff*self.multiplier))
@@ -434,8 +380,17 @@ class Buttons_2():
         else:
             screen.blit(self.shadow,(self.image_x+coeff*self.multiplier,self.shadow_y-coeff*self.multiplier))
 
+
+        if button_choice == choice and not self.clicked:
+            print("a")
+            check_levitation = True
+            self.increment += 0.25
+            screen.blit(self.image,(self.image_x, self.image_y- 3*coeff - 4*math.sin(self.increment)))
+
         if self.image_rect.collidepoint(mouse_pos) or self.shadow_rect.collidepoint(mouse_pos):
-            if not self.clicked and self.was_pressed and not self.alt:
+            print("b")
+            if not self.clicked and self.was_pressed and not self.alt and not check_levitation:
+                print("c")
                 self.increment += 0.25
                 screen.blit(self.image,(self.image_x, self.image_y- 3*coeff - 4*math.sin(self.increment)))
             if self.alt:  
@@ -446,7 +401,8 @@ class Buttons_2():
                 self.alt = False
             if pygame.mouse.get_pressed()[0] == 1:
                 self.clicked = True
-        else:
+        elif not check_levitation:
+            print("d")
             screen.blit(self.image,(self.image_x, self.image_y))
             if pygame.mouse.get_pressed()[0] == 0:
                 self.alt = True
@@ -456,9 +412,8 @@ class Buttons_2():
             if self.image_rect.collidepoint(mouse_pos) or self.shadow_rect.collidepoint(mouse_pos):
                 action= True
         if self.clicked and self.was_pressed:
+            print("e")
             screen.blit(self.image1,(self.image_x, self.image_y))
-        if not(self.clicked and self.was_pressed) and not (not self.clicked and self.was_pressed and not self.alt):
-            screen.blit(self.image,(self.image_x, self.image_y))
         
 
         
@@ -538,9 +493,9 @@ class cursor_heroes():
         action = 0
         keys = pygame.key.get_pressed()
         if acti == True:
-            if keys[pygame.K_RIGHT] and self.press_r == False:
+            if keys[pygame.K_d] and self.press_r == False:
                 self.press_r = True
-            if self.press_r and not keys[pygame.K_RIGHT]:
+            if self.press_r and not keys[pygame.K_d]:
                 self.x += self.x_move
                 idx += 1 
                 react = True
@@ -550,9 +505,9 @@ class cursor_heroes():
                     react = False
                 self.press_r= False
             
-            if keys[pygame.K_LEFT] and self.press_l == False:
+            if keys[pygame.K_q] and self.press_l == False:
                 self.press_l = True
-            if self.press_l and not keys[pygame.K_LEFT]:
+            if self.press_l and not keys[pygame.K_q]:
                 self.x-= self.x_move
                 idx -= 1
                 react = True
@@ -562,9 +517,9 @@ class cursor_heroes():
                     react = False
                 self.press_l = False
             
-            if keys[pygame.K_UP] and not self.press_u:
+            if keys[pygame.K_z] and not self.press_u:
                 self.press_u = True
-            if self.press_u and not keys[pygame.K_UP]:
+            if self.press_u and not keys[pygame.K_z]:
                 self.y -= self.y_move
                 idy -= 1
                 react = True
@@ -574,7 +529,7 @@ class cursor_heroes():
                     react = False
                 self.press_u = False
 
-            if keys[pygame.K_DOWN] and not self.press_d:          
+            if keys[pygame.K_s] and not self.press_d:          
                 self.press_d = True
             if self.press_d and not keys[pygame.K_DOWN]:
                 self.y += self.y_move
@@ -586,11 +541,11 @@ class cursor_heroes():
                     react = False
                 self.press_d = False
 
-        if keys[pygame.K_RCTRL] and not self.press_action:
+        if keys[pygame.K_f] and not self.press_action:
             self.press_action = True
             stop_animations = not stop_animations
             acti = not acti
-        if self.press_action and not keys[pygame.K_RCTRL]:
+        if self.press_action and not keys[pygame.K_f]:
             action = 2
             react = True
             do_action = True
@@ -620,9 +575,9 @@ class cursor_heroes():
         action = 0
         keys = pygame.key.get_pressed()
         if acti == True:
-            if keys[pygame.K_d] and self.press_r == False:
+            if keys[pygame.K_RIGHT] and self.press_r == False:
                 self.press_r = True
-            if self.press_r and not keys[pygame.K_d]:
+            if self.press_r and not keys[pygame.K_RIGHT]:
                 self.x += self.x_move
                 idx += 1 
                 react = True
@@ -632,9 +587,9 @@ class cursor_heroes():
                         react = False
                 self.press_r= False
             
-            if keys[pygame.K_q] and self.press_l == False:
+            if keys[pygame.K_LEFT] and self.press_l == False:
                 self.press_l = True
-            if self.press_l and not keys[pygame.K_q]:
+            if self.press_l and not keys[pygame.K_LEFT]:
                 self.x-= self.x_move
                 idx -= 1
                 react = True
@@ -644,9 +599,9 @@ class cursor_heroes():
                         react = False
                 self.press_l = False
             
-            if keys[pygame.K_z] and not self.press_u:
+            if keys[pygame.K_UP] and not self.press_u:
                 self.press_u = True
-            if self.press_u and not keys[pygame.K_z]:
+            if self.press_u and not keys[pygame.K_UP]:
                 self.y -= self.y_move
                 idy -= 1
                 react = True
@@ -656,9 +611,9 @@ class cursor_heroes():
                         react = False   
                 self.press_u = False
 
-            if keys[pygame.K_s] and not self.press_d:          
+            if keys[pygame.K_DOWN] and not self.press_d:          
                 self.press_d = True
-            if self.press_d and not keys[pygame.K_s]:
+            if self.press_d and not keys[pygame.K_DOWN]:
                 self.y += self.y_move
                 idy += 1
                 react = True
@@ -668,11 +623,11 @@ class cursor_heroes():
                         react = False
                 self.press_d = False
 
-        if keys[pygame.K_f] and not self.press_action:
+        if keys[pygame.K_RCTRL] and not self.press_action:
             self.press_action = True
             stop_animations2 = not stop_animations2
             acti = not acti
-        if self.press_action and not keys[pygame.K_f]:
+        if self.press_action and not keys[pygame.K_RCTRL]:
             action = 2
             react = True
             do_action = True

@@ -58,6 +58,17 @@ class HUD:
             self.health_bar = pygame.transform.flip(self.health_bar, True, False)
             self.stamina_image = pygame.transform.flip(self.stamina_image, True, False)       
         
+        # projectile
+        self.shell_below = pygame.image.load("DWARF/Hud/shell_frame_below.png").convert_alpha()
+        self.grenade_below = pygame.image.load("DWARF/Hud/grenade_frame_below.png").convert_alpha()
+
+        if self.choice == 2:
+            self.shell_below = pygame.transform.flip(self.shell_below, True, False)
+            self.grenade_below = pygame.transform.flip(self.grenade_below, True, False)
+        
+        self.shell_below = scale(self.shell_below, 'mult', coeff)
+        self.grenade_below = scale(self.grenade_below, 'mult', coeff)
+        self.projectile_frame = scale(pygame.image.load("DWARF/Hud/projectile_frame.png"), 'mult', coeff)
 
     def update_health_bar_color(self):
         if self.player.health/self.player.max_health > 0.6:
@@ -210,13 +221,13 @@ class HUD:
 
             #projectile
             if self.player.current_weapon:
-                screen.blit(scale(pygame.image.load("DWARF/Hud/shell_frame_below.png"), 'mult', 3), (635, 22))
+                screen.blit(self.shell_below, (635, 22))
             else:
-                screen.blit(scale(pygame.image.load("DWARF/Hud/grenade_frame_below.png"), 'mult', 3), (635, 22))
+                screen.blit(self.grenade_below, (635, 22))
             if self.player.shoot_timer_incrementation:
                 self.charge_projectile()
                 screen.blit(self.charge, self.charge_rect)
-                screen.blit(scale(pygame.image.load("DWARF/Hud/projectile_frame.png"), 'mult', 3), (635, 22))
+                screen.blit(self.projectile_frame, (635, 22))
 
         else:
             # photo
@@ -242,13 +253,13 @@ class HUD:
             
             #projectile
             if self.player.current_weapon:
-                screen.blit(scale(pygame.image.load("DWARF/Hud/shell_frame_below.png"), 'mult', 3), (screen_width-710, 22))
+                screen.blit(self.shell_below, (screen_width-710, 22))
             else:
-                screen.blit(scale(pygame.image.load("DWARF/Hud/grenade_frame_below.png"), 'mult', 3), (screen_width-710, 22))
+                screen.blit(self.grenade_below, (screen_width-710, 22))
             if self.player.shoot_timer_incrementation:
                 self.charge_projectile()
                 screen.blit(self.charge, self.charge_rect)
-                screen.blit(scale(pygame.image.load("DWARF/Hud/projectile_frame.png"), 'mult', 3), (screen_width-710, 22))
+                screen.blit(self.projectile_frame, (screen_width-710, 22))
         
         
 class WIN():
