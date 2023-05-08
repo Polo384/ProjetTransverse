@@ -6,6 +6,7 @@ from player import Player
 from bonus import Bonus
 from backgrounds import BG
 from hud import *
+from math import *
 
 class Level:
     def __init__(self, level_data, surface, player1_hero, player2_hero):
@@ -247,19 +248,85 @@ class Level:
                             stone_index = 0
                 x += 1
             y += 1
+    
+
     def shell_collision(self):
         player1, player2 = self.players_list[0], self.players_list[1]
         for sprite in self.collide_tiles.sprites():
             if player1.shell and (sprite.rect.colliderect(player1.shell.rect) or player2.rect.colliderect(player1.shell.rect)):
+                if player1.shell and player2.rect.colliderect(player1.shell.rect):
+                    self.direct_hit_player2()
+                else:
+                    '''x = player1.shell.rect.centerx
+                    y = player1.shell.rect.centery
+                    self.draw_impact(x, y)'''
+                    distance = self.distance_impact_player2()
+                    print(distance)
+                    self.shell_damage_player2(distance)
                 player1.explode_shell()
+                
+                
+
             if player2.shell and (sprite.rect.colliderect(player2.shell.rect) or player1.rect.colliderect(player2.shell.rect)):
+                if player2.shell and player1.rect.colliderect(player2.shell.rect):
+                    self.direct_hit_player1()
+                else:
+                    '''x = player2.shell.rect.centerx
+                    y = player2.shell.rect.centery
+                    self.draw_impact(x, y)'''
+                    distance = self.distance_impact_player1()
+                    print(distance)
+                    self.shell_damage_player1(distance)
                 player2.explode_shell()
+                
 
                 # explosion : lui donner les coordonées de l'emplacement de la collision
                 # créer un cercle invisible : si joueur joueur pres du centre alors degat = 100% inversement s'il est au bord du cercle alors 25% par exemple
                 # calculer distance de l'explosion et du joueur 
                 # degats si c un joueur
 
+    def direct_hit_player2(self):
+        player2 = self.players_list[1]
+        player2.health -= 40
+
+    def direct_hit_player1(self):
+        player1 = self.players_list[0]
+        player1.health -= 40
+        
+    def shell_damage_player1(self, distance):
+        player1 = self.players_list[0]
+        if (47<distance<75):
+            player1.health -= 30
+        elif (74<distance<100):
+            player1.health -= 20
+        elif (99<distance<150):
+            player1.health -= 10
+
+    def shell_damage_player2(self, distance):
+        player2 = self.players_list[0]
+        if (47<distance<75):
+            player2.health -= 30
+        elif (74<distance<100):
+            player2.health -= 20
+        elif (99<distance<150):
+            player2.health -= 10
+
+    def draw_impact(self, x, y):
+        pygame.draw.circle(self.display_surface, (255, 255, 255), (x ,y), 30)
+
+    def distance_impact_player1(self):
+        player2 = self.players_list[1]
+        xb, xa = player2.shell.rect.centerx, player2.rect.centerx
+        yb, ya = player2.shell.rect.centery, player2.rect.centery
+        distance = round(sqrt((xb - xa)**2+(yb-ya)**2))
+        return distance
+
+    def distance_impact_player2(self):
+        player1 = self.players_list[0]
+        xb, xa = player1.shell.rect.centerx, player1.rect.centerx
+        yb, ya = player1.shell.rect.centery, player1.rect.centery
+        distance = round(sqrt((xb - xa)**2+(yb-ya)**2))
+        return distance
     def grenade_collision_horizontal(self):
         for player in self.players_list:
             grenade = player.grenade
