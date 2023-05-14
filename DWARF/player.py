@@ -53,7 +53,7 @@ class Player():
             self.input_keys = {'jump': pygame.K_z, 'down': pygame.K_s, 'left': pygame.K_q, 'right': pygame.K_d, 'attack': pygame.K_f, 'shoot': pygame.K_g, 'change_weapon': pygame.K_e}
             self.flip = False
         elif choice == 2:
-            self.input_keys = {'jump': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'attack': pygame.K_o, 'shoot': pygame.K_m, 'change_weapon': pygame.K_p}
+            self.input_keys = {'jump': pygame.K_o, 'down': pygame.K_l, 'left': pygame.K_k, 'right': pygame.K_m, 'attack': pygame.K_CARET, 'shoot': pygame.K_DOLLAR, 'change_weapon': pygame.K_p}
             self.flip = True   
 
     # Player shooting
@@ -65,7 +65,7 @@ class Player():
         self.shoot_allowed, self.shoot_allowed_save = False, False
         self.shoot_timer_incrementation = False
         self.shoot_timer = 35
-        self.max_shoot_timer = 30
+        self.max_shoot_timer = 20/(all_stats['attack_speed']/24)
         self.shell, self.grenade = None, None
         self.grenade_timer = 0
         self.current_weapon = True # True means shell and False means grenade
@@ -145,8 +145,22 @@ class Player():
         self.boss_explosion_animation_running = False
         self.boss_explosion_image = self.boss_explosion_animations[0][0]
         self.jump_boss_explosion_coordonates = (0,0)
-        self.boss_explosion_animation_allow = False
 
+    # Projectile explosion
+        self.shell_explosion = store_special_animations([[1], [31]], 'Explosion/projectile_explosion/3')
+        self.grenade_explosion = store_special_animations([[1], [49]], 'Explosion/projectile_explosion/1')
+        self.grenade_explosion2 = store_special_animations([[1], [31]], 'Explosion/projectile_explosion/3')
+        
+        self.projectile_offset = (74*coeff,102*coeff)
+
+        self.explosion_frame_index = 0
+        self.explosion_frame_speed = 0.5
+        self.explosion_animation_running = False
+        self.shell_explosion_image = self.shell_explosion[0][0]
+        self.grenade_explosion_image = self.grenade_explosion[0][0]
+        self.explosion_animation_allow = False
+        self.projectile_explosion_x, self.projectile_explosion_y = 0, 0
+        self.shell_animation, self.grenade_animation = False, False
 
     def animate(self):
         if self.frame_index == 0 or self.animation_state != self.animation_state_save:
@@ -326,12 +340,42 @@ class Player():
             self.grenade_timer += 0.1
 
     def explode_grenade(self):
+        self.grenade_animation = True
+        self.start_projectile_explosion_animation()
         self.grenade = None
         self.grenade_timer = 0
 
     def explode_shell(self):
-        self.shell = 0
+        self.shell_animation = True
+        self.start_projectile_explosion_animation()
+        self.shell = None
 
+    def start_projectile_explosion_animation(self):
+        self.explosion_animation_running = True
+        self.explosion_frame_index = 0
+
+    def animate_projectile_explosion(self):
+        if self.explosion_animation_running:
+            if self.explosion_frame_index == 0:
+                if self.shell_animation:
+                    self.explosion_animation = self.shell_explosion[0]
+                elif self.grenade_animation:
+                    self.explosion_animation = self.grenade_explosion[0]
+
+            self.explosion_frame_index += self.explosion_frame_speed
+            
+            if self.explosion_frame_index >= len(self.explosion_animation):
+                self.explosion_animation_running = False
+                self.shell_animation, self.grenade_animation = False, False
+                return
+
+            self.explosion_image = self.explosion_animation[int(self.explosion_frame_index)]
+            self.explosion_image = scale(self.explosion_image, 'mult', coeff/2)
+    
+    def draw_projectile_explosion(self, screen):
+        if self.explosion_animation_running:
+            screen.blit(scale(self.explosion_image, 'mult', 1.3), (self.projectile_explosion_x - self.projectile_offset[0]*1.3, self.projectile_explosion_y - self.projectile_offset[1]*1.3))
+    
     def attack_rect_update(self):
         self.attack_rect.x = -500
         if self.attack_timer > 0:
@@ -502,7 +546,7 @@ class Player():
             self.boss_explosion_image = self.boss_explosion_animation[int(self.boss_explosion_frame_index)]
             self.boss_explosion_image = scale(self.boss_explosion_image, 'mult', coeff/2)
         
-    def draw_boss_explosion(self,screen):
+    def draw_boss_explosion(self, screen):
         if self.boss_explosion_animation_running:
             screen.blit(self.boss_explosion_image, (self.rect.centerx-self.boss_explosion_image.get_width()/2 , self.rect.centery-self.boss_explosion_image.get_height()/2))
 
@@ -660,6 +704,7 @@ class Player():
             self.grenade.update(screen)
 
         self.grenade_countdown()
+        self.animate_projectile_explosion()
 
         # saves
         self.animation_state_save, self.dust_animation_state_save = self.animation_state, self.dust_animation_state

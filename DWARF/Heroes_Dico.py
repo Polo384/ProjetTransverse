@@ -5,7 +5,8 @@ max_stats = {
     'speed': 13,
     'attack': 15,
     'attack_speed': 24,
-    'stamina': 175
+    'stamina': 175,
+    'reload': 30
 }
 
 santa_dico_v1 = {
@@ -23,7 +24,8 @@ santa_stats = {
     'speed_fix': 2,
     'attack': 15,
     'attack_speed': 16,
-    'stamina': 100}
+    'stamina': 100,
+    'reload': 13}
 
 
 minotaur_dico_v1 = {
@@ -41,7 +43,8 @@ minotaur_stats = {
     'speed_fix': 3,
     'attack': 21,
     'attack_speed': 14,
-    'stamina': 110}
+    'stamina': 110,
+    'reload': 10}
 
 dwarf_dico_v1 = {
     'Dwarf/Dwarf_SpriteSheet.png' : [[8],[5,8,7,6,2,5,4,7]]}
@@ -58,7 +61,8 @@ dwarf_stats = {
     'speed_fix': 2,
     'attack': 9,
     'attack_speed': 22,
-    'stamina': 78}
+    'stamina': 78,
+    'reload': 24}
 
 
 indiana_jones_dico_v1 = {
@@ -76,7 +80,8 @@ indiana_jones_stats = {
     'speed_fix': 9,
     'attack': 11,
     'attack_speed': 18,
-    'stamina': 95}
+    'stamina': 95,
+    'reload': 19}
 
 adventurer_dico_v1 = {
     'Adventurer/Adventurer_Spritesheet.png' : [[7],[6,8,9,4,7,9,6]]}
@@ -93,7 +98,8 @@ adventurer_stats = {
     'speed_fix': 3,
     'attack': 8,
     'attack_speed': 24,
-    'stamina': 60}
+    'stamina': 60,
+    'reload': 28}
 
 bat_dico_v1 = {
     'Bat/Bat_SpriteSheet.png' : [[3],[5,5,5]]}

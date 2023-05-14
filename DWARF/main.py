@@ -29,7 +29,6 @@ player2_hero_choice = "indiana_jones"
 player1_hero = [all_animations[heroes_dico[player1_hero_choice][0]], heroes_dico[player1_hero_choice][1], heroes_dico[player1_hero_choice][2], player1_hero_choice, heroes_dico[player1_hero_choice][3]]
 player2_hero = [all_animations[heroes_dico[player2_hero_choice][0]], heroes_dico[player2_hero_choice][1], heroes_dico[player2_hero_choice][2], player2_hero_choice, heroes_dico[player2_hero_choice][3]]
 level = Level(level_map, screen, player1_hero, player2_hero)
-
 MAIN_menu = Menu(all_animations)
 player1_hero_choice = "none"
 player2_hero_choice = "none"

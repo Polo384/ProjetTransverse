@@ -1,6 +1,6 @@
 import pygame
 import math as math
-from settings import screen_width
+from settings import screen_width, screen_height
 from functions import scale
 from backgrounds import*
 from Heroes_Dico import *
@@ -29,7 +29,7 @@ class Menu():
         self.y_coord = 150*coeff
 
         self.play = Buttons_2(screen_width/coeff, 110*coeff,coeff/3*2, "DWARF/Menu/play.png","DWARF/Menu/play_press.png","DWARF/Menu/play_shadow.png",True)
-        self.options = Buttons_2(screen_width/coeff, 150*coeff, coeff/3*2,"DWARF/Menu/options.png","DWARF/Menu/options_press.png","DWARF/Menu/options_shadow.png",True)
+        self.credits = Buttons_2(screen_width/coeff, 150*coeff, coeff/3*2,"DWARF/Menu/credits.png","DWARF/Menu/credits_press.png","DWARF/Menu/credits_shadow.png",True)
         self.quit = Buttons_2(screen_width/coeff, 190*coeff, coeff/3*2,"DWARF/Menu/quit.png","DWARF/Menu/quit_press.png","DWARF/Menu/quit_shadow.png",True)
 
         # Title and sprites
@@ -68,10 +68,49 @@ class Menu():
 
         self.cursor_main = cursor_main_menu()
 
+        self.credits_credits = False
+
+        self.black = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+        self.black.fill((0, 0, 0))
+        self.black.set_alpha(200)
+
+        # credits
+        alexandre = scale(pygame.image.load('DWARF/Credits/alexandre.png').convert_alpha(), 'mult', coeff*2)
+        ivan = scale(pygame.image.load('DWARF/Credits/ivan.png').convert_alpha(), 'mult', coeff*2)
+        paul = scale(pygame.image.load('DWARF/Credits/paul.png').convert_alpha(), 'mult', coeff*2)
+        gabriel = scale(pygame.image.load('DWARF/Credits/gabriel.png').convert_alpha(), 'mult', coeff*2)
+        samuel = scale(pygame.image.load('DWARF/Credits/samuel.png').convert_alpha(), 'mult', coeff*2)
+        self.creators = [paul, samuel, alexandre, ivan, gabriel]
+        self.names = ['Paul', 'Samuel', 'Alexandre', 'Ivan', 'Gabriel']
+        self.surnames = ['CHERUBIN', 'WEISTROFFER', 'DIDIER', 'GRANDI', 'SAUTIERE']
+        self.creators_increment = [0, 36, 72, 108, 144, 180]
+        self.y_fix = [35,35,100,30,-25]
+
+        # press space bar to play
+        self.variable = 0
+        self.flicker_factor = 0
+        self.flickered = True
+        self.space_bar_image_1 = pygame.image.load('DWARF/Menu/press_space_bar_1.png').convert_alpha()
+        self.space_bar_image_1 = scale(self.space_bar_image_1, 'mult', coeff*1.5)
+        self.space_bar_image_2 = pygame.image.load('DWARF/Menu/press_space_bar_2.png').convert_alpha()
+        self.space_bar_image_2 = scale(self.space_bar_image_2, 'mult', coeff*1.5)
+
+    def levitate(self):
+        self.levitation_factor = round(math.sin(self.variable)*coeff*4.5)
+        self.variable += 0.08
+
+    def flicker(self):
+        self.flicker_factor += 1
+        if self.flicker_factor == 12:
+            self.flickered = not self.flickered
+            self.flicker_factor = 0
+
     def create_menu(self, screen, game_start_variable):
-        
 
         if self.menu == 0:
+            
+
+            keys = pygame.key.get_pressed()
             self.create_level = False
             # PLays the video one time
             self.backgrounds_group.update()
@@ -80,17 +119,31 @@ class Menu():
             self.y += (math.sin(self.sin_increment) * 1)
             self.sin_increment += 0.1
             self.title = Sprites(screen_width/coeff, self.y,True, "DWARF/Menu/dwarf.png", coeff*1.25)
-            self.title.detect_click(screen)
-            game_start_variable, self.y_coord, self.confirm, self.button_choice = \
+            if not self.credits_credits: self.title.detect_click(screen)
+            if not self.credits_credits:
+                game_start_variable, self.y_coord, self.confirm, self.button_choice = \
                 self.cursor_main.cursor_menu(screen,135*coeff + (math.sin(self.sin_increment) * 10) ,self.y_coord, game_start_variable)
-            if self.play.Update(screen, self.button_choice, 0) or self.confirm == 0:
-                self.menu = 1
-            if self.options.Update(screen, self.button_choice, 1) or self.confirm == 1:
-                print("options")    
-            if self.quit.Update(screen, self.button_choice, 2) or self.confirm == 2:
-                game_start_variable = False
-            self.Selections = selection_of_characters(self.all_ani)
-            # Mute the sound
+                if self.play.Update(screen, self.button_choice, 0) or self.confirm == 0:
+                    self.menu = 1
+                if self.credits.Update(screen, self.button_choice, 1) or self.confirm == 1:
+                    self.credits_credits = True    
+                if self.quit.Update(screen, self.button_choice, 2) or self.confirm == 2:
+                    game_start_variable = False
+
+            else:
+                screen.blit(self.black, (0,0))
+                i = 0
+                for creator in self.creators:
+                    y = math.sin(self.creators_increment[i])*12
+                    self.creators_increment[i] += 0.1
+                    screen.blit(pygame.font.Font("DWARF/Credits/Minecraft.ttf", 35).render(self.names[i], False, 'white'), (275+300*i, 225+y+self.y_fix[i]))
+                    screen.blit(pygame.font.Font("DWARF/Credits/Minecraft.ttf", 38).render(self.surnames[i], False, 'white'), (275+300*i, 270+y+self.y_fix[i]))
+                    screen.blit(creator, (275+300*i, 320))
+                    i+=1
+
+
+            if(keys[pygame.K_ESCAPE]):
+                self.credits_credits =  False
             if not self.mute:
                 if self.music_on.detect_click(screen):
                     self.mute = True
@@ -99,22 +152,32 @@ class Menu():
                 if self.music_off.detect_click(screen):
                     self.background_music.set_volume(self.volume)
                     self.mute = False
+                      
+                    
+            self.Selections = selection_of_characters(self.all_ani)
+            
 
         elif self.menu == 1:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
                 self.menu = 0
             self.menu = self.char_page.put(screen,self.menu)
-            
             self.player1 , self.player2,self.pos_player1_x, self.pos_player1_y, self.pos_player2_x, self.pos_player2_y = self.Selections.create_selection(screen)
-            show_data(screen,50,250,self.pos_player1_x, self.pos_player1_y,1)
-            show_data(screen,1620,250,self.pos_player2_x, self.pos_player2_y,2)
+            show_data(screen,25,250,self.pos_player1_x, self.pos_player1_y,1)
+            show_data(screen,1538,250,self.pos_player2_x, self.pos_player2_y,2)
+            if not(self.player1 == "none" or self.player2 == "none"):
+                self.flicker()
+                if self.flickered:
+                    screen.blit(self.space_bar_image_1, (screen_width/2 - self.space_bar_image_1.get_width()/2  ,  coeff*320))
+                else:
+                    screen.blit(self.space_bar_image_2, (screen_width/2 - self.space_bar_image_2.get_width()/2  ,  coeff*320))
+
             if(self.menu == 2 and (self.player1 == "none" or self.player2 == "none")):
                 self.menu = 1
         elif self.menu == 2:
             self.create_level = True
             self.background_music.set_volume(0)
-
+        
         return game_start_variable, self.player1,self.player2, self.create_level
 
 
@@ -199,7 +262,7 @@ class Buttons:
         return action
 
 
-class Options:
+class credits:
     def __init__(self, image, x, y):
         self.img = pygame.image.load(image).convert_alpha()
         self.pos = (x, y)
@@ -274,19 +337,19 @@ class cursor_main_menu():
         keys = pygame.key.get_pressed()
         select = -1
         
-        if keys[pygame.K_DOWN] and self.pressed_down == False:
+        if (keys[pygame.K_DOWN] or keys[pygame.K_s] or keys[pygame.K_l]) and self.pressed_down == False:
             self.pressed_down = True
-        if keys[pygame.K_UP] and self.pressed_up == False:
+        if (keys[pygame.K_UP] or keys[pygame.K_z] or keys[pygame.K_o]) and self.pressed_up == False:
             self.pressed_up = True 
 
-        if self.pressed_down and not keys[pygame.K_DOWN]:
+        if self.pressed_down and not (keys[pygame.K_DOWN] or keys[pygame.K_s]or keys[pygame.K_l]):
             self.pressed_down = False
             if y <= 150*coeff:
                 y = 210*coeff
             elif y == 210*coeff:
                 y = 270*coeff
                 
-        elif self.pressed_up and not keys[pygame.K_UP]:
+        elif self.pressed_up and not (keys[pygame.K_UP] or keys[pygame.K_z] or keys[pygame.K_o]):
             self.pressed_up = False
             if y == 210*coeff:
                 y = 150*coeff
@@ -312,13 +375,11 @@ class page_characters:
     def __init__(self):
         self.x = 150
 
-        self.back_char = pygame.image.load("DWARF/Menu/tavern.jpg").convert_alpha()
+        self.back_char = pygame.image.load("DWARF/Menu/white_background.png").convert_alpha()
         self.back_char = scale(self.back_char, 'mult', coeff/3)
 
         self.y = 45
         self.sin_increment = 0
-        self.back = Buttons("Back",20*coeff/2,425*coeff/2,120,60,True,50,12,(83,11,20))
-        self.play_game= Buttons("Play",750*coeff/2,425*coeff/2,120,60,True,50,12,(11,83,29))
 
         self.select_hero_title = pygame.image.load('DWARF/Menu/select_hero_title.png').convert_alpha()
         self.select_hero_title = scale(self.select_hero_title, 'mult', coeff*3.5)
@@ -330,11 +391,10 @@ class page_characters:
         screen.blit(self.select_hero_title, (screen_width/2 - self.select_hero_title.get_width()/2, self.y))
         keys = pygame.key.get_pressed()
     
-        if self.play_game.draw(screen) or keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE]:
             menu = 2
-        if self.back.draw(screen):
+        if keys[pygame.K_ESCAPE]:
             menu = 0
-
         
         return menu
 
@@ -382,15 +442,12 @@ class Buttons_2():
 
 
         if button_choice == choice and not self.clicked:
-            print("a")
             check_levitation = True
             self.increment += 0.25
             screen.blit(self.image,(self.image_x, self.image_y- 3*coeff - 4*math.sin(self.increment)))
 
         if self.image_rect.collidepoint(mouse_pos) or self.shadow_rect.collidepoint(mouse_pos):
-            print("b")
             if not self.clicked and self.was_pressed and not self.alt and not check_levitation:
-                print("c")
                 self.increment += 0.25
                 screen.blit(self.image,(self.image_x, self.image_y- 3*coeff - 4*math.sin(self.increment)))
             if self.alt:  
@@ -402,7 +459,6 @@ class Buttons_2():
             if pygame.mouse.get_pressed()[0] == 1:
                 self.clicked = True
         elif not check_levitation:
-            print("d")
             screen.blit(self.image,(self.image_x, self.image_y))
             if pygame.mouse.get_pressed()[0] == 0:
                 self.alt = True
@@ -412,7 +468,6 @@ class Buttons_2():
             if self.image_rect.collidepoint(mouse_pos) or self.shadow_rect.collidepoint(mouse_pos):
                 action= True
         if self.clicked and self.was_pressed:
-            print("e")
             screen.blit(self.image1,(self.image_x, self.image_y))
         
 
@@ -531,7 +586,7 @@ class cursor_heroes():
 
             if keys[pygame.K_s] and not self.press_d:          
                 self.press_d = True
-            if self.press_d and not keys[pygame.K_DOWN]:
+            if self.press_d and not keys[pygame.K_s]:
                 self.y += self.y_move
                 idy += 1
                 react = True
@@ -575,9 +630,9 @@ class cursor_heroes():
         action = 0
         keys = pygame.key.get_pressed()
         if acti == True:
-            if keys[pygame.K_RIGHT] and self.press_r == False:
+            if keys[pygame.K_m] and self.press_r == False:
                 self.press_r = True
-            if self.press_r and not keys[pygame.K_RIGHT]:
+            if self.press_r and not keys[pygame.K_m]:
                 self.x += self.x_move
                 idx += 1 
                 react = True
@@ -587,9 +642,9 @@ class cursor_heroes():
                         react = False
                 self.press_r= False
             
-            if keys[pygame.K_LEFT] and self.press_l == False:
+            if keys[pygame.K_k] and self.press_l == False:
                 self.press_l = True
-            if self.press_l and not keys[pygame.K_LEFT]:
+            if self.press_l and not keys[pygame.K_k]:
                 self.x-= self.x_move
                 idx -= 1
                 react = True
@@ -599,9 +654,9 @@ class cursor_heroes():
                         react = False
                 self.press_l = False
             
-            if keys[pygame.K_UP] and not self.press_u:
+            if keys[pygame.K_o] and not self.press_u:
                 self.press_u = True
-            if self.press_u and not keys[pygame.K_UP]:
+            if self.press_u and not keys[pygame.K_o]:
                 self.y -= self.y_move
                 idy -= 1
                 react = True
@@ -611,9 +666,9 @@ class cursor_heroes():
                         react = False   
                 self.press_u = False
 
-            if keys[pygame.K_DOWN] and not self.press_d:          
+            if keys[pygame.K_l] and not self.press_d:          
                 self.press_d = True
-            if self.press_d and not keys[pygame.K_DOWN]:
+            if self.press_d and not keys[pygame.K_l]:
                 self.y += self.y_move
                 idy += 1
                 react = True
@@ -623,11 +678,11 @@ class cursor_heroes():
                         react = False
                 self.press_d = False
 
-        if keys[pygame.K_RCTRL] and not self.press_action:
+        if keys[pygame.K_CARET] and not self.press_action:
             self.press_action = True
             stop_animations2 = not stop_animations2
             acti = not acti
-        if self.press_action and not keys[pygame.K_RCTRL]:
+        if self.press_action and not keys[pygame.K_CARET]:
             action = 2
             react = True
             do_action = True
@@ -791,47 +846,58 @@ class selection_of_characters():
 def show_data(screen,x,y,index,indey,nb_player):
     
     width_health = 0
-    hero = "none"
-    font = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", 40)
+    if nb_player == 1:
+        stats_x = x + 116
+        color = (253, 230, 97)
+        shadow_color = (254,174,52)
+    else:
+        stats_x = x + 32
+        color = (190, 119, 217)
+        shadow_color = (122,85,146)
+
+    shadow = pygame.Surface((210, 11), pygame.SRCALPHA)
+    shadow.fill((0,0,0))
+    shadow.set_alpha(50)
+    
     if(index == 0 and indey == 0):
         width_health = santa_stats['health']
-        width_speed = santa_stats['speed']
+        width_speed = 2
         width_attack = santa_stats['attack']
         width_speed_attack = santa_stats['attack_speed']
         hero = "Santa"
     elif(index ==0 and indey ==1):
         width_health = dwarf_stats['health']
-        width_speed = dwarf_stats['speed']
+        width_speed = 12
         width_attack = dwarf_stats['attack']
         width_speed_attack = dwarf_stats['attack_speed']
         hero = "Dwarf"
     elif(index ==1 and indey ==0):
         width_health = indiana_jones_stats['health']
-        width_speed = indiana_jones_stats['speed']
+        width_speed = 9
         width_attack = indiana_jones_stats['attack']
         width_speed_attack = indiana_jones_stats['attack_speed']
         hero = "Indiana Jones"
     elif(index ==1 and indey ==1):
         width_health = gladiator_stats['health']
-        width_speed = gladiator_stats['speed']
+        width_speed = 6
         width_attack = gladiator_stats['attack']
         width_speed_attack = gladiator_stats['attack_speed']
         hero = "Gladiator"
     elif(index ==2 and indey ==0):
         width_health = adventurer_stats['health']
-        width_speed = adventurer_stats['speed']
+        width_speed = 13
         width_attack = adventurer_stats['attack']
         width_speed_attack = adventurer_stats['attack_speed']
         hero = "Adventurer"
     elif(index ==2 and indey ==1):
         width_health = hobbit_stats['health']
-        width_speed = hobbit_stats['speed']
+        width_speed = 13
         width_attack = hobbit_stats['attack']
         width_speed_attack = hobbit_stats['attack_speed']
         hero = "Hobbit"
     elif(index ==3 and indey ==0):
         width_health = halo_stats['health']
-        width_speed = halo_stats['speed']
+        width_speed = 8
         width_attack = halo_stats['attack']
         width_speed_attack = halo_stats['attack_speed']
         hero = "Halo"
@@ -840,23 +906,24 @@ def show_data(screen,x,y,index,indey,nb_player):
         width_speed = 0
         width_attack = 0
         width_speed_attack = 0
-        hero = "Random"    
+        hero = "?"
 
-    font2 = pygame.font.Font("DWARF/Menu/ThaleahFat.ttf", 60)
-    text_creation('PLAYER '+str(nb_player)+':', font2, (255, 255, 255), x, y,False, screen)
 
-    text_creation(hero+' :', font, (255, 255, 255), x, y+75,False, screen)
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(x,(coeff/3)*(y+200), 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (206,76,76), pygame.Rect(x, (coeff/3)*(y+200), 200*width_health/max_stats['health'], 5*coeff*5/3))
-    text_creation('Health', font, (255, 255, 255), x, y+150,False, screen)
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(x, (coeff/3)*(y+290), 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (75,175,194), pygame.Rect(x, (coeff/3)*(y+290), 200*width_speed/max_stats['speed'], 5*coeff*5/3))
-    text_creation('Speed', font, (255, 255, 255), x,y+240,False, screen)
+    screen.blit(scale(pygame.image.load(f'DWARF/Menu/p{str(nb_player)}_stats.png').convert_alpha(), 'mult', coeff*3.5), (x,y))
 
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(x, (coeff/3)*(y+380), 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (135, 142, 141), pygame.Rect(x, (coeff/3)*(y+380), 200*width_attack/max_stats['attack'], 5*coeff*5/3))
-    text_creation('Attack', font, (255, 255, 255), x, y+330,False, screen)
-
-    pygame.draw.rect(screen, (230,230,230), pygame.Rect(x, (coeff/3)*(y+470), 200 , 5*coeff*5/3))
-    pygame.draw.rect(screen, (255, 255, 47), pygame.Rect(x, (coeff/3)*(y+470), 200*width_speed_attack/max_stats['attack_speed'], 5*coeff*5/3))
-    text_creation('Speed Attack', font, (255, 255, 255), x, y+420,False, screen)
+    screen.blit(shadow,(stats_x, y+168+21))
+    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168), 210*width_health/max_stats['health'], 32))
+    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+21), 210*width_health/max_stats['health'], 11))
+    
+    screen.blit(shadow,(stats_x, y+168+126+21))
+    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168+126), 210*width_speed/13, 32))
+    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+126+21), 210*width_speed/13, 11))
+    
+    screen.blit(shadow,(stats_x, y+168+126*2+21))
+    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*2), 210*width_attack/max_stats['attack'], 32))
+    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*2+21), 210*width_attack/max_stats['attack'], 11))
+    
+    screen.blit(shadow,(stats_x, y+168+126*3+21))
+    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*3), 210*width_speed_attack/max_stats['attack_speed'], 32))
+    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*3+21), 210*width_speed_attack/max_stats['attack_speed'], 11))
+    

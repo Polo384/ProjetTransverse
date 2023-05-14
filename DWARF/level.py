@@ -254,17 +254,15 @@ class Level:
 
         for sprite in self.collide_tiles.sprites():
             if player1.shell and (sprite.rect.colliderect(player1.shell.rect) or player2.rect.colliderect(player1.shell.rect)):
-                self.projectile_damage_player(player1.shell, 100, 40)
-                self.draw_impact(player1.shell.rect.centerx, player1.shell.rect.centery, 100)
+                self.projectile_damage_player(player1.shell, 100, 33*(player1.attack*player1.attack_speed*player1.attack_boost/360))
+                player1.projectile_explosion_x, player1.projectile_explosion_y = player1.shell.rect.centerx, player1.shell.rect.centery
                 player1.explode_shell()
                 
             if player2.shell and (sprite.rect.colliderect(player2.shell.rect) or player1.rect.colliderect(player2.shell.rect)):
-                self.projectile_damage_player(player2.shell, 100, 40)
-                self.draw_impact(player2.shell.rect.centerx, player2.shell.rect.centery, 100)
+                self.projectile_damage_player(player2.shell, 100, 33*(player2.attack*player2.attack_speed*player2.attack_boost/360))
+                player2.projectile_explosion_x, player2.projectile_explosion_y = player2.shell.rect.centerx, player2.shell.rect.centery
                 player2.explode_shell()
     
-    def draw_impact(self, x, y, range):
-        pygame.draw.circle(self.display_surface, (255, 0, 0), (x ,y), range)
 
     def projectile_damage_player(self, projectile, range, damage):
         for player in self.players_list:
@@ -287,12 +285,14 @@ class Level:
             elif range/1.5 < distance <= range:
                 player.health -= damage/4
                 player.regeneration_timer = 0
+            
+            if player.health < 0: player.health = 0
 
     def grenade_collision(self):
         for player in self.players_list:
             if player.grenade_timer > 17:
-                self.projectile_damage_player(player.grenade, 200, 50)
-                self.draw_impact(player.grenade.rect.centerx, player.grenade.rect.centery, 200)
+                self.projectile_damage_player(player.grenade, 200, 50*(player.attack*player.attack_boost/15))
+                player.projectile_explosion_x, player.projectile_explosion_y = player.grenade.rect.centerx, player.grenade.rect.centery
                 player.explode_grenade()
 
     def grenade_collision_horizontal(self):
@@ -461,7 +461,7 @@ class Level:
         if not self.bonus_group:
             self.timer += 0.1
             if self.timer_check:
-                self.timer_stop = random.randint(10,20)
+                self.timer_stop = random.randint(55,70)
                 self.timer_check = False
             if int(self.timer) == self.timer_stop:
                 self.spawn_bonus()
@@ -501,6 +501,9 @@ class Level:
             player.handle_events(events)
             player.update(self.display_surface)
             player.clear_effects()
+        
+        for player in self.players_list:
+            player.draw_projectile_explosion(self.display_surface)
         
         self.shell_collision()
         self.grenade_collision_horizontal()

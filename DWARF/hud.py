@@ -49,7 +49,7 @@ class HUD:
         self.above_health_bar_timer = 50
 
         self.above_sprint_bar = pygame.Rect( 1, self.player.rect.y - 20 , coeff*25*self.player.stamina/self.player.max_stamina , coeff*5/3)
-        self.above_sprint_bar_timer = 12
+        self.above_sprint_bar_timer = 30
 
 
         #transformation for the right part (second hero) of the screen

@@ -57,24 +57,24 @@ class Bonus(pygame.sprite.Sprite):
 
         if self.choice == 'attack':
             player.attack_boost += 0.75
-            player.effect_duration = 35
+            player.effect_duration = 50
             player.effect_color = (230, 104, 45, 100)
 
         if self.choice == 'health':
             player.health += 20
             if player.health > player.max_health:
                 player.health = player.max_health
-            player.effect_duration = 2
+            player.effect_duration = 1
             player.effect_color = (134, 203, 61, 150)
 
         if self.choice == 'resistance':
             player.resistance += 0.75
-            player.effect_duration = 45
+            player.effect_duration = 60
             player.effect_color = (89, 86, 79, 150)
 
         if self.choice == 'attack_speed':
             player.attack_speed_boost = 2
-            player.effect_duration = 40
+            player.effect_duration = 50
             player.effect_color = (48, 179, 174, 150)
 
         if self.choice in ('minotaur','demon','cyclop'):
