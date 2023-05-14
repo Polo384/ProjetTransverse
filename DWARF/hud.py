@@ -292,7 +292,7 @@ class WIN():
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_ESCAPE]:
-            self.start = False 
+            self.start = False
             
         elif keys[pygame.K_SPACE]:
             self.create_level = True
@@ -300,16 +300,19 @@ class WIN():
     def update(self, screen):
         if self.check_dead:
             if self.player1.dead:
+                self.music_check = False
                 self.check_dead = False
                 self.winner_image = pygame.image.load('DWARF/Menu/p2_wins.png').convert_alpha()
                 self.winner_image = scale(self.winner_image, 'mult', coeff*6)
 
             elif self.player2.dead:
+                self.music_check = False
                 self.check_dead = False
                 self.winner_image = pygame.image.load('DWARF/Menu/p1_wins.png').convert_alpha()
                 self.winner_image = scale(self.winner_image, 'mult', coeff*6)
         
         else:
+            self.music_check = True
             self.levitate()
             screen.blit(self.winner_image, (screen_width/2 - self.winner_image.get_width()/2  ,  coeff*65 + self.levitation_factor))
 

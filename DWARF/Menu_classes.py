@@ -37,7 +37,7 @@ class Menu():
         self.sin_increment = 0
         # music variables
 
-        self.volume = 0.1
+        self.volume = 0.8
         self.background_music = window("DWARF", "DWARF/Musics/menu.wav", self.volume)
         self.play_music = True
         self.music_on = Sprites(15*coeff, 15*coeff,False, "DWARF/Menu/mute_on.png", 1)
@@ -84,7 +84,7 @@ class Menu():
         self.names = ['Paul', 'Samuel', 'Alexandre', 'Ivan', 'Gabriel']
         self.surnames = ['CHERUBIN', 'WEISTROFFER', 'DIDIER', 'GRANDI', 'SAUTIERE']
         self.creators_increment = [0, 36, 72, 108, 144, 180]
-        self.y_fix = [35,35,100,30,-25]
+        self.y_fix = [35,35,80,30,-25]
 
         # press space bar to play
         self.variable = 0
@@ -175,8 +175,9 @@ class Menu():
             if(self.menu == 2 and (self.player1 == "none" or self.player2 == "none")):
                 self.menu = 1
         elif self.menu == 2:
+            pygame.mixer.Sound(f'DWARF/Sounds/pop.wav').play()
             self.create_level = True
-            self.background_music.set_volume(0)
+            self.background_music.stop()
         
         return game_start_variable, self.player1,self.player2, self.create_level
 
@@ -600,6 +601,8 @@ class cursor_heroes():
             self.press_action = True
             stop_animations = not stop_animations
             acti = not acti
+            pygame.mixer.Sound('DWARF/Sounds/shell.wav').play()
+
         if self.press_action and not keys[pygame.K_f]:
             action = 2
             react = True
@@ -682,6 +685,7 @@ class cursor_heroes():
             self.press_action = True
             stop_animations2 = not stop_animations2
             acti = not acti
+            pygame.mixer.Sound('DWARF/Sounds/shell.wav').play()
         if self.press_action and not keys[pygame.K_CARET]:
             action = 2
             react = True

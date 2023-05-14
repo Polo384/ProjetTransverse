@@ -22,6 +22,11 @@ class Level:
         self.hud_list = [HUD(self.players_list[0], self.players_list[0].hero_choice, 1), HUD(self.players_list[1], self.players_list[1].hero_choice, 2)]
         self.win = WIN(self.players_list)
 
+        # Music
+        self.music = pygame.mixer.Sound(f'DWARF/Musics/fight{str(random.randint(1,3))}.wav')
+        self.music.set_volume(0.5)
+        self.music.play()
+
     def setup_level(self, level_data):
         self.collide_tiles = pygame.sprite.Group()
         self.semi_collide_tiles = pygame.sprite.Group()
@@ -257,11 +262,17 @@ class Level:
                 self.projectile_damage_player(player1.shell, 100, 33*(player1.attack*player1.attack_speed*player1.attack_boost/360))
                 player1.projectile_explosion_x, player1.projectile_explosion_y = player1.shell.rect.centerx, player1.shell.rect.centery
                 player1.explode_shell()
+                explosion = pygame.mixer.Sound('DWARF/Sounds/shell.wav')
+                explosion.set_volume(1.2)
+                explosion.play()
                 
             if player2.shell and (sprite.rect.colliderect(player2.shell.rect) or player1.rect.colliderect(player2.shell.rect)):
                 self.projectile_damage_player(player2.shell, 100, 33*(player2.attack*player2.attack_speed*player2.attack_boost/360))
                 player2.projectile_explosion_x, player2.projectile_explosion_y = player2.shell.rect.centerx, player2.shell.rect.centery
                 player2.explode_shell()
+                explosion = pygame.mixer.Sound('DWARF/Sounds/shell.wav')
+                explosion.set_volume(1.2)
+                explosion.play()
     
 
     def projectile_damage_player(self, projectile, range, damage):
@@ -294,6 +305,8 @@ class Level:
                 self.projectile_damage_player(player.grenade, 200, 50*(player.attack*player.attack_boost/15))
                 player.projectile_explosion_x, player.projectile_explosion_y = player.grenade.rect.centerx, player.grenade.rect.centery
                 player.explode_grenade()
+                explosion = pygame.mixer.Sound('DWARF/Sounds/grenade.wav')
+                explosion.play()
 
     def grenade_collision_horizontal(self):
         for player in self.players_list:
@@ -388,13 +401,6 @@ class Level:
                             player.wall_jump_left, player.wall_jump_right = True, False
                         player.rect.right = sprite.rect.left
                         player.slide_allowed, player.detect_wall_collision = True, True
-      
-                '''if player.projectile and sprite.rect.colliderect(player.projectile.rect):
-                    if player.projectile.distX < player.projectile.distX_save:
-                        player.projectile.rect.x = sprite.rect.right
-
-                    elif player.projectile.distX > player.projectile.distX_save:
-                        player.projectile.rect.x = sprite.rect.left-player.projectile.image.get_width()'''
 
             if check_semi_collide:
                 for sprite in self.semi_collide_tiles.sprites():
@@ -446,7 +452,7 @@ class Level:
                             player.rect.top = sprite.rect.bottom    
             
     def spawn_bonus(self):
-        bonus_choice = random.choice(['speed','attack', 'attack_speed', 'health', 'resistance', 'spell', 'minotaur', 'demon', 'cyclop'])
+        bonus_choice = random.choice(['speed','attack', 'attack_speed', 'health', 'resistance'])
         self.current_bonus = Bonus(bonus_choice)
         self.bonus_group.add(self.current_bonus)
     
@@ -456,6 +462,9 @@ class Level:
             self.bonus_group.remove(self.current_bonus)
             self.timer = 0 
             player.effect_ongoing = True
+            pop_sound = pygame.mixer.Sound('DWARF/Sounds/pop.wav')
+            pop_sound.set_volume(0.8)
+            pop_sound.play()
         
     def bonus_update(self):
         if not self.bonus_group:
@@ -478,8 +487,12 @@ class Level:
 
         if player1.rect.colliderect(player2.attack_rect) and not player1.temp_invincibility:
             player1.damage( player2.attack, player2.attack_boost , player2.flip )
+            hit_sound = pygame.mixer.Sound(f'DWARF/Sounds/hit{str(random.randint(1,4))}.wav')
+            hit_sound.play()
         if player2.rect.colliderect(player1.attack_rect) and not player2.temp_invincibility:
             player2.damage( player1.attack, player1.attack_boost , player1.flip )
+            hit_sound = pygame.mixer.Sound(f'DWARF/Sounds/hit{str(random.randint(1,4))}.wav')
+            hit_sound.play()
 
     def run(self):
         # EVENTS
@@ -516,6 +529,13 @@ class Level:
         # HUD
         for player_hud in self.hud_list:
             player_hud.update(self.display_surface)
+
         self.win.update(self.display_surface)
+        if not self.win.check_dead and not self.win.music_check:
+            self.music.stop()
+            pygame.mixer.Sound(f'DWARF/Sounds/win.wav').play()
+        
+        if self.win.create_level:
+            pygame.mixer.Sound(f'DWARF/Sounds/pop.wav').play()
 
         return self.win.start, self.win.create_level

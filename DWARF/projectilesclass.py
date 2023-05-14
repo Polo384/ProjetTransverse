@@ -53,7 +53,7 @@ class Grenade():
 
         self.image_copy = self.image
         self.rect = self.image.get_rect(center = (x,y))
-        self.x_speed, y_speed = (x_cursor - x)/5, (y_cursor - y)/5
+        self.x_speed, y_speed = (x_cursor - x)/4, (y_cursor - y)/5
         self.direction= pygame.math.Vector2(self.x_speed, y_speed)
         self.direction_save = self.direction
         self.gravity = coeff/4/1.5

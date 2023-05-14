@@ -64,8 +64,8 @@ class Player():
         self.shoot_pressed = False
         self.shoot_allowed, self.shoot_allowed_save = False, False
         self.shoot_timer_incrementation = False
-        self.shoot_timer = 35
         self.max_shoot_timer = 20/(all_stats['attack_speed']/24)
+        self.shoot_timer = 35
         self.shell, self.grenade = None, None
         self.grenade_timer = 0
         self.current_weapon = True # True means shell and False means grenade
@@ -177,7 +177,6 @@ class Player():
             self.image = pygame.transform.flip(self.image, True, False)
 
     def get_input(self):
-        keys = pygame.key.get_pressed()
     # Move
         if self.moving_right:
             self.direction.x = 1
@@ -290,11 +289,12 @@ class Player():
             self.cursorx = int(self.rect.centerx + 30*coeff * math.cos(math.radians(self.angle)))
             self.cursory = int(self.rect.centery + 30*coeff * math.sin(math.radians(self.angle)))
 
-        if self.shoot_allowed_save and not self.shoot_pressed and self.shoot_timer>=self.max_shoot_timer:
+        if self.shoot_allowed_save and not self.shoot_pressed and int(self.shoot_timer)>=int(self.max_shoot_timer):
             if self.current_weapon:
                 self.shell = Shell(self.rect.centerx, self.rect.centery, -self.angle, self.choice, self.flip)
             else:
                 self.grenade = Grenade(self.rect.centerx, self.rect.centery, self.cursorx, self.cursory, self.choice, self.flip)
+
             self.shoot_timer = 0
             self.shoot_timer_incrementation = True
             self.unfreeze()
@@ -557,6 +557,7 @@ class Player():
     def jump(self):
         self.direction.y = self.jump_speed
         self.player_on_ground, self.jump_pressed = False, True
+        pygame.mixer.Sound(f'DWARF/Sounds/jump{str(random.randint(1,3))}.wav').play()
 
     def wall_jump(self):
         self.direction.y = self.jump_speed
