@@ -11,6 +11,7 @@ import math
 # Didn't do a sprite class because rectangle doesn't correspond to the image (there are alpha pixels)
 class Player():
     def __init__(self, choice, pos, hero):
+        self.escape = False
         self.check_invincible = False
         self.choice = choice
         
@@ -223,9 +224,12 @@ class Player():
 
     def handle_events(self, events):
         for event in events:
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_h):
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                self.escape = True
 
             if not self.dead:
                 if event.type == pygame.KEYDOWN:
@@ -600,13 +604,21 @@ class Player():
         self.special_animation = True
         self.frame_index = 0
    
-    def damage(self, opponent_attack, opponent_attack_boost, opponent_flip):
+    def damage(self, opponent_attack, opponent_attack_boost, opponent_flip, check_if_projectile):
         self.regeneration_timer = 0
         self.health -= opponent_attack*opponent_attack_boost/self.resistance
-        if opponent_attack > 30:
-            self.push = 20*opponent_attack/2/self.player_hitbox[0]
-        else :
-            self.push = 20*opponent_attack/1.2/self.player_hitbox[0]
+
+        if check_if_projectile:
+            if opponent_attack > 30:
+                self.push = 20*opponent_attack/2/self.player_hitbox[0]/3
+            else :
+                self.push = 20*opponent_attack/1.2/self.player_hitbox[0]/3
+        else:
+            if opponent_attack > 30:
+                self.push = 20*opponent_attack/2/self.player_hitbox[0]
+            else :
+                self.push = 20*opponent_attack/1.2/self.player_hitbox[0]
+        
         self.opponent_flip = opponent_flip
         self.animation_state = 'Hit'
         self.check_hit_freeze = random.choice([False, False, True])
@@ -652,6 +664,10 @@ class Player():
     
     def void(self):
         if self.rect.top > max_map_height:
+            if self.max_stamina == 70:
+                pygame.mixer.Sound('DWARF/Sounds/scream2.wav').play() #detect if adventurer ==> female scream
+            else:
+                pygame.mixer.Sound('DWARF/Sounds/scream1.wav').play()
             self.health = 0
 
     def death(self):
@@ -685,7 +701,7 @@ class Player():
         self.update_regeneration()
         self.push_update()
         self.check_freeze()
-        self.void()
+        if not self.dead: self.void()
         self.death()
 
         if not self.death_animation_stop:

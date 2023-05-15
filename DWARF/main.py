@@ -51,6 +51,7 @@ while game_start_variable:
         start, create_level = level.run() 
     
         if not start:
+            level.music.stop()
             MAIN_menu = Menu(all_animations)
             player1_hero_choice = "none"
             player2_hero_choice = "none"

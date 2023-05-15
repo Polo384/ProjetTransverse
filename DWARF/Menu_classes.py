@@ -868,66 +868,74 @@ def show_data(screen,x,y,index,indey,nb_player):
         width_speed = 2
         width_attack = santa_stats['attack']
         width_speed_attack = santa_stats['attack_speed']
+        width_stamina = santa_stats['stamina']
         hero = "Santa"
     elif(index ==0 and indey ==1):
         width_health = dwarf_stats['health']
         width_speed = 12
         width_attack = dwarf_stats['attack']
         width_speed_attack = dwarf_stats['attack_speed']
+        width_stamina = dwarf_stats['stamina']
         hero = "Dwarf"
     elif(index ==1 and indey ==0):
         width_health = indiana_jones_stats['health']
         width_speed = 9
         width_attack = indiana_jones_stats['attack']
         width_speed_attack = indiana_jones_stats['attack_speed']
+        width_stamina = indiana_jones_stats['stamina']
         hero = "Indiana Jones"
     elif(index ==1 and indey ==1):
         width_health = gladiator_stats['health']
         width_speed = 6
         width_attack = gladiator_stats['attack']
         width_speed_attack = gladiator_stats['attack_speed']
+        width_stamina = gladiator_stats['stamina']
         hero = "Gladiator"
     elif(index ==2 and indey ==0):
         width_health = adventurer_stats['health']
         width_speed = 13
         width_attack = adventurer_stats['attack']
         width_speed_attack = adventurer_stats['attack_speed']
+        width_stamina = adventurer_stats['stamina']
         hero = "Adventurer"
     elif(index ==2 and indey ==1):
         width_health = hobbit_stats['health']
         width_speed = 13
         width_attack = hobbit_stats['attack']
         width_speed_attack = hobbit_stats['attack_speed']
+        width_stamina = hobbit_stats['stamina']
         hero = "Hobbit"
     elif(index ==3 and indey ==0):
         width_health = halo_stats['health']
-        width_speed = 8
+        width_speed = 7
         width_attack = halo_stats['attack']
         width_speed_attack = halo_stats['attack_speed']
+        width_stamina = halo_stats['stamina']
         hero = "Halo"
     elif(index ==3 and indey ==1):
         width_health = 0
         width_speed = 0
         width_attack = 0
         width_speed_attack = 0
+        width_stamina = 0
         hero = "?"
 
 
     screen.blit(scale(pygame.image.load(f'DWARF/Menu/p{str(nb_player)}_stats.png').convert_alpha(), 'mult', coeff*3.5), (x,y))
 
     screen.blit(shadow,(stats_x, y+168+21))
-    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168), 210*width_health/max_stats['health'], 32))
-    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+21), 210*width_health/max_stats['health'], 11))
+    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168), 210*(width_health-40)/max_stats['health'], 32))
+    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+21), 210*(width_health-40)/max_stats['health'], 11))
     
     screen.blit(shadow,(stats_x, y+168+126+21))
     pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168+126), 210*width_speed/13, 32))
     pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+126+21), 210*width_speed/13, 11))
     
     screen.blit(shadow,(stats_x, y+168+126*2+21))
-    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*2), 210*width_attack/max_stats['attack'], 32))
-    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*2+21), 210*width_attack/max_stats['attack'], 11))
+    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*2), 210*(width_attack-5)/max_stats['attack'], 32))
+    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*2+21), 210*(width_attack-5)/max_stats['attack'], 11))
     
     screen.blit(shadow,(stats_x, y+168+126*3+21))
-    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*3), 210*width_speed_attack/max_stats['attack_speed'], 32))
-    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*3+21), 210*width_speed_attack/max_stats['attack_speed'], 11))
+    pygame.draw.rect(screen, color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*3), 210*(width_stamina-50)/max_stats['stamina'], 32))
+    pygame.draw.rect(screen, shadow_color, pygame.Rect(stats_x, (coeff/3)*(y+168+126*3+21), 210*(width_stamina-50)/max_stats['stamina'], 11))
     

@@ -34,6 +34,6 @@ screen_width = 640*coeff
 screen_height = 360*coeff
 FPS = 60
 
-player1_pos = (tile_size*coeff*6 -tile_size*coeff , tile_size*coeff*8-tile_size*coeff)
-player2_pos = (tile_size*coeff*8 -tile_size*coeff , tile_size*coeff*8-tile_size*coeff)
-#player2_pos = (tile_size*coeff*18-tile_size*coeff , tile_size*coeff*15-tile_size*coeff)
+import random
+player1_pos = random.choice([(coeff*200,coeff*100), (coeff*100,coeff*90), (coeff*95,coeff*160), (coeff*250,coeff*262)])
+player2_pos = random.choice([(coeff*341, coeff*167),(coeff*416, coeff*235),(coeff*457, coeff*184),(coeff*466, coeff*82)])

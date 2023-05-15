@@ -1,11 +1,11 @@
 from settings import coeff
 #data = [(offset_x,offset_y),(hitbox_w,hitbox_h), flip_offset, attack_width]
 max_stats = {
-    'health': 110,
+    'health': 70,
     'speed': 13,
-    'attack': 15,
+    'attack': 10,
     'attack_speed': 24,
-    'stamina': 175,
+    'stamina': 60,
     'reload': 30
 }
 
@@ -22,7 +22,7 @@ santa_stats = {
     'health': 110,
     'speed': coeff,
     'speed_fix': 2,
-    'attack': 15,
+    'attack': 14,
     'attack_speed': 16,
     'stamina': 100,
     'reload': 13}
@@ -78,7 +78,7 @@ indiana_jones_stats = {
     'health': 85,
     'speed': coeff,
     'speed_fix': 9,
-    'attack': 11,
+    'attack': 10,
     'attack_speed': 18,
     'stamina': 95,
     'reload': 19}
@@ -93,12 +93,12 @@ adventurer_indexs = {
     'Hit' : [3],
     'Death' : [4]}
 adventurer_stats = {
-    'health': 65,
+    'health': 70,
     'speed': coeff*4/3,
     'speed_fix': 3,
-    'attack': 8,
+    'attack': 7,
     'attack_speed': 24,
-    'stamina': 60,
+    'stamina': 70,
     'reload': 28}
 
 bat_dico_v1 = {
@@ -131,7 +131,7 @@ halo_stats = {
     'health': 92,
     'speed': coeff,
     'speed_fix': 8,
-    'attack': 10,
+    'attack': 12,
     'attack_speed': 20,
     'stamina': 105}
 
@@ -148,7 +148,7 @@ gladiator_stats = {
     'health': 90,
     'speed': coeff,
     'speed_fix': 6,
-    'attack': 14,
+    'attack': 15,
     'attack_speed': 17,
     'stamina': 110}
 
@@ -198,12 +198,12 @@ hobbit_indexs = {
     'Hit' : [3],
     'Death' : [2]}
 hobbit_stats = {
-    'health': 75,
+    'health': 65,
     'speed': coeff*4/3,
     'speed_fix': 3,
-    'attack': 8,
-    'attack_speed': 24,
-    'stamina': 55}
+    'attack': 9,
+    'attack_speed': 20,
+    'stamina': 65}
 
 question_mark_dico_v2 = {
     'Question_mark/' : [[2], [6,8]]}
@@ -228,14 +228,3 @@ heroes_dico = {
     'cyclop' : [9, cyclop_data, cyclop_indexs, cyclop_stats],
     'hobbit' : [10, hobbit_data, hobbit_indexs, hobbit_stats],
     'question_mark' : [11, question_mark_data, question_mark_indexs, question_mark_stats]}
-
-
-'''speeds for statistics :
-adventurer : 13
-hobbit : 13
-dwarf : 12
-indiana_jones : 9
-halo : 8
-gladiator : 6
-santa : 2
-'''

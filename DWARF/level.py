@@ -24,7 +24,7 @@ class Level:
 
         # Music
         self.music = pygame.mixer.Sound(f'DWARF/Musics/fight{str(random.randint(1,3))}.wav')
-        self.music.set_volume(0.5)
+        self.music.set_volume(0.4)
         self.music.play()
 
     def setup_level(self, level_data):
@@ -279,29 +279,27 @@ class Level:
         for player in self.players_list:
             xb, xa = projectile.rect.centerx, player.rect.centerx
             yb, ya = projectile.rect.centery, player.rect.centery
+
+            if xb-xa < 0: flip = False
+            else: flip = True
+
             distance = round(sqrt((xb - xa)**2+(yb-ya)**2))
 
             if distance <= 50:
-                player.health -= damage
-                player.regeneration_timer = 0
+                player.damage(damage,1,flip, True)
 
             elif (50 < distance <= range/2):
-                player.health -= damage/4*3
-                player.regeneration_timer = 0
+                player.damage(damage/4*2,1,flip, True)
 
             elif (range/2 < distance <= range/1.5):
-                player.health -= damage/4*2
-                player.regeneration_timer = 0
+                player.damage(damage/4*3,1,flip, True)
 
             elif range/1.5 < distance <= range:
-                player.health -= damage/4
-                player.regeneration_timer = 0
-            
-            if player.health < 0: player.health = 0
+                player.damage(damage,1/4,flip, True)
 
     def grenade_collision(self):
         for player in self.players_list:
-            if player.grenade_timer > 17:
+            if player.grenade_timer > 15:
                 self.projectile_damage_player(player.grenade, 200, 50*(player.attack*player.attack_boost/15))
                 player.projectile_explosion_x, player.projectile_explosion_y = player.grenade.rect.centerx, player.grenade.rect.centery
                 player.explode_grenade()
@@ -486,11 +484,11 @@ class Level:
         player2 = self.players_list[1]
 
         if player1.rect.colliderect(player2.attack_rect) and not player1.temp_invincibility:
-            player1.damage( player2.attack, player2.attack_boost , player2.flip )
+            player1.damage( player2.attack, player2.attack_boost , player2.flip, False)
             hit_sound = pygame.mixer.Sound(f'DWARF/Sounds/hit{str(random.randint(1,4))}.wav')
             hit_sound.play()
         if player2.rect.colliderect(player1.attack_rect) and not player2.temp_invincibility:
-            player2.damage( player1.attack, player1.attack_boost , player1.flip )
+            player2.damage( player1.attack, player1.attack_boost , player1.flip, False)
             hit_sound = pygame.mixer.Sound(f'DWARF/Sounds/hit{str(random.randint(1,4))}.wav')
             hit_sound.play()
 
@@ -511,6 +509,9 @@ class Level:
         self.fight()
         
         for player in self.players_list:
+            if player.escape:
+                return False, True
+            
             player.handle_events(events)
             player.update(self.display_surface)
             player.clear_effects()
