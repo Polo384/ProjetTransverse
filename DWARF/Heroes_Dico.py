@@ -149,8 +149,8 @@ gladiator_stats = {
     'speed': coeff,
     'speed_fix': 6,
     'attack': 15,
-    'attack_speed': 17,
-    'stamina': 110}
+    'attack_speed': 15,
+    'stamina': 80}
 
 demon_dico_v1 = {
     'Demon/demon_spritesheet.png' : [[4], [6,6,4,8]]}

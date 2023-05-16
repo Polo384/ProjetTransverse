@@ -37,7 +37,7 @@ class Menu():
         self.sin_increment = 0
         # music variables
 
-        self.volume = 0.8
+        self.volume = 0.6
         self.background_music = window("DWARF", "DWARF/Musics/menu.wav", self.volume)
         self.play_music = True
         self.music_on = Sprites(15*coeff, 15*coeff,False, "DWARF/Menu/mute_on.png", 1)

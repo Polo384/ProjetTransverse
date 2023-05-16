@@ -15,13 +15,6 @@ icon = pygame.image.load('DWARF/icon/icon.png')
 pygame.display.set_icon(icon)
 
 
-font = pygame.font.Font(None, 30)
-def display_fps():
-    fps = clock.get_fps()
-    fps_text = font.render("{:.2f}".format(int(fps)), True, (255, 255, 255))
-    screen.blit(fps_text, (10, 10))
-
-
 all_animations = store_animations([santa_dico_v1, minotaur_dico_v1, dwarf_dico_v1, indiana_jones_dico_v1, adventurer_dico_v1, bat_dico_v1, halo_dico_v1, gladiator_dico_v1, demon_dico_v1, cyclop_dico_v1], [hobbit_dico_v2, question_mark_dico_v2])
 
 player1_hero_choice = "halo"
@@ -56,6 +49,5 @@ while game_start_variable:
             player1_hero_choice = "none"
             player2_hero_choice = "none"
             
-    display_fps()
     clock.tick(FPS)
     pygame.display.update()

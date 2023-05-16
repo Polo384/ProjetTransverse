@@ -1,6 +1,5 @@
 import pygame, random
 from tiles import *
-from settings import player1_pos, player2_pos
 from functions import *
 from player import Player
 from bonus import Bonus
@@ -11,6 +10,9 @@ from math import *
 class Level:
     def __init__(self, level_data, surface, player1_hero, player2_hero):
         # level setup
+        player1_pos = random.choice([(coeff*200,coeff*100), (coeff*100,coeff*90), (coeff*95,coeff*160), (coeff*250,coeff*262)])
+        player2_pos = random.choice([(coeff*341, coeff*167),(coeff*416, coeff*235),(coeff*457, coeff*184),(coeff*466, coeff*82)])
+
         self.display_surface = surface
         self.setup_level(level_data)
         self.players_list = [Player(1,player1_pos,player1_hero), Player(2,player2_pos,player2_hero)]
@@ -24,7 +26,7 @@ class Level:
 
         # Music
         self.music = pygame.mixer.Sound(f'DWARF/Musics/fight{str(random.randint(1,3))}.wav')
-        self.music.set_volume(0.4)
+        self.music.set_volume(0.3)
         self.music.play()
 
     def setup_level(self, level_data):
@@ -534,7 +536,9 @@ class Level:
         self.win.update(self.display_surface)
         if not self.win.check_dead and not self.win.music_check:
             self.music.stop()
-            pygame.mixer.Sound(f'DWARF/Sounds/win.wav').play()
+            win_sound = pygame.mixer.Sound(f'DWARF/Sounds/win.wav')
+            win_sound.set_volume(1.3)
+            win_sound.play()
         
         if self.win.create_level:
             pygame.mixer.Sound(f'DWARF/Sounds/pop.wav').play()
